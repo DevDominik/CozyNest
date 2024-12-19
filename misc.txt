@@ -7,3 +7,135 @@ szerepkörök:
 - receptionist: hozzárendelhet szobához guest-et, törölhet foglalást, lefoglalhat a guest nevében szobát, ügyfélszolgálat, adatok szerkesztése guestnél
 - operator: fejlesztői jogkörrel rendelkezik => nem fér hozzá felhasználói adatokhoz
 - manager: felhasználó kezelés, új dolgozók felvétele/elbocsátása, dolgozók fizetésének beállítása, árak beállítása
+
+
+dbdiagram.io alapú struktúra:
+Table AspNetUsers {
+  Id               varchar(450) [pk] // Identity User ID
+  UserName         varchar(256)
+  NormalizedUserName varchar(256)
+  Email            varchar(256)
+  NormalizedEmail  varchar(256)
+  EmailConfirmed   boolean
+  PasswordHash     text
+  SecurityStamp    text
+  ConcurrencyStamp text
+  PhoneNumber      varchar(15)
+  PhoneNumberConfirmed boolean
+  TwoFactorEnabled boolean
+  LockoutEnd       datetime
+  LockoutEnabled   boolean
+  AccessFailedCount int
+  FirstName        varchar(100)
+  LastName         varchar(100)
+  Address          text
+  Closed           boolean
+  CloseReason      text
+}
+
+Table AspNetRoles {
+  Id               varchar(450) [pk] // Role ID
+  Name             varchar(256)
+  NormalizedName   varchar(256)
+  ConcurrencyStamp text
+}
+
+Table AspNetUserRoles {
+  UserId           varchar(450) [ref: > AspNetUsers.Id]
+  RoleId           varchar(450) [ref: > AspNetRoles.Id]
+  Primary Key (UserId, RoleId)
+}
+
+Table AspNetUserClaims {
+  Id               int [pk]
+  UserId           varchar(450) [ref: > AspNetUsers.Id]
+  ClaimType        text
+  ClaimValue       text
+}
+
+Table AspNetRoleClaims {
+  Id               int [pk]
+  RoleId           varchar(450) [ref: > AspNetRoles.Id]
+  ClaimType        text
+  ClaimValue       text
+}
+
+Table AspNetUserLogins {
+  LoginProvider    varchar(128) [pk]
+  ProviderKey      varchar(128) [pk]
+  ProviderDisplayName text
+  UserId           varchar(450) [ref: > AspNetUsers.Id]
+}
+
+Table AspNetUserTokens {
+  UserId           varchar(450) [ref: > AspNetUsers.Id]
+  LoginProvider    varchar(128) [pk]
+  Name             varchar(128) [pk]
+  Value            text
+}
+
+Table Rooms {
+  Id               int [pk, increment]
+  RoomNumber       varchar(10) [unique]
+  Type             int [ref: > RoomTypes.Id] // e.g., Single, Double, Suite
+  PricePerNight    decimal(10, 2)
+  Status           int [ref: > Statuses.Id]
+  Description      text
+}
+
+
+Table Reservations {
+  Id               int [pk, increment]
+  GuestId          int [ref: > AspNetUsers.Id]
+  RoomId           int [ref: > Rooms.Id]
+  CheckInDate      date
+  CheckOutDate     date
+  Status           int [ref: > Statuses.Id] // Booked, CheckedIn, Cancelled, Completed
+  Notes            text
+}
+
+Table EmployeeAdditionalData {
+  Id               int [pk, increment]
+  UserId           varchar(450) [ref: > AspNetUsers.Id]
+  Salary           decimal(10, 2)
+  HireDate         date
+  ActiveEmployment boolean
+}
+
+Table Payments {
+  Id               int [pk, increment]
+  ReservationId    int [ref: > Reservations.Id]
+  PaymentDate      datetime
+  Amount           decimal(10, 2)
+  PaymentMethod    int [ref: > PaymentMethods.Id] // e.g., Credit Card, Cash
+  Status           int [ref: > Statuses.Id] // e.g., Completed, Pending, Failed
+}
+
+Table Services {
+  Id               int [pk, increment]
+  Name             varchar(100)
+  Description      text
+  Price            decimal(10, 2)
+}
+
+Table ReservationServices {
+  Id               int [pk, increment]
+  ReservationId    int [ref: > Reservations.Id]
+  ServiceId        int [ref: > Services.Id]
+  Quantity         int
+}
+
+Table Statuses {
+  Id               int [pk, increment]
+  Description      varchar(256)
+}
+
+Table PaymentMethods {
+  Id               int [pk, increment]
+  Description      varchar(256)
+}
+
+Table RoomTypes {
+  Id               int [pk, increment]
+  Description      varchar(256)
+}
