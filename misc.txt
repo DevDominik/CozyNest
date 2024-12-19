@@ -1,5 +1,5 @@
 db struktúra:
-https://fos.hu/1j3n
+https://fos.hu/1j3v
 
 szerepkörök:
 - guest: szoba foglalása, regisztráció, bejelentkezés, saját adatok szerkesztése
