@@ -13,6 +13,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+        policy.WithOrigins("http://localhost:3000") // Update with your React app's URL
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 
 var app = builder.Build();
 
@@ -33,8 +41,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("AllowReactApp");
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapRazorPages();
-
+app.MapControllers();
 app.Run();
