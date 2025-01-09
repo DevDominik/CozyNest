@@ -21,8 +21,8 @@ namespace CozyNest.Classes
             };
 
             var token = new JwtSecurityToken(
-                issuer: "your-app",
-                audience: "your-app",
+                issuer: "cozynest",
+                audience: "cozynest",
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(15), // Short-lived token
                 signingCredentials: credentials

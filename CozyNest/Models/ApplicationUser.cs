@@ -13,7 +13,9 @@ namespace CozyNest.Models
         public bool Closed { get; set; }
 
         public string CloseReason { get; set; }
+        public string AccessToken { get; set; }
+        public DateTime? AccessTokenExpiry {  get; set; }
         public string RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiry { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
     }
 }

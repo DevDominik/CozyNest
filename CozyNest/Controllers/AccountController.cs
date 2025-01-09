@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CozyNest.Controllers
@@ -45,6 +46,8 @@ namespace CozyNest.Controllers
             // Save refresh token to user data
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7); // Refresh token valid for 7 days
+            user.AccessToken = accessToken;
+            user.AccessTokenExpiry = DateTime.UtcNow.AddMinutes(15);
             await _userManager.UpdateAsync(user);
 
             // Set refresh token as HTTP-only cookie
@@ -105,12 +108,44 @@ namespace CozyNest.Controllers
             // Update refresh token in user data
             user.RefreshToken = newRefreshToken;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            user.AccessToken = newAccessToken;
+            user.AccessTokenExpiry = DateTime.UtcNow.AddMinutes(15);
             await _userManager.UpdateAsync(user);
 
             // Set new refresh token as HTTP-only cookie
             SetRefreshTokenCookie(newRefreshToken);
 
             return Ok(new { accessToken = newAccessToken });
+        }
+
+        [Route("logout")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "User not authenticated." });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid user." });
+            }
+
+            // Invalidate the refresh token
+            user.RefreshToken = null;
+            user.RefreshTokenExpiry = null;
+            user.AccessToken = null;
+            user.AccessTokenExpiry = null;
+            await _userManager.UpdateAsync(user);
+
+            // Remove the refresh token cookie
+            Response.Cookies.Delete("refreshToken");
+
+            return Ok(new { message = "Logged out successfully." });
         }
 
         private void SetRefreshTokenCookie(string refreshToken)
