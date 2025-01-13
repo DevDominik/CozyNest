@@ -1,11 +1,12 @@
-﻿using CozyNest.Classes;
-using CozyNest.Models;
+﻿using CozyNest.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CozyNest.Controllers
@@ -16,11 +17,13 @@ namespace CozyNest.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _configuration = configuration;
         }
 
         [Route("login")]
@@ -39,23 +42,12 @@ namespace CozyNest.Controllers
                 return Unauthorized(new { message = "Invalid credentials." });
             }
 
-            // Generate tokens
-            var accessToken = GenerateToken.GenerateAccessToken(user.Id, user.UserName);
-            var refreshToken = GenerateToken.GenerateRefreshToken();
-
-            // Save refresh token to user data
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7); // Refresh token valid for 7 days
-            user.AccessToken = accessToken;
-            user.AccessTokenExpiry = DateTime.UtcNow.AddMinutes(15);
-            await _userManager.UpdateAsync(user);
-
-            // Set refresh token as HTTP-only cookie
-            SetRefreshTokenCookie(refreshToken);
+            // Generate JWT token
+            var token = GenerateJwtToken(user);
 
             return Ok(new
             {
-                accessToken = accessToken
+                token = token
             });
         }
 
@@ -85,78 +77,35 @@ namespace CozyNest.Controllers
             return BadRequest(new { errors = result.Errors });
         }
 
-        [Route("refresh-token")]
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> RefreshToken()
-        {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                return Unauthorized(new { message = "Refresh token is missing." });
-            }
-
-            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
-            if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
-            {
-                return Unauthorized(new { message = "Invalid or expired refresh token." });
-            }
-
-            var newAccessToken = GenerateToken.GenerateAccessToken(user.Id, user.UserName);
-            var newRefreshToken = GenerateToken.GenerateRefreshToken();
-
-            // Update refresh token in user data
-            user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            user.AccessToken = newAccessToken;
-            user.AccessTokenExpiry = DateTime.UtcNow.AddMinutes(15);
-            await _userManager.UpdateAsync(user);
-
-            // Set new refresh token as HTTP-only cookie
-            SetRefreshTokenCookie(newRefreshToken);
-
-            return Ok(new { accessToken = newAccessToken });
-        }
-
         [Route("logout")]
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized(new { message = "User not authenticated." });
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return Unauthorized(new { message = "Invalid user." });
-            }
-
-            // Invalidate the refresh token
-            user.RefreshToken = null;
-            user.RefreshTokenExpiry = null;
-            user.AccessToken = null;
-            user.AccessTokenExpiry = null;
-            await _userManager.UpdateAsync(user);
-
-            // Remove the refresh token cookie
-            Response.Cookies.Delete("refreshToken");
-
+            // JWTs are stateless; logout is handled client-side by removing the token.
             return Ok(new { message = "Logged out successfully." });
         }
 
-        private void SetRefreshTokenCookie(string refreshToken)
+        private string GenerateJwtToken(ApplicationUser user)
         {
-            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            var authClaims = new[]
             {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(7)
-            });
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
+
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.UtcNow.AddMinutes(15),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 
