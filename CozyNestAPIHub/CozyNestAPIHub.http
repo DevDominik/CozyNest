@@ -1,0 +1,6 @@
+@CozyNestAPIHub_HostAddress = http://localhost:5232
+
+GET {{CozyNestAPIHub_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
