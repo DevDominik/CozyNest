@@ -5,7 +5,6 @@ szerepkörök:
 - guest: szoba foglalása, regisztráció, bejelentkezés, saját adatok szerkesztése
 - staff: látja a szobák állapotát, ki van benne, szoba állapotát frissítheti, kérésekre válaszolhat
 - receptionist: hozzárendelhet szobához guest-et, törölhet foglalást, lefoglalhat a guest nevében szobát, ügyfélszolgálat, adatok szerkesztése guestnél
-- operator: fejlesztői jogkörrel rendelkezik => nem fér hozzá felhasználói adatokhoz
 - manager: felhasználó kezelés, új dolgozók felvétele/elbocsátása, dolgozók fizetésének beállítása, árak beállítása
 
 
@@ -139,3 +138,6 @@ Table RoomTypes {
   Id               int [pk, increment]
   Description      varchar(256)
 }
+
+-- DATABASE
+CREATE DATABASE cozynest DEFAULT CHARACTER SET utf8;
