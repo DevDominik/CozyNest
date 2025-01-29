@@ -1,11 +1,11 @@
-﻿using CozyNestAPIHub.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using CozyNestAPIHub.Handlers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CozyNest.Controllers
 {
@@ -22,62 +22,87 @@ namespace CozyNest.Controllers
 
         [Route("login")]
         [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        public IActionResult Login([FromBody] LoginRequest loginRequest)
         {
             if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) || string.IsNullOrEmpty(loginRequest.Password))
             {
                 return BadRequest(new { message = "Invalid username or password." });
             }
 
-            var user = await _userManager.FindByNameAsync(loginRequest.Username);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, loginRequest.Password))
+            if (!_users.TryGetValue(loginRequest.Username, out var user) || user.Password != loginRequest.Password)
             {
                 return Unauthorized(new { message = "Invalid credentials." });
             }
 
-            // Generate JWT token
             var token = GenerateJwtToken(user);
-
-            return Ok(new
-            {
-                token = token
-            });
+            return Ok(new { token });
         }
 
         [Route("register")]
         [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
+        public IActionResult Register([FromBody] RegisterRequest registerRequest)
         {
             if (registerRequest == null || string.IsNullOrEmpty(registerRequest.Username) || string.IsNullOrEmpty(registerRequest.Password))
             {
                 return BadRequest(new { message = "Invalid registration details." });
             }
 
+            if (_users.ContainsKey(registerRequest.Username))
+            {
+                return BadRequest(new { message = "Username already exists." });
+            }
+
             var user = new User
             {
+                Id = Guid.NewGuid().ToString(),
                 UserName = registerRequest.Username,
-                Email = registerRequest.Email
+                Email = registerRequest.Email,
+                Password = registerRequest.Password // Store hashed passwords in production
             };
 
-            var result = await _userManager.CreateAsync(user, registerRequest.Password);
-
-            if (result.Succeeded)
+            if (_users.TryAdd(user.UserName, user))
             {
                 return Ok(new { message = "Registration successful." });
             }
 
-            return BadRequest(new { errors = result.Errors });
+            return BadRequest(new { message = "Registration failed." });
         }
 
         [Route("logout")]
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
-            // JWTs are stateless; logout is handled client-side by removing the token.
+            // Stateless JWT authentication means logout is simply handled client-side by discarding the token.
             return Ok(new { message = "Logged out successfully." });
+        }
+
+        [Route("introspect")]
+        [HttpPost]
+        public IActionResult IntrospectToken([FromBody] IntrospectTokenRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Token))
+            {
+                return BadRequest(new { active = false, message = "Token is required." });
+            }
+
+            var principal = ValidateJwtToken(request.Token, out var valid);
+
+            if (!valid)
+            {
+                return Ok(new { active = false, message = "Invalid or expired token." });
+            }
+
+            var username = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            var exp = principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
+
+            return Ok(new
+            {
+                active = true,
+                userId,
+                username,
+                exp
+            });
         }
 
         private string GenerateJwtToken(User user)
@@ -101,6 +126,35 @@ namespace CozyNest.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        private ClaimsPrincipal ValidateJwtToken(string token, out bool isValid)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["JWT:ValidIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["JWT:ValidAudience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // No leeway for expiration
+                }, out _);
+
+                isValid = true;
+                return principal;
+            }
+            catch
+            {
+                isValid = false;
+                return null;
+            }
+        }
     }
 
     public class LoginRequest
@@ -114,5 +168,10 @@ namespace CozyNest.Controllers
         public string Username { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
+    }
+
+    public class IntrospectTokenRequest
+    {
+        public string Token { get; set; }
     }
 }
