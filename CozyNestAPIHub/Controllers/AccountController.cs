@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CozyNestAPIHub.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace CozyNestAPIHub.Controllers
+namespace CozyNest.Controllers
 {
     [Route("api/account")]
     [ApiController]
@@ -52,7 +55,7 @@ namespace CozyNestAPIHub.Controllers
                 return BadRequest(new { message = "Invalid registration details." });
             }
 
-            var user = new ApplicationUser
+            var user = new User
             {
                 UserName = registerRequest.Username,
                 Email = registerRequest.Email
@@ -77,7 +80,7 @@ namespace CozyNestAPIHub.Controllers
             return Ok(new { message = "Logged out successfully." });
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private string GenerateJwtToken(User user)
         {
             var authClaims = new[]
             {
