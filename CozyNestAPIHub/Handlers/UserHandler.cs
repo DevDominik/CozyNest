@@ -1,6 +1,7 @@
 ﻿using CozyNestAPIHub.Models;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,8 +12,11 @@ namespace CozyNestAPIHub.Handlers
     {
         static UserHandler instance;
         static MySqlConnection connection;
-
         private static readonly string SecretKey = "your-256-bit-secret";  // Secret key for signing JWTs
+
+        // In-memory cache for users
+        private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
+        private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
 
         // Constructor to initialize the connection
         private UserHandler(string name, string password)
@@ -27,29 +31,34 @@ namespace CozyNestAPIHub.Handlers
         // Initialize singleton instance of UserHandler
         public static void Initialize(string name, string password)
         {
-            if (instance != null) { throw new InvalidOperationException("There's already an UserHandler instance running."); }
+            if (instance != null) { throw new InvalidOperationException("There's already a UserHandler instance running."); }
             instance = new UserHandler(name, password);
         }
 
         // Property to check if the connection is valid
-        static bool IsConnectionValid { get { return connection != null && instance != null; } }
+        static bool IsConnectionValid => connection != null && instance != null;
 
-        // Get a user by ID (only)
+        // Get a user by ID with caching
         public static async Task<User?> GetUserById(int id)
         {
-            if (!IsConnectionValid) { return null; }
+            if (!IsConnectionValid) return null;
 
+            // Check the cache first
+            if (_userCacheById.TryGetValue(id, out User cachedUser))
+            {
+                return cachedUser;
+            }
+
+            // Query database if not in cache
             string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date FROM users WHERE id = @userId;";
-
             await using (var command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@userId", id);
-
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     if (await reader.ReadAsync())
                     {
-                        return new User
+                        User user = new User
                         {
                             Id = id,
                             Username = reader.GetString("username"),
@@ -61,16 +70,61 @@ namespace CozyNestAPIHub.Handlers
                             Closed = reader.GetBoolean("closed"),
                             JoinDate = reader.GetDateTime("join_date")
                         };
+
+                        // Store in cache
+                        _userCacheById[id] = user;
+                        _userCacheByUsername[user.Username] = user;
+
+                        return user;
                     }
                 }
             }
             return null;
         }
 
-        // Modify an existing user's details
+        // Get a user by username with caching
+        public static async Task<User?> GetUserByUsername(string username)
+        {
+            if (!IsConnectionValid) return null;
+
+            // Check cache first
+            if (_userCacheByUsername.TryGetValue(username, out User cachedUser))
+            {
+                return cachedUser;
+            }
+
+            // Query database if not in cache
+            string getUserQuery = "SELECT * FROM users WHERE username = @username;";
+            await using (var command = new MySqlCommand(getUserQuery, connection))
+            {
+                command.Parameters.AddWithValue("@username", username);
+
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        User user = new User
+                        {
+                            Id = reader.GetInt32("id"),
+                            Username = reader.GetString("username"),
+                            HashedPassword = reader.GetString("hashed_password"),
+                        };
+
+                        // Store in cache
+                        _userCacheById[user.Id] = user;
+                        _userCacheByUsername[user.Username] = user;
+
+                        return user;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Modify an existing user's details and update cache
         public static async Task<User?> ModifyUser(User user)
         {
-            if (!IsConnectionValid) { return null; }
+            if (!IsConnectionValid) return null;
 
             string updateQuery = @"UPDATE users SET 
                 username = @username,
@@ -96,22 +150,23 @@ namespace CozyNestAPIHub.Handlers
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
                 {
-                    return await GetUserById(user.Id);  // Return updated user info
-                }
-                else
-                {
-                    return null; // Failed to modify
+                    // Update the cache
+                    _userCacheById[user.Id] = user;
+                    _userCacheByUsername[user.Username] = user;
+                    return user;
                 }
             }
+            return null;
         }
 
-        // Create a new user
+        // Create a new user and cache it
         public static async Task<User?> CreateUser(User user)
         {
-            if (!IsConnectionValid) { return null; }
-            if (UserExists(user.Username, user.Email).Result) { return null; }
-            string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, closed, join_date) 
-            VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @closed, @joindate);";
+            if (!IsConnectionValid) return null;
+            if (await UserExists(user.Username, user.Email)) return null;
+
+            string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name) 
+                                   VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname);";
 
             await using (var command = new MySqlCommand(insertQuery, connection))
             {
@@ -121,74 +176,32 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@hashedpassword", user.HashedPassword);
                 command.Parameters.AddWithValue("@firstname", user.FirstName);
                 command.Parameters.AddWithValue("@lastname", user.LastName);
-                command.Parameters.AddWithValue("@closed", user.Closed);
-                command.Parameters.AddWithValue("@joindate", user.JoinDate);
 
                 await command.ExecuteNonQueryAsync();
-                return await GetUserByUsername(user.Username);  // Return the created user
+                var createdUser = await GetUserByUsername(user.Username);
+
+                if (createdUser != null)
+                {
+                    _userCacheById[createdUser.Id] = createdUser;
+                    _userCacheByUsername[createdUser.Username] = createdUser;
+                }
+                return createdUser;
             }
         }
-
 
         // Check if a user exists by username or email
         public static async Task<bool> UserExists(string username, string email)
         {
-            if (!IsConnectionValid) { return false; }
+            if (!IsConnectionValid) return false;
 
             string checkQuery = "SELECT COUNT(*) FROM users WHERE username = @username OR email = @email;";
-
             await using (var command = new MySqlCommand(checkQuery, connection))
             {
                 command.Parameters.AddWithValue("@username", username);
                 command.Parameters.AddWithValue("@email", email);
                 var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result) > 0;  // Return true if the user exists
+                return Convert.ToInt32(result) > 0;
             }
-        }
-
-        // Update a user's password
-        public static async Task<bool> UpdatePassword(int userId, string newHashedPassword)
-        {
-            if (!IsConnectionValid) { return false; }
-
-            string updatePasswordQuery = @"UPDATE users SET hashed_password = @newHashedPassword WHERE id = @userId;";
-
-            await using (var command = new MySqlCommand(updatePasswordQuery, connection))
-            {
-                command.Parameters.AddWithValue("@userId", userId);
-                command.Parameters.AddWithValue("@newHashedPassword", newHashedPassword);
-
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-                return rowsAffected > 0;  // Return true if the password was updated
-            }
-        }
-
-        // Get user information by username
-        public static async Task<User?> GetUserByUsername(string username)
-        {
-            if (!IsConnectionValid) { return null; }
-
-            string getUserQuery = "SELECT * FROM users WHERE username = @username;";
-            await using (var command = new MySqlCommand(getUserQuery, connection))
-            {
-                command.Parameters.AddWithValue("@username", username);
-
-                await using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (await reader.ReadAsync())
-                    {
-                        return new User
-                        {
-                            Id = reader.GetInt32("id"),
-                            Username = reader.GetString("username"),
-                            HashedPassword = reader.GetString("hashed_password"),
-                            // Add other fields here as necessary
-                        };
-                    }
-                }
-            }
-
-            return null;  // No user found
         }
 
         // Helper function to generate a refresh token
@@ -280,6 +293,7 @@ namespace CozyNestAPIHub.Handlers
                     RefreshToken = refreshToken,
                     AccessExpiry = accessExpiry,
                     RefreshExpiry = refreshExpiry,
+                    UserId = userId,
                     IsActive = true
                 };
             }
