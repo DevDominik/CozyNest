@@ -3,6 +3,7 @@ using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -17,6 +18,8 @@ namespace CozyNestAPIHub.Handlers
         // In-memory cache for users
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
         private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
+        private static readonly ConcurrentDictionary<int, Role> _roleCacheById = new();
+        private static readonly ConcurrentDictionary<string, Role> _roleCacheByName = new();
 
         // Constructor to initialize the connection
         private UserHandler(string name, string password)
@@ -33,6 +36,7 @@ namespace CozyNestAPIHub.Handlers
         {
             if (instance != null) { throw new InvalidOperationException("There's already a UserHandler instance running."); }
             instance = new UserHandler(name, password);
+            
         }
 
         // Property to check if the connection is valid
@@ -50,7 +54,7 @@ namespace CozyNestAPIHub.Handlers
             }
 
             // Query database if not in cache
-            string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date FROM users WHERE id = @userId;";
+            string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE id = @userId;";
             await using (var command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@userId", id);
@@ -68,7 +72,8 @@ namespace CozyNestAPIHub.Handlers
                             FirstName = reader.GetString("first_name"),
                             LastName = reader.GetString("last_name"),
                             Closed = reader.GetBoolean("closed"),
-                            JoinDate = reader.GetDateTime("join_date")
+                            JoinDate = reader.GetDateTime("join_date"),
+                            RoleId = reader.GetInt32("role_id")
                         };
 
                         // Store in cache
@@ -94,7 +99,7 @@ namespace CozyNestAPIHub.Handlers
             }
 
             // Query database if not in cache
-            string getUserQuery = "SELECT * FROM users WHERE username = @username;";
+            string getUserQuery = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE username = @username;";
             await using (var command = new MySqlCommand(getUserQuery, connection))
             {
                 command.Parameters.AddWithValue("@username", username);
@@ -106,8 +111,15 @@ namespace CozyNestAPIHub.Handlers
                         User user = new User
                         {
                             Id = reader.GetInt32("id"),
-                            Username = reader.GetString("username"),
+                            Username = username,
+                            Email = reader.GetString("email"),
+                            Address = reader.GetString("address"),
                             HashedPassword = reader.GetString("hashed_password"),
+                            FirstName = reader.GetString("first_name"),
+                            LastName = reader.GetString("last_name"),
+                            Closed = reader.GetBoolean("closed"),
+                            JoinDate = reader.GetDateTime("join_date"),
+                            RoleId = reader.GetInt32("role_id")
                         };
 
                         // Store in cache
@@ -133,7 +145,8 @@ namespace CozyNestAPIHub.Handlers
                 hashed_password = @hashedpassword,
                 first_name = @firstname,
                 last_name = @lastname,
-                closed = @closed
+                closed = @closed,
+                role_id = @roleid
             WHERE id = @userId;";
 
             await using (var command = new MySqlCommand(updateQuery, connection))
@@ -146,7 +159,7 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@firstname", user.FirstName);
                 command.Parameters.AddWithValue("@lastname", user.LastName);
                 command.Parameters.AddWithValue("@closed", user.Closed);
-
+                command.Parameters.AddWithValue("@roleid", user.RoleId);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
                 {
@@ -165,8 +178,8 @@ namespace CozyNestAPIHub.Handlers
             if (!IsConnectionValid) return null;
             if (await UserExists(user.Username, user.Email)) return null;
 
-            string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name) 
-                                   VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname);";
+            string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, join_date, role_id) 
+                                   VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);";
 
             await using (var command = new MySqlCommand(insertQuery, connection))
             {
@@ -176,7 +189,8 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@hashedpassword", user.HashedPassword);
                 command.Parameters.AddWithValue("@firstname", user.FirstName);
                 command.Parameters.AddWithValue("@lastname", user.LastName);
-
+                command.Parameters.AddWithValue("@joindate", DateTime.Now);
+                command.Parameters.AddWithValue("@roleid", user.RoleId);
                 await command.ExecuteNonQueryAsync();
                 var createdUser = await GetUserByUsername(user.Username);
 
@@ -388,6 +402,104 @@ namespace CozyNestAPIHub.Handlers
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 return rowsAffected > 0;  // Return true if tokens were successfully revoked
             }
+        }
+
+        public static async Task<int?> GetUserIdByAccessToken(string accessToken) 
+        { 
+            if (!IsConnectionValid) { return null; }
+            string query = "SELECT user_id, is_active FROM tokens WHERE access_token = @accesstoken;";
+            await using (var command = new MySqlCommand(query, connection)) 
+            {
+                command.Parameters.AddWithValue("@accesstoken", accessToken);
+                await using (var reader = await command.ExecuteReaderAsync()) 
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        if (reader.GetBoolean("is_active"))
+                        {
+                            return reader.GetInt32("user_id");
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static async Task<int?> GetUserIdByRefreshToken(string refreshToken)
+        {
+            if (!IsConnectionValid) { return null; }
+            string query = "SELECT user_id, is_active FROM tokens WHERE refresh_token = @refreshtoken;";
+            await using (var command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@refreshtoken", refreshToken);
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        if (reader.GetBoolean("is_active"))
+                        {
+                            return reader.GetInt32("user_id");
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static Role? GetRoleById(int id) 
+        { 
+            if (!IsConnectionValid) { return null; }
+            if (_roleCacheById.TryGetValue(id, out Role role))
+            {
+                return role;
+            }
+            return null;
+        }
+        public static Role? GetRoleByName(string name)
+        {
+            if (!IsConnectionValid) { return null; }
+            if (_roleCacheByName.TryGetValue(name, out Role role))
+            {
+                return role;
+            }
+            return null;
+        }
+        public static async Task<bool> SetRole(User user, string roleName) 
+        {
+            if (!IsConnectionValid) { return false; }
+            if (await UserExists(user.Username, user.Email) == false) {  return false; }
+            if (string.IsNullOrEmpty(roleName)) { return false; }
+            Role? role = GetRoleByName(roleName);
+            if (role == null) { return false; }
+            user.RoleId = role.Id;
+            return await ModifyUser(user) != null;
+        }
+        public static async Task<bool> BuildRoles() 
+        {
+            if (!IsConnectionValid) { return false; }
+            string query = "SELECT id, name FROM roles;";
+            await using (var command = new MySqlCommand(query, connection)) 
+            { 
+                await using (var reader = await command.ExecuteReaderAsync()) 
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        Role role = new Role
+                        {
+                            Id = reader.GetInt32("id"),
+                            Name = reader.GetString("name"),
+                        };
+                        _roleCacheById[role.Id] = role;
+                        _roleCacheByName[role.Name] = role;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public static List<Role> GetRoles() 
+        {
+            return _roleCacheByName.Values.ToList();
         }
     }
 }

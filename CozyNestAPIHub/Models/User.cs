@@ -13,5 +13,6 @@ namespace CozyNestAPIHub.Models
         public string Address { get; set; }
         public DateTime JoinDate { get; set; }
         public bool Closed { get; set; }
+        public int RoleId { get; set; }
     }
 }

@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CozyNest.Controllers
+namespace CozyNestAPIHub.Controllers
 {
     [Route("api/account")]
     [ApiController]
@@ -72,9 +72,9 @@ namespace CozyNest.Controllers
                 HashedPassword = HashPassword(registerRequest.Password),
                 FirstName = "",  // Default values, can be updated later
                 LastName = "",
-                JoinDate = DateTime.UtcNow
+                JoinDate = DateTime.UtcNow,
+                RoleId = UserHandler.GetRoleByName("Guest").Id
             };
-
             var createdUser = await UserHandler.CreateUser(user);
             if (createdUser == null)
             {
@@ -119,6 +119,29 @@ namespace CozyNest.Controllers
 
             return Ok(new { active = true });
         }
+        [Route("renewtoken")]
+        [HttpPost]
+        public async Task<IActionResult> RenewToken([FromBody] RenewTokenRequest request) 
+        {
+            if (request == null || string.IsNullOrEmpty(request.RefreshToken))
+            {
+                return BadRequest(new { message = "Token is required." });
+            }
+            int? userId = await UserHandler.GetUserIdByRefreshToken(request.RefreshToken);
+            bool isRefreshTokenValidated = await UserHandler.ValidateRefreshToken(request.RefreshToken);
+            if (userId == null || !isRefreshTokenValidated)
+            {
+                return BadRequest(new { message = "Token is invalid." });
+            }
+
+            if (userId.HasValue)
+            {
+                User? user = await UserHandler.GetUserById(userId.Value);
+                Token? newToken = await UserHandler.CreateToken(user.Id, user.Username);
+                return Ok(new { message = "Token successfully regenerated.", accessToken = newToken.AccessToken, refreshToken = newToken.RefreshToken});
+            }
+            return StatusCode(500, new { message = "Unknown error." });
+        }
 
         // Hash the password before storing it
         private static string HashPassword(string password)
@@ -159,6 +182,10 @@ namespace CozyNest.Controllers
     public class LogoutRequest
     {
         public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+    }
+    public class RenewTokenRequest 
+    { 
         public string RefreshToken { get; set; }
     }
 }
