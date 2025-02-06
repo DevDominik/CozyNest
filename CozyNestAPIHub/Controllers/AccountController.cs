@@ -3,6 +3,7 @@ using CozyNestAPIHub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -28,26 +29,47 @@ namespace CozyNestAPIHub.Controllers
         {
             if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) || string.IsNullOrEmpty(loginRequest.Password))
             {
-                return BadRequest(new { message = "Invalid username or password." });
+                return BadRequest(new 
+                { 
+                    message = "Invalid username or password." 
+                });
             }
 
             var user = await UserHandler.GetUserByUsername(loginRequest.Username);
             if (user == null || !VerifyPassword(loginRequest.Password, user.HashedPassword))
             {
-                return Unauthorized(new { message = "Invalid credentials." });
+                return Unauthorized(new 
+                { 
+                    message = "Invalid credentials." 
+                });
             }
 
             var token = await UserHandler.CreateToken(user.Id, user.Username);
             if (token == null)
             {
-                return StatusCode(500, new { message = "Token generation failed." });
+                return StatusCode(500, new 
+                { 
+                    message = "Token generation failed." 
+                });
             }
-
+            Role? role = UserHandler.GetRoleById(user.RoleId);
             return Ok(new
             {
                 message = "Login successful.",
                 accessToken = token.AccessToken,
-                refreshToken = token.RefreshToken
+                refreshToken = token.RefreshToken,
+                userData = new
+                {
+                    username = user.Username,
+                    id = user.Id,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    address = user.Address,
+                    closed = user.Closed,
+                    email = user.Email,
+                    joinDate = user.JoinDate,
+                    roleName = role.Name
+                }
             });
         }
 
@@ -57,14 +79,20 @@ namespace CozyNestAPIHub.Controllers
         {
             if (registerRequest == null || string.IsNullOrEmpty(registerRequest.Username) || string.IsNullOrEmpty(registerRequest.Password))
             {
-                return BadRequest(new { message = "Invalid registration details." });
+                return BadRequest(new 
+                { 
+                    message = "Invalid registration details." 
+                });
             }
 
             if (await UserHandler.UserExists(registerRequest.Username, registerRequest.Email))
             {
-                return BadRequest(new { message = "Username or email already exists." });
+                return BadRequest(new 
+                { 
+                    message = "Username or email already exists." 
+                });
             }
-
+            Role? guestRole = UserHandler.GetRoleByName("Guest");
             var user = new User
             {
                 Username = registerRequest.Username,
@@ -74,12 +102,15 @@ namespace CozyNestAPIHub.Controllers
                 LastName = "",
                 Address = "",
                 JoinDate = DateTime.UtcNow,
-                RoleId = UserHandler.GetRoleByName("Guest").Id
+                RoleId = guestRole.Id
             };
             var createdUser = await UserHandler.CreateUser(user);
             if (createdUser == null)
             {
-                return StatusCode(500, new { message = "User registration failed." });
+                return StatusCode(500, new 
+                { 
+                    message = "User registration failed." 
+                });
             }
             Token? generatedToken = await UserHandler.CreateToken(createdUser.Id, createdUser.Username);
 
@@ -87,7 +118,19 @@ namespace CozyNestAPIHub.Controllers
             { 
                 message = "Registration successful.", 
                 accessToken = generatedToken.AccessToken, 
-                refreshToken = generatedToken.RefreshToken 
+                refreshToken = generatedToken.RefreshToken,
+                userData = new 
+                { 
+                    username = user.Username, 
+                    id = user.Id, 
+                    firstName = user.FirstName, 
+                    lastName = user.LastName, 
+                    address = user.Address, 
+                    closed = user.Closed, 
+                    email = user.Email, 
+                    joinDate = user.JoinDate, 
+                    roleName = guestRole.Name 
+                }
             });
         }
 
@@ -97,16 +140,25 @@ namespace CozyNestAPIHub.Controllers
         {
             if (string.IsNullOrEmpty(request.AccessToken) || string.IsNullOrEmpty(request.RefreshToken))
             {
-                return BadRequest(new { message = "Tokens are required." });
+                return BadRequest(new 
+                { 
+                    message = "Tokens are required." 
+                });
             }
 
             bool revoked = await UserHandler.RevokeToken(request.AccessToken, request.RefreshToken);
             if (!revoked)
             {
-                return BadRequest(new { message = "Failed to revoke tokens." });
+                return BadRequest(new 
+                { 
+                    message = "Failed to revoke tokens." 
+                });
             }
 
-            return Ok(new { message = "Logged out successfully." });
+            return Ok(new 
+            { 
+                message = "Logged out successfully." 
+            });
         }
 
         [Route("introspect")]
@@ -115,16 +167,41 @@ namespace CozyNestAPIHub.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {
-                return BadRequest(new { active = false, message = "Token is required." });
+                return BadRequest(new 
+                { 
+                    active = false, 
+                    message = "Token is required." 
+                });
             }
 
             bool isValid = UserHandler.ValidateAccessToken(request.AccessToken);
             if (!isValid)
             {
-                return Ok(new { active = false, message = "Invalid or expired token." });
+                return Ok(new 
+                { 
+                    active = false, 
+                    message = "Invalid or expired token." 
+                });
             }
-
-            return Ok(new { active = true });
+            int? userid = await UserHandler.GetUserIdByAccessToken(request.AccessToken);
+            User? user = await UserHandler.GetUserById(userid.Value);
+            Role? role = UserHandler.GetRoleById(user.RoleId);
+            return Ok(new 
+            { 
+                active = true, 
+                userData = new 
+                { 
+                    username = user.Username, 
+                    id = user.Id, 
+                    firstName = user.FirstName, 
+                    lastName = user.LastName, 
+                    address = user.Address, 
+                    closed = user.Closed, 
+                    email = user.Email, 
+                    joinDate = user.JoinDate, 
+                    roleName = role.Name
+                } 
+            });
         }
         [Route("renewtoken")]
         [HttpPost]
@@ -138,14 +215,22 @@ namespace CozyNestAPIHub.Controllers
             bool isRefreshTokenValidated = await UserHandler.ValidateRefreshToken(request.RefreshToken);
             if (userId == null || !isRefreshTokenValidated)
             {
-                return BadRequest(new { message = "Token is invalid." });
+                return BadRequest(new 
+                { 
+                    message = "Token is invalid." 
+                });
             }
 
             if (userId.HasValue)
             {
                 User? user = await UserHandler.GetUserById(userId.Value);
                 Token? newToken = await UserHandler.CreateToken(user.Id, user.Username);
-                return Ok(new { message = "Token successfully regenerated.", accessToken = newToken.AccessToken, refreshToken = newToken.RefreshToken});
+                return Ok(new 
+                { 
+                    message = "Token successfully regenerated.", 
+                    accessToken = newToken.AccessToken, 
+                    refreshToken = newToken.RefreshToken
+                });
             }
             return StatusCode(500, new { message = "Unknown error." });
         }
