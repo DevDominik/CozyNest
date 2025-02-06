@@ -45,9 +45,9 @@ namespace CozyNestAPIHub.Controllers
 
             return Ok(new
             {
+                message = "Login successful.",
                 accessToken = token.AccessToken,
-                refreshToken = token.RefreshToken,
-                expiresIn = token.AccessExpiry
+                refreshToken = token.RefreshToken
             });
         }
 
@@ -81,8 +81,14 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new { message = "User registration failed." });
             }
+            Token? generatedToken = await UserHandler.CreateToken(createdUser.Id, createdUser.Username);
 
-            return Ok(new { message = "Registration successful." });
+            return Ok(new 
+            { 
+                message = "Registration successful.", 
+                accessToken = generatedToken.AccessToken, 
+                refreshToken = generatedToken.RefreshToken 
+            });
         }
 
         [Route("logout")]
