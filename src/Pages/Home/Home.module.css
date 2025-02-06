@@ -1,0 +1,101 @@
+.HomePage {
+  display: flex;
+  flex-direction: column;
+}
+
+.Inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.CompanyName {
+  margin: 2vh;
+  transition: ease 1s;
+}
+
+.CompanyName:hover {
+  margin: 0vh;
+  color: var(--text-color-one);
+}
+
+.Slogan {
+  color: inherit;
+}
+
+.Section1,
+.Section2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  height: 100vh;
+}
+
+.StoryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+}
+
+.StoryImageContainer {
+  background-image: url("./Hotel.webp");
+  background-size: cover; /* Ensures the image covers the div */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Avoids repetition */
+  width: 100%; /* Set the width to be responsive */
+  height: auto; /* Adjust height dynamically if necessary */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  width: 90%;
+  margin: 5vh auto;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.StoryTextConatiner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  height: auto;
+  text-align: center;
+  margin: 0 auto; /* Center the container */
+}
+
+
+
+.StoryText {
+  padding: 0; /* Remove any extra padding */
+  margin: 0; /* Remove extra margins */
+  text-align: center; /* Ensure the text is centered */
+  margin-right: 8vw;
+}
+
+@media (min-width: 768px) {
+  .StoryContainer {
+    flex-direction: row;
+  }
+
+  .StoryImageContainer {
+    height: 80vh;
+    width: 50%;
+    margin: 10vh;
+    border-radius: 60px;
+  }
+
+  .StoryTextConatiner {
+    width: 50%;
+    height: 100vh;
+  }
+
+  .StoryText {
+    padding-left: 8vw;
+  }
+}
