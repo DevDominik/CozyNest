@@ -1,6 +1,12 @@
 -- DB
 CREATE DATABASE cozynest DEFAULT CHARACTER SET utf8;
 
+-- ROLES
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL 
+);
+
 -- USERS
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -11,7 +17,9 @@ CREATE TABLE users (
     last_name VARCHAR(255),
     address TEXT,
     join_date DATETIME NOT NULL,
-    closed BOOLEAN DEFAULT FALSE
+    closed BOOLEAN DEFAULT FALSE,
+    role_id INT,
+    FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
 -- TOKENS
@@ -22,6 +30,6 @@ CREATE TABLE tokens (
     access_expiry DATETIME NOT NULL,
     refresh_expiry DATETIME NOT NULL,
     user_id INT NOT NULL,
-    isa_ctive BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (userid) REFERENCES users(id)
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
