@@ -72,6 +72,7 @@ namespace CozyNestAPIHub.Controllers
                 HashedPassword = HashPassword(registerRequest.Password),
                 FirstName = "",  // Default values, can be updated later
                 LastName = "",
+                Address = "",
                 JoinDate = DateTime.UtcNow,
                 RoleId = UserHandler.GetRoleByName("Guest").Id
             };
