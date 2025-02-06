@@ -313,51 +313,31 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Validate a user's access token (manually decoding and validating the JWT)
-        public static bool ValidateAccessToken(string accessToken)
+        public static async Task<bool> ValidateAccessToken(string accessToken)
         {
-            try
+            if (!IsConnectionValid) { return false; }
+
+            // Query the database to check the status and expiration of the access token
+            string checkQuery = "SELECT is_active, access_expiry FROM tokens WHERE access_token = @accessToken;";
+
+            await using (var command = new MySqlCommand(checkQuery, connection))
             {
-                var parts = accessToken.Split('.');
-                if (parts.Length != 3) return false;  // Ensure we have 3 parts: header, payload, and signature
+                command.Parameters.AddWithValue("@accessToken", accessToken);
 
-                var header = Base64UrlDecode(parts[0]);
-                var payload = Base64UrlDecode(parts[1]);
-                var signature = Base64UrlDecode(parts[2]);
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        bool isActive = reader.GetBoolean("is_active");
+                        DateTime accessExpiry = reader.GetDateTime("access_expiry");
 
-                // Decode the payload to check the expiration and other claims
-                var payloadJson = Encoding.UTF8.GetString(payload);
-                var payloadData = JsonConvert.DeserializeObject<Dictionary<string, object>>(payloadJson);
-                var exp = Convert.ToInt64(payloadData["exp"]);
-                if (exp < DateTimeOffset.UtcNow.ToUnixTimeSeconds()) return false;  // Token has expired
-
-                // Recompute the signature using the same key and compare it to the one in the token
-                var keyBytes = Encoding.UTF8.GetBytes(SecretKey);
-                var hmac = new HMACSHA256(keyBytes);
-                var signatureInput = $"{parts[0]}.{parts[1]}";
-                var computedSignature = hmac.ComputeHash(Encoding.UTF8.GetBytes(signatureInput));
-
-                if (!signature.SequenceEqual(computedSignature)) return false;  // Signature mismatch
-
-                // If we pass all checks, the token is valid
-                return true;
+                        // Check if the token is active and has not expired
+                        return isActive && accessExpiry > DateTime.UtcNow;
+                    }
+                }
             }
-            catch (Exception)
-            {
-                return false;  // Token is invalid
-            }
-        }
 
-        // Helper function to Base64Url decode
-        private static byte[] Base64UrlDecode(string input)
-        {
-            var base64 = input.Replace('-', '+').Replace('_', '/');
-            switch (base64.Length % 4)  // Add padding if necessary
-            {
-                case 2: base64 += "=="; break;
-                case 3: base64 += "="; break;
-            }
-            return Convert.FromBase64String(base64);
+            return false;  // Token is invalid
         }
 
         // Validate a user's refresh token
