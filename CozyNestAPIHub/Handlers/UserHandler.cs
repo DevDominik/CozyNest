@@ -38,7 +38,7 @@ namespace CozyNestAPIHub.Handlers
                 string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users;";
                 using var command = new MySqlCommand(query, connection);
                 using var reader = await command.ExecuteReaderAsync();
-                if (await reader.ReadAsync())
+                while (await reader.ReadAsync())
                 {
                     User user = new User
                     {
