@@ -3,7 +3,9 @@
     public class Reservation
     {
         public int Id { get; set; }
-        public int GuestId { get; set; }
+        public int ReserverId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public int RoomId { get; set; }
 
         public DateTime CheckInDate { get; set; }

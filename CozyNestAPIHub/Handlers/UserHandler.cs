@@ -27,7 +27,45 @@ namespace CozyNestAPIHub.Handlers
             _connectionString = $"Server=localhost;Database=cozynest;User ID={username};Password={password};";
         }
         private static MySqlConnection CreateConnection() => new(_connectionString);
+        public static async Task<List<User>> GetUsers()
+        {
+            var users = new List<User>();
+            await _dbLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users;";
+                using var command = new MySqlCommand(query, connection);
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    User user = new User
+                    {
+                        Id = reader.GetInt32("id"),
+                        Username = reader.GetString("username"),
+                        Email = reader.GetString("email"),
+                        Address = reader.GetString("address"),
+                        HashedPassword = reader.GetString("hashed_password"),
+                        FirstName = reader.GetString("first_name"),
+                        LastName = reader.GetString("last_name"),
+                        Closed = reader.GetBoolean("closed"),
+                        JoinDate = reader.GetDateTime("join_date"),
+                        RoleId = reader.GetInt32("role_id")
+                    };
 
+                    // Store in cache
+                    _userCacheById[user.Id] = user;
+                    _userCacheByUsername[user.Username] = user;
+
+                    users.Add(user);
+                }
+            }
+            finally
+            { _dbLock.Release(); }
+            return users;
+
+        }
         public static async Task<User?> GetUserById(int id)
         {
             if (_userCacheById.TryGetValue(id, out User cachedUser))
@@ -431,10 +469,11 @@ namespace CozyNestAPIHub.Handlers
         // Get user ID by access token
         public static async Task<int?> GetUserIdByAccessToken(string accessToken)
         {
+            if (!await ValidateAccessToken(accessToken)) return null;
             await _dbLock.WaitAsync();
             try
             {
-                string query = "SELECT user_id, is_active FROM tokens WHERE access_token = @accesstoken;";
+                string query = "SELECT user_id FROM tokens WHERE access_token = @accesstoken;";
 
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
@@ -444,7 +483,7 @@ namespace CozyNestAPIHub.Handlers
                     command.Parameters.AddWithValue("@accesstoken", accessToken);
                     await using (var reader = await command.ExecuteReaderAsync())
                     {
-                        if (await reader.ReadAsync() && reader.GetBoolean("is_active"))
+                        if (await reader.ReadAsync())
                         {
                             return reader.GetInt32("user_id");
                         }
@@ -462,10 +501,11 @@ namespace CozyNestAPIHub.Handlers
         // Get user ID by refresh token
         public static async Task<int?> GetUserIdByRefreshToken(string refreshToken)
         {
+            if (!await ValidateRefreshToken(refreshToken)) return null;
             await _dbLock.WaitAsync();
             try
             {
-                string query = "SELECT user_id, is_active FROM tokens WHERE refresh_token = @refreshtoken;";
+                string query = "SELECT user_id FROM tokens WHERE refresh_token = @refreshtoken;";
 
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
@@ -475,7 +515,7 @@ namespace CozyNestAPIHub.Handlers
                     command.Parameters.AddWithValue("@refreshtoken", refreshToken);
                     await using (var reader = await command.ExecuteReaderAsync())
                     {
-                        if (await reader.ReadAsync() && reader.GetBoolean("is_active"))
+                        if (await reader.ReadAsync())
                         {
                             return reader.GetInt32("user_id");
                         }
