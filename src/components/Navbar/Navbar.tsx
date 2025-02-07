@@ -10,6 +10,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Toggle the menu
@@ -37,7 +38,6 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        navigate("/auth");
         return;
       }
 
@@ -57,6 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
 
         if (data.active) {
           setUsername(data.userData.username);
+          setRole(data.userData.roleName);
         } else {
           localStorage.removeItem("accessToken");
           navigate("/auth");
@@ -70,6 +71,11 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
 
     fetchUserData();
   }, [navigate]);
+
+  const handleLogout = () =>{
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  }
 
   return (
     <nav
@@ -88,8 +94,12 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
         <a href="/#story">Story</a>
         <a href="/#info">Info</a>
         <a href="/#contact">Contact</a>
+        {role == "Admin" ? <a href="/Admin">Admin Panel</a> : <p></p>}
         {username ? (
-          <a href={`/dashboard/`}>Hello, {username}</a>
+          <div className={styles.authSpace}>
+            <a href={`/dashboard/`}>Hello, {username}</a>
+            <a href={`/auth`} onClick={handleLogout}>Logout</a>
+          </div>
         ) : (
           <div className={styles.authSpace}>
             <a href="/Auth">Login/Register</a>
