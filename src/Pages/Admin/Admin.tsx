@@ -29,7 +29,7 @@ export const Admin = () => {
         }
 
         if (data.userData.roleName != "Admin") {
-            navigate("/");
+          navigate("/");
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -41,10 +41,11 @@ export const Admin = () => {
     fetchUserData();
   }, [navigate]);
 
-  return <div className={Styles.Page}>
-    
-  <UserList></UserList>
-
-
-  </div>;
+  return (
+    <div className={Styles.Page}>
+      <div className={Styles.UserListContainer}>
+        <UserList></UserList>
+      </div>
+    </div>
+  );
 };

@@ -1,0 +1,45 @@
+.Page{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.UserListContainer{
+    width: 100%;
+}
+.userList{
+    width: 100%;
+    gap: 0px
+}
+.scroll{
+    height: 30vh;
+    overflow-y: scroll;
+    
+}
+.menu{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    
+}
+
+input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Responsive input fields */
+    padding: 0.5em;
+    margin: 0.5em 0;
+    box-sizing: border-box;
+    outline: none;
+    background-color: var(--body-bg);
+    border: none;
+    border-radius: var(--border-radius);
+    text-align: center;
+    justify-content: center;
+    font-size: large;
+    color: inherit;
+    background-color: var(--app-bg);
+  }

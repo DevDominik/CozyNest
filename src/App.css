@@ -31,12 +31,33 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Space+Grotesk:wght@300..700&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&family=Bebas+Neue&family=Dosis:wght@200..800&family=Geist+Mono:wght@100..900&family=Overpass:ital,wght@0,100..900;1,100..900&display=swap');
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--text-color-one);
+  border-radius: 2px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
 html,
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  width: 100%;
+  width: 99.96%;
   scroll-behavior: smooth;
 }
 
