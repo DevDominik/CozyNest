@@ -225,15 +225,10 @@ namespace CozyNestAPIHub.Handlers
 
                     await command.ExecuteNonQueryAsync();
                 }
+                _userCacheById[user.Id] = user;
+                _userCacheByUsername[user.Username] = user;
 
-                var createdUser = await GetUserByUsername(user.Username);
-                if (createdUser != null)
-                {
-                    _userCacheById[createdUser.Id] = createdUser;
-                    _userCacheByUsername[createdUser.Username] = createdUser;
-                }
-
-                return createdUser;
+                return user;
             }
             finally
             {
