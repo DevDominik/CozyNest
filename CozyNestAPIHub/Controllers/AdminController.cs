@@ -21,12 +21,22 @@ namespace CozyNestAPIHub.Controllers
         public async Task<IActionResult> GetUsers([FromBody] IntrospectTokenRequest request) 
         {
 
-            if (request == null || request.AccessToken == null || request.AccessToken == "") return BadRequest(new { message = "Failed to validate user credentials."});
-            if (!await UserHandler.ValidateAccessToken(request.AccessToken)) return Unauthorized(new { message = "Token is invalid or expired." });
+            if (string.IsNullOrWhiteSpace(request?.AccessToken))
+                return BadRequest(new { message = "Failed to validate user credentials." });
+
+            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
+                return Unauthorized(new { message = "Token is invalid or expired." });
+
             var userId = await UserHandler.GetUserIdByAccessToken(request.AccessToken);
-            if (userId == null) return NotFound(new { message = "User was not found." });
+            if (userId is null)
+                return NotFound(new { message = "User was not found." });
+
             var user = await UserHandler.GetUserById(userId.Value);
-            if (UserHandler.GetRoleById(user.RoleId).Name != "Admin") return StatusCode(403, new { message = "Access denied."});
+            var userRole = UserHandler.GetRoleById(user.RoleId)?.Name;
+
+            if (userRole != "Admin")
+                return StatusCode(403, new { message = "Access denied." });
+
             List<User> userList = await UserHandler.GetUsers();
             List<object> usersFinal = new List<object>();
             foreach (User loopedUser in userList)
