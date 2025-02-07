@@ -2,29 +2,27 @@ import { motion, useScroll } from "framer-motion";
 import styles from "./Home.module.css";
 import Contact from "../../components/Contact-Form/Contact";
 
-
 const Home = () => {
-  const { scrollYProgress } = useScroll()
+  const { scrollYProgress } = useScroll();
   return (
     <>
-        <motion.div
-            id="scroll-indicator"
-            style={{
-                scaleX: scrollYProgress,
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 1,
-                originX: 0,
-                backgroundColor: "var(--text-color-one)",
-            }}
-        />
-        <Content />
+      <motion.div
+        id="scroll-indicator"
+        style={{
+          scaleX: scrollYProgress,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          originX: 0,
+          backgroundColor: "var(--text-color-one)",
+        }}
+      />
+      <Content />
     </>
-  )
-}
-
+  );
+};
 
 function Content() {
   return (
@@ -62,13 +60,20 @@ function Content() {
         </div>
       </section>
       <section className={styles.Section3} id="info">
-
+        <div className={styles.informations}>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
+            asperiores consectetur ducimus dolores culpa, sint vero atque non
+            saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
+            iste totam fuga?
+          </p>
+        </div>
       </section>
       <section className={styles.Section4} id="contact">
         <Contact></Contact>
       </section>
     </div>
   );
-};
+}
 
 export default Home;

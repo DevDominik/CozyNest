@@ -5,6 +5,7 @@ import Home from "../src/Pages/Home/Home";
 import { useEffect, useState } from "react";
 import AuthPage from "./Pages/Auth/AuthPage";
 import Footer from "./components/Footer/Footer";
+import { Admin } from "./Pages/Admin/Admin";
 
 function App() {
   const [darkmode, setDarkMode] = useState(false);
@@ -23,6 +24,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
         <Footer></Footer>
       </BrowserRouter>

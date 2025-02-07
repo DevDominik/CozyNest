@@ -69,7 +69,9 @@
   margin: 0 auto; /* Center the container */
 }
 
-
+.informations{
+  height: 100vh;
+}
 
 .StoryText {
   padding: 0; /* Remove any extra padding */

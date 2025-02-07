@@ -84,15 +84,15 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
       </button>
 
       <div className={`${styles.menu} ${menuOpen ? styles.menuOpen : ""}`}>
-        <a href="/#home">Főoldal</a>
-        <a href="/#story">Történet</a>
-        <a href="/#info">Információ</a>
-        <a href="/#contact">Elérhetőség</a>
+        <a href="/#home">Main</a>
+        <a href="/#story">Story</a>
+        <a href="/#info">Info</a>
+        <a href="/#contact">Contact</a>
         {username ? (
-          <a href={`/dashboard/${username}`}>Hello, {username}</a>
+          <a href={`/dashboard/`}>Hello, {username}</a>
         ) : (
           <div className={styles.authSpace}>
-            <a href="/Auth">Bejelentkezés</a>
+            <a href="/Auth">Login/Register</a>
           </div>
         )}
       </div>

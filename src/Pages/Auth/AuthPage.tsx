@@ -14,7 +14,7 @@ const AuthPage = () => {
 
   return (
     <div className={styles.container}>
-      {isLogin ? <Login></Login> : <Register></Register>}  
+      {isLogin ? <Register></Register> : <Login></Login>}  
     <button onClick={handlePanelChange}>{isLogin ? "Login" : "Register"}</button>
     </div>
   )
