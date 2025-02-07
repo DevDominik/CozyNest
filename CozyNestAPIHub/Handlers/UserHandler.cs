@@ -202,7 +202,6 @@ namespace CozyNestAPIHub.Handlers
         // Create a new user and cache it
         public static async Task<User?> CreateUser(User user)
         {
-            if (await UserExists(user.Username, user.Email)) return null;
             await _dbLock.WaitAsync();
             try
             {
