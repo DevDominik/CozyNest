@@ -11,146 +11,130 @@ namespace CozyNestAPIHub.Handlers
 {
     public class UserHandler
     {
-        static UserHandler instance;
-        static MySqlConnection connection;
+        private static string _connectionString;
         private static readonly string SecretKey = "your-256-bit-secret";  // Secret key for signing JWTs
-
-        // In-memory cache for users
+        private static readonly SemaphoreSlim _dbLock = new(1, 1); // Prevents race conditions in database operations
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
         private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
         private static readonly ConcurrentDictionary<int, Role> _roleCacheById = new();
         private static readonly ConcurrentDictionary<string, Role> _roleCacheByName = new();
 
-        // Constructor to initialize the connection
-        private UserHandler(string name, string password)
+        public static void Initialize(string username, string password)
         {
-            connection = new MySqlConnection($"Server=localhost;Database=cozynest;User ID={name};Password={password};");
-            connection.Open();
+            if (!string.IsNullOrEmpty(_connectionString))
+                throw new InvalidOperationException("UserHandler is already initialized.");
+
+            _connectionString = $"Server=localhost;Database=cozynest;User ID={username};Password={password};";
         }
+        private static MySqlConnection CreateConnection() => new(_connectionString);
 
-        // Destructor to close the connection
-        ~UserHandler() { connection.Close(); }
-
-        // Initialize singleton instance of UserHandler
-        public static void Initialize(string name, string password)
-        {
-            if (instance != null) { throw new InvalidOperationException("There's already a UserHandler instance running."); }
-            instance = new UserHandler(name, password);
-            
-        }
-
-        // Property to check if the connection is valid
-        static bool IsConnectionValid => connection != null && instance != null;
-
-        // Get a user by ID with caching
         public static async Task<User?> GetUserById(int id)
         {
-            if (!IsConnectionValid) return null;
-
-            // Check the cache first
             if (_userCacheById.TryGetValue(id, out User cachedUser))
             {
                 return cachedUser;
             }
-
-            // Query database if not in cache
-            string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE id = @userId;";
-            await using (var command = new MySqlCommand(query, connection))
+            await _dbLock.WaitAsync();
+            try
             {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE id = @userId;";
+                using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@userId", id);
-                await using (var reader = await command.ExecuteReaderAsync())
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
                 {
-                    if (await reader.ReadAsync())
+                    User user = new User
                     {
-                        User user = new User
-                        {
-                            Id = id,
-                            Username = reader.GetString("username"),
-                            Email = reader.GetString("email"),
-                            Address = reader.GetString("address"),
-                            HashedPassword = reader.GetString("hashed_password"),
-                            FirstName = reader.GetString("first_name"),
-                            LastName = reader.GetString("last_name"),
-                            Closed = reader.GetBoolean("closed"),
-                            JoinDate = reader.GetDateTime("join_date"),
-                            RoleId = reader.GetInt32("role_id")
-                        };
+                        Id = id,
+                        Username = reader.GetString("username"),
+                        Email = reader.GetString("email"),
+                        Address = reader.GetString("address"),
+                        HashedPassword = reader.GetString("hashed_password"),
+                        FirstName = reader.GetString("first_name"),
+                        LastName = reader.GetString("last_name"),
+                        Closed = reader.GetBoolean("closed"),
+                        JoinDate = reader.GetDateTime("join_date"),
+                        RoleId = reader.GetInt32("role_id")
+                    };
 
-                        // Store in cache
-                        _userCacheById[id] = user;
-                        _userCacheByUsername[user.Username] = user;
+                    // Store in cache
+                    _userCacheById[id] = user;
+                    _userCacheByUsername[user.Username] = user;
 
-                        return user;
-                    }
+                    return user;
                 }
             }
+            finally 
+            { _dbLock.Release(); }
             return null;
         }
 
-        // Get a user by username with caching
         public static async Task<User?> GetUserByUsername(string username)
         {
-            if (!IsConnectionValid) return null;
-
-            // Check cache first
             if (_userCacheByUsername.TryGetValue(username, out User cachedUser))
             {
                 return cachedUser;
             }
-
-            // Query database if not in cache
-            string getUserQuery = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE username = @username;";
-            await using (var command = new MySqlCommand(getUserQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE username = @username;";
+                using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@username", username);
-
-                await using (var reader = await command.ExecuteReaderAsync())
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
                 {
-                    if (await reader.ReadAsync())
+                    User user = new User
                     {
-                        User user = new User
-                        {
-                            Id = reader.GetInt32("id"),
-                            Username = username,
-                            Email = reader.GetString("email"),
-                            Address = reader.GetString("address"),
-                            HashedPassword = reader.GetString("hashed_password"),
-                            FirstName = reader.GetString("first_name"),
-                            LastName = reader.GetString("last_name"),
-                            Closed = reader.GetBoolean("closed"),
-                            JoinDate = reader.GetDateTime("join_date"),
-                            RoleId = reader.GetInt32("role_id")
-                        };
+                        Id = reader.GetInt32("id"),
+                        Username = username,
+                        Email = reader.GetString("email"),
+                        Address = reader.GetString("address"),
+                        HashedPassword = reader.GetString("hashed_password"),
+                        FirstName = reader.GetString("first_name"),
+                        LastName = reader.GetString("last_name"),
+                        Closed = reader.GetBoolean("closed"),
+                        JoinDate = reader.GetDateTime("join_date"),
+                        RoleId = reader.GetInt32("role_id")
+                    };
 
-                        // Store in cache
-                        _userCacheById[user.Id] = user;
-                        _userCacheByUsername[user.Username] = user;
+                    // Store in cache
+                    _userCacheById[user.Id] = user;
+                    _userCacheByUsername[username] = user;
 
-                        return user;
-                    }
+                    return user;
                 }
             }
+            finally
+            { _dbLock.Release(); }
             return null;
         }
 
         // Modify an existing user's details and update cache
         public static async Task<User?> ModifyUser(User user)
         {
-            if (!IsConnectionValid) return null;
-
-            string updateQuery = @"UPDATE users SET 
-                username = @username,
-                email = @email,
-                address = @address,
-                hashed_password = @hashedpassword,
-                first_name = @firstname,
-                last_name = @lastname,
-                closed = @closed,
-                role_id = @roleid
-            WHERE id = @userId;";
-
-            await using (var command = new MySqlCommand(updateQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string updateQuery = @"UPDATE users SET 
+                    username = @username,
+                    email = @email,
+                    address = @address,
+                    hashed_password = @hashedpassword,
+                    first_name = @firstname,
+                    last_name = @lastname,
+                    closed = @closed,
+                    role_id = @roleid
+                WHERE id = @userId;";
+
+                using var command = new MySqlCommand(updateQuery, connection);
                 command.Parameters.AddWithValue("@userId", user.Id);
                 command.Parameters.AddWithValue("@username", user.Username);
                 command.Parameters.AddWithValue("@email", user.Email);
@@ -160,14 +144,18 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@lastname", user.LastName);
                 command.Parameters.AddWithValue("@closed", user.Closed);
                 command.Parameters.AddWithValue("@roleid", user.RoleId);
+
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
                 {
-                    // Update the cache
                     _userCacheById[user.Id] = user;
                     _userCacheByUsername[user.Username] = user;
                     return user;
                 }
+            }
+            finally
+            {
+                _dbLock.Release();
             }
             return null;
         }
@@ -175,46 +163,68 @@ namespace CozyNestAPIHub.Handlers
         // Create a new user and cache it
         public static async Task<User?> CreateUser(User user)
         {
-            if (!IsConnectionValid) return null;
-            if (await UserExists(user.Username, user.Email)) return null;
-
-            string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, join_date, role_id) 
-                                   VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);";
-
-            await using (var command = new MySqlCommand(insertQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@username", user.Username);
-                command.Parameters.AddWithValue("@email", user.Email);
-                command.Parameters.AddWithValue("@address", user.Address);
-                command.Parameters.AddWithValue("@hashedpassword", user.HashedPassword);
-                command.Parameters.AddWithValue("@firstname", user.FirstName);
-                command.Parameters.AddWithValue("@lastname", user.LastName);
-                command.Parameters.AddWithValue("@joindate", DateTime.Now);
-                command.Parameters.AddWithValue("@roleid", user.RoleId);
-                await command.ExecuteNonQueryAsync();
-                var createdUser = await GetUserByUsername(user.Username);
+                if (await UserExists(user.Username, user.Email)) return null;
 
+                string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, join_date, role_id) 
+                               VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);";
+
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@username", user.Username);
+                    command.Parameters.AddWithValue("@email", user.Email);
+                    command.Parameters.AddWithValue("@address", user.Address);
+                    command.Parameters.AddWithValue("@hashedpassword", user.HashedPassword);
+                    command.Parameters.AddWithValue("@firstname", user.FirstName);
+                    command.Parameters.AddWithValue("@lastname", user.LastName);
+                    command.Parameters.AddWithValue("@joindate", DateTime.Now);
+                    command.Parameters.AddWithValue("@roleid", user.RoleId);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                var createdUser = await GetUserByUsername(user.Username);
                 if (createdUser != null)
                 {
                     _userCacheById[createdUser.Id] = createdUser;
                     _userCacheByUsername[createdUser.Username] = createdUser;
                 }
+
                 return createdUser;
+            }
+            finally
+            {
+                _dbLock.Release();
             }
         }
 
         // Check if a user exists by username or email
         public static async Task<bool> UserExists(string username, string email)
         {
-            if (!IsConnectionValid) return false;
-
-            string checkQuery = "SELECT COUNT(*) FROM users WHERE username = @username OR email = @email;";
-            await using (var command = new MySqlCommand(checkQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@username", username);
-                command.Parameters.AddWithValue("@email", email);
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result) > 0;
+                string checkQuery = "SELECT COUNT(*) FROM users WHERE username = @username OR email = @email;";
+
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(checkQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@username", username);
+                    command.Parameters.AddWithValue("@email", email);
+                    var result = await command.ExecuteScalarAsync();
+                    return Convert.ToInt32(result) > 0;
+                }
+            }
+            finally
+            {
+                _dbLock.Release();
             }
         }
 
@@ -277,158 +287,211 @@ namespace CozyNestAPIHub.Handlers
             return base64;
         }
 
-        // Token Management - Create a new Token (Access and Refresh Tokens)
+        // Create a new token for a user
         public static async Task<Token?> CreateToken(int userId, string username)
         {
-            if (!IsConnectionValid) { return null; }
-
-            string accessToken = GenerateJwtToken(userId, username);  // Generate JWT for access token
-            string refreshToken = GenerateToken();  // Generate refresh token
-            DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);  // 30 minutes for access token
-            DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);    // 7 days for refresh token
-
-            string insertTokenQuery = @"INSERT INTO tokens (user_id, access_token, refresh_token, access_expiry, refresh_expiry, is_active) 
-                                        VALUES (@userId, @accessToken, @refreshToken, @accessExpiry, @refreshExpiry, @isActive);";
-
-            await using (var command = new MySqlCommand(insertTokenQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@userId", userId);
-                command.Parameters.AddWithValue("@accessToken", accessToken);
-                command.Parameters.AddWithValue("@refreshToken", refreshToken);
-                command.Parameters.AddWithValue("@accessExpiry", accessExpiry);
-                command.Parameters.AddWithValue("@refreshExpiry", refreshExpiry);
-                command.Parameters.AddWithValue("@isActive", true);
+                string accessToken = GenerateJwtToken(userId, username);  // Generate JWT for access token
+                string refreshToken = GenerateToken();  // Generate refresh token
+                DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);  // 30 minutes for access token
+                DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);    // 7 days for refresh token
 
-                await command.ExecuteNonQueryAsync();
+                string insertTokenQuery = @"INSERT INTO tokens (user_id, access_token, refresh_token, access_expiry, refresh_expiry, is_active) 
+                                    VALUES (@userId, @accessToken, @refreshToken, @accessExpiry, @refreshExpiry, @isActive);";
 
-                return new Token
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(insertTokenQuery, connection))
                 {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                    AccessExpiry = accessExpiry,
-                    RefreshExpiry = refreshExpiry,
-                    UserId = userId,
-                    IsActive = true
-                };
+                    command.Parameters.AddWithValue("@userId", userId);
+                    command.Parameters.AddWithValue("@accessToken", accessToken);
+                    command.Parameters.AddWithValue("@refreshToken", refreshToken);
+                    command.Parameters.AddWithValue("@accessExpiry", accessExpiry);
+                    command.Parameters.AddWithValue("@refreshExpiry", refreshExpiry);
+                    command.Parameters.AddWithValue("@isActive", true);
+
+                    await command.ExecuteNonQueryAsync();
+
+                    return new Token
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken,
+                        AccessExpiry = accessExpiry,
+                        RefreshExpiry = refreshExpiry,
+                        UserId = userId,
+                        IsActive = true
+                    };
+                }
+            }
+            finally
+            {
+                _dbLock.Release();
             }
         }
 
+        // Validate access token
         public static async Task<bool> ValidateAccessToken(string accessToken)
         {
-            if (!IsConnectionValid) { return false; }
-
-            // Query the database to check the status and expiration of the access token
-            string checkQuery = "SELECT is_active, access_expiry FROM tokens WHERE access_token = @accessToken;";
-
-            await using (var command = new MySqlCommand(checkQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@accessToken", accessToken);
+                string checkQuery = "SELECT is_active, access_expiry FROM tokens WHERE access_token = @accessToken;";
 
-                await using (var reader = await command.ExecuteReaderAsync())
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(checkQuery, connection))
                 {
-                    if (await reader.ReadAsync())
-                    {
-                        bool isActive = reader.GetBoolean("is_active");
-                        DateTime accessExpiry = reader.GetDateTime("access_expiry");
+                    command.Parameters.AddWithValue("@accessToken", accessToken);
 
-                        // Check if the token is active and has not expired
-                        return isActive && accessExpiry > DateTime.UtcNow;
+                    await using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            bool isActive = reader.GetBoolean("is_active");
+                            DateTime accessExpiry = reader.GetDateTime("access_expiry");
+
+                            return isActive && accessExpiry > DateTime.UtcNow;
+                        }
                     }
                 }
-            }
 
-            return false;  // Token is invalid
+                return false;  // Token is invalid
+            }
+            finally
+            {
+                _dbLock.Release();
+            }
         }
 
-        // Validate a user's refresh token
+        // Validate refresh token
         public static async Task<bool> ValidateRefreshToken(string refreshToken)
         {
-            if (!IsConnectionValid) { return false; }
-
-            string checkQuery = "SELECT is_active, refresh_expiry FROM tokens WHERE refresh_token = @refreshToken;";
-
-            await using (var command = new MySqlCommand(checkQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@refreshToken", refreshToken);
+                string checkQuery = "SELECT is_active, refresh_expiry FROM tokens WHERE refresh_token = @refreshToken;";
 
-                await using (var reader = await command.ExecuteReaderAsync())
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(checkQuery, connection))
                 {
-                    if (await reader.ReadAsync())
-                    {
-                        bool isActive = reader.GetBoolean("is_active");
-                        DateTime refreshExpiry = reader.GetDateTime("refresh_expiry");
+                    command.Parameters.AddWithValue("@refreshToken", refreshToken);
 
-                        // Check if the token is active and has not expired
-                        return isActive && refreshExpiry > DateTime.UtcNow;
+                    await using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            bool isActive = reader.GetBoolean("is_active");
+                            DateTime refreshExpiry = reader.GetDateTime("refresh_expiry");
+
+                            return isActive && refreshExpiry > DateTime.UtcNow;
+                        }
                     }
                 }
-            }
 
-            return false;  // Token is invalid
+                return false;  // Token is invalid
+            }
+            finally
+            {
+                _dbLock.Release();
+            }
         }
 
-        // Revoke a user's token (both access and refresh tokens)
+        // Revoke tokens (set them as inactive)
         public static async Task<bool> RevokeToken(string accessToken, string refreshToken)
         {
-            if (!IsConnectionValid) { return false; }
-
-            string revokeQuery = "UPDATE tokens SET is_active = false WHERE access_token = @accessToken OR refresh_token = @refreshToken;";
-
-            await using (var command = new MySqlCommand(revokeQuery, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@accessToken", accessToken);
-                command.Parameters.AddWithValue("@refreshToken", refreshToken);
+                string revokeQuery = "UPDATE tokens SET is_active = false WHERE access_token = @accessToken OR refresh_token = @refreshToken;";
 
-                int rowsAffected = await command.ExecuteNonQueryAsync();
-                return rowsAffected > 0;  // Return true if tokens were successfully revoked
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(revokeQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@accessToken", accessToken);
+                    command.Parameters.AddWithValue("@refreshToken", refreshToken);
+
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    return rowsAffected > 0;  // Return true if tokens were successfully revoked
+                }
+            }
+            finally
+            {
+                _dbLock.Release();
             }
         }
 
-        public static async Task<int?> GetUserIdByAccessToken(string accessToken) 
-        { 
-            if (!IsConnectionValid) { return null; }
-            string query = "SELECT user_id, is_active FROM tokens WHERE access_token = @accesstoken;";
-            await using (var command = new MySqlCommand(query, connection)) 
+        // Get user ID by access token
+        public static async Task<int?> GetUserIdByAccessToken(string accessToken)
+        {
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@accesstoken", accessToken);
-                await using (var reader = await command.ExecuteReaderAsync()) 
+                string query = "SELECT user_id, is_active FROM tokens WHERE access_token = @accesstoken;";
+
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(query, connection))
                 {
-                    if (await reader.ReadAsync())
+                    command.Parameters.AddWithValue("@accesstoken", accessToken);
+                    await using (var reader = await command.ExecuteReaderAsync())
                     {
-                        if (reader.GetBoolean("is_active"))
+                        if (await reader.ReadAsync() && reader.GetBoolean("is_active"))
                         {
                             return reader.GetInt32("user_id");
                         }
                     }
                 }
+
+                return null;
             }
-            return null;
+            finally
+            {
+                _dbLock.Release();
+            }
         }
 
+        // Get user ID by refresh token
         public static async Task<int?> GetUserIdByRefreshToken(string refreshToken)
         {
-            if (!IsConnectionValid) { return null; }
-            string query = "SELECT user_id, is_active FROM tokens WHERE refresh_token = @refreshtoken;";
-            await using (var command = new MySqlCommand(query, connection))
+            await _dbLock.WaitAsync();
+            try
             {
-                command.Parameters.AddWithValue("@refreshtoken", refreshToken);
-                await using (var reader = await command.ExecuteReaderAsync())
+                string query = "SELECT user_id, is_active FROM tokens WHERE refresh_token = @refreshtoken;";
+
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(query, connection))
                 {
-                    if (await reader.ReadAsync())
+                    command.Parameters.AddWithValue("@refreshtoken", refreshToken);
+                    await using (var reader = await command.ExecuteReaderAsync())
                     {
-                        if (reader.GetBoolean("is_active"))
+                        if (await reader.ReadAsync() && reader.GetBoolean("is_active"))
                         {
                             return reader.GetInt32("user_id");
                         }
                     }
                 }
+
+                return null;
             }
-            return null;
+            finally
+            {
+                _dbLock.Release();
+            }
         }
 
         public static Role? GetRoleById(int id) 
         { 
-            if (!IsConnectionValid) { return null; }
             if (_roleCacheById.TryGetValue(id, out Role role))
             {
                 return role;
@@ -437,45 +500,48 @@ namespace CozyNestAPIHub.Handlers
         }
         public static Role? GetRoleByName(string name)
         {
-            if (!IsConnectionValid) { return null; }
             if (_roleCacheByName.TryGetValue(name, out Role role))
             {
                 return role;
             }
             return null;
         }
-        public static async Task<bool> SetRole(User user, string roleName) 
+        public static async Task<bool> SetRole(User user, string roleName)
         {
-            if (!IsConnectionValid) { return false; }
-            if (await UserExists(user.Username, user.Email) == false) {  return false; }
-            if (string.IsNullOrEmpty(roleName)) { return false; }
-            Role? role = GetRoleByName(roleName);
-            if (role == null) { return false; }
+            if (!_roleCacheByName.TryGetValue(roleName, out var role))
+                return false;
+
             user.RoleId = role.Id;
             return await ModifyUser(user) != null;
         }
-        public static async Task<bool> BuildRoles() 
+        public static async Task<bool> BuildRoles()
         {
-            if (!IsConnectionValid) { return false; }
-            string query = "SELECT id, name FROM roles;";
-            await using (var command = new MySqlCommand(query, connection)) 
-            { 
-                await using (var reader = await command.ExecuteReaderAsync()) 
+            await _dbLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, name FROM roles;";
+                using var command = new MySqlCommand(query, connection);
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
-                    if (await reader.ReadAsync())
+                    var role = new Role
                     {
-                        Role role = new Role
-                        {
-                            Id = reader.GetInt32("id"),
-                            Name = reader.GetString("name"),
-                        };
-                        _roleCacheById[role.Id] = role;
-                        _roleCacheByName[role.Name] = role;
-                        return true;
-                    }
+                        Id = reader.GetInt32("id"),
+                        Name = reader.GetString("name"),
+                    };
+                    _roleCacheById[role.Id] = role;
+                    _roleCacheByName[role.Name] = role;
                 }
+                return true;
             }
-            return false;
+            finally
+            {
+                _dbLock.Release();
+            }
         }
         public static List<Role> GetRoles() 
         {
