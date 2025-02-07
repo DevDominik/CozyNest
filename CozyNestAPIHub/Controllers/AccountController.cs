@@ -45,7 +45,7 @@ namespace CozyNestAPIHub.Controllers
                 });
             }
 
-            var token = await UserHandler.CreateToken(user.Id, user.Username);
+            var token = await UserHandler.CreateToken(user);
             if (token == null)
             {
                 return StatusCode(500, new 
@@ -113,25 +113,10 @@ namespace CozyNestAPIHub.Controllers
                     message = "User registration failed." 
                 });
             }
-            Token? generatedToken = await UserHandler.CreateToken(createdUser.Id, createdUser.Username);
 
             return Ok(new 
             { 
                 message = "Registration successful.", 
-                accessToken = generatedToken.AccessToken, 
-                refreshToken = generatedToken.RefreshToken,
-                userData = new 
-                { 
-                    username = user.Username, 
-                    id = user.Id, 
-                    firstName = user.FirstName, 
-                    lastName = user.LastName, 
-                    address = user.Address, 
-                    closed = user.Closed, 
-                    email = user.Email, 
-                    joinDate = user.JoinDate, 
-                    roleName = guestRole.Name 
-                }
             });
         }
 
@@ -225,7 +210,7 @@ namespace CozyNestAPIHub.Controllers
             if (userId.HasValue)
             {
                 User? user = await UserHandler.GetUserById(userId.Value);
-                Token? newToken = await UserHandler.CreateToken(user.Id, user.Username);
+                Token? newToken = await UserHandler.CreateToken(user);
                 return Ok(new 
                 { 
                     message = "Token successfully regenerated.", 

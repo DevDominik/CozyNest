@@ -321,12 +321,12 @@ namespace CozyNestAPIHub.Handlers
         }
 
         // Create a new token for a user
-        public static async Task<Token?> CreateToken(int userId, string username)
+        public static async Task<Token?> CreateToken(User user)
         {
             await _dbLock.WaitAsync();
             try
             {
-                string accessToken = GenerateJwtToken(userId, username);  // Generate JWT for access token
+                string accessToken = GenerateJwtToken(user.Id, user.Username);  // Generate JWT for access token
                 string refreshToken = GenerateToken();  // Generate refresh token
                 DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);  // 30 minutes for access token
                 DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);    // 7 days for refresh token
@@ -339,7 +339,7 @@ namespace CozyNestAPIHub.Handlers
 
                 await using (var command = new MySqlCommand(insertTokenQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@userId", userId);
+                    command.Parameters.AddWithValue("@userId", user.Id);
                     command.Parameters.AddWithValue("@accessToken", accessToken);
                     command.Parameters.AddWithValue("@refreshToken", refreshToken);
                     command.Parameters.AddWithValue("@accessExpiry", accessExpiry);
@@ -354,7 +354,7 @@ namespace CozyNestAPIHub.Handlers
                         RefreshToken = refreshToken,
                         AccessExpiry = accessExpiry,
                         RefreshExpiry = refreshExpiry,
-                        UserId = userId,
+                        UserId = user.Id,
                         IsActive = true
                     };
                 }
