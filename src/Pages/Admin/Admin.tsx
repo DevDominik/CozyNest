@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Styles from "./Admin.module.css";
+import UserList from "./UserList";
 
 export const Admin = () => {
   const navigate = useNavigate();
@@ -39,5 +41,10 @@ export const Admin = () => {
     fetchUserData();
   }, [navigate]);
 
-  return <div>Admin</div>;
+  return <div className={Styles.Page}>
+    
+  <UserList></UserList>
+
+
+  </div>;
 };
