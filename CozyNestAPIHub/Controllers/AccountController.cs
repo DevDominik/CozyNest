@@ -99,7 +99,7 @@ namespace CozyNestAPIHub.Controllers
                 Username = registerRequest.Username,
                 Email = registerRequest.Email,
                 HashedPassword = HashPassword(registerRequest.Password),
-                FirstName = "",  // Default values, can be updated later
+                FirstName = "", 
                 LastName = "",
                 Address = "",
                 JoinDate = DateTime.UtcNow,
@@ -224,19 +224,14 @@ namespace CozyNestAPIHub.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
-            // Validate the access token
-            bool isValid = await UserHandler.ValidateAccessToken(request.AccessToken);
-            if (!isValid) { return Unauthorized(new { message = "Invalid or expired access token." }); }
+            if (!await UserHandler.ValidateAccessToken(request.AccessToken)) { return Unauthorized(new { message = "Invalid or expired access token." }); }
 
-            // Retrieve the user ID associated with the access token
             int? userId = await UserHandler.GetUserIdByAccessToken(request.AccessToken);
             if (userId == null || !userId.HasValue) { return NotFound(new { message = "User not found." }); }
 
-            // Fetch the user entity from the database
             User? user = await UserHandler.GetUserById(userId.Value);
             if (user == null) { return NotFound(new { message = "User data not found." }); }
 
-            // Update user properties based on the request (assuming some fields are updatable)
             if (!string.IsNullOrWhiteSpace(request.Email)) user.Email = request.Email;
             if (!string.IsNullOrWhiteSpace(request.Username)) user.Username = request.Username;
             if (!string.IsNullOrWhiteSpace(request.Address)) user.Address = request.Address;
@@ -244,15 +239,12 @@ namespace CozyNestAPIHub.Controllers
             if (!string.IsNullOrWhiteSpace(request.LastName)) user.LastName = request.LastName;
             if (!string.IsNullOrWhiteSpace(request.Password)) user.HashedPassword = HashPassword(request.Password);
 
-            // Save changes to the database
             User? updateSuccess = await UserHandler.ModifyUser(user);
             if (updateSuccess == null) { return StatusCode(500, new { message = "Failed to update user data." }); }
 
             return Ok(new { message = "User data updated successfully." });
         }
 
-
-        // Hash the password before storing it
         private static string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
@@ -262,7 +254,6 @@ namespace CozyNestAPIHub.Controllers
             }
         }
 
-        // Verify the password against the stored hash
         private static bool VerifyPassword(string password, string storedHash)
         {
             string hashedPassword = HashPassword(password);

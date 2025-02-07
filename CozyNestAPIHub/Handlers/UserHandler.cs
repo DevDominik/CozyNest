@@ -13,13 +13,16 @@ namespace CozyNestAPIHub.Handlers
     public class UserHandler
     {
         private static string _connectionString;
-        private static readonly string SecretKey = "your-256-bit-secret";  // Secret key for signing JWTs
-        private static readonly SemaphoreSlim _dbLock = new(1, 1); // Prevents race conditions in database operations
+        private static string secretKey; 
+        private static readonly SemaphoreSlim _dbLock = new(1, 1);
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
         private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
         private static readonly ConcurrentDictionary<int, Role> _roleCacheById = new();
         private static readonly ConcurrentDictionary<string, Role> _roleCacheByName = new();
-
+        public static void SetSecretKey(string secret)
+        {
+            secretKey = secret;
+        }
         public static void Initialize(string username, string password)
         {
             if (!string.IsNullOrEmpty(_connectionString))
@@ -55,7 +58,6 @@ namespace CozyNestAPIHub.Handlers
                         RoleId = reader.GetInt32("role_id")
                     };
 
-                    // Store in cache
                     _userCacheById[user.Id] = user;
                     _userCacheByUsername[user.Username] = user;
 
@@ -98,7 +100,6 @@ namespace CozyNestAPIHub.Handlers
                         RoleId = reader.GetInt32("role_id")
                     };
 
-                    // Store in cache
                     _userCacheById[id] = user;
                     _userCacheByUsername[user.Username] = user;
 
@@ -141,7 +142,6 @@ namespace CozyNestAPIHub.Handlers
                         RoleId = reader.GetInt32("role_id")
                     };
 
-                    // Store in cache
                     _userCacheById[user.Id] = user;
                     _userCacheByUsername[username] = user;
 
@@ -153,7 +153,6 @@ namespace CozyNestAPIHub.Handlers
             return null;
         }
 
-        // Modify an existing user's details and update cache
         public static async Task<User?> ModifyUser(User user)
         {
             await _dbLock.WaitAsync();
@@ -199,7 +198,6 @@ namespace CozyNestAPIHub.Handlers
             return null;
         }
 
-        // Create a new user and cache it
         public static async Task<User?> CreateUser(User user)
         {
             await _dbLock.WaitAsync();
@@ -236,7 +234,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Check if a user exists by username or email
         public static async Task<bool> UserExists(string username, string email)
         {
             await _dbLock.WaitAsync();
@@ -261,7 +258,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Helper function to generate a refresh token
         private static string GenerateToken()
         {
             using (var rng = RandomNumberGenerator.Create())
@@ -272,10 +268,8 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Helper function to generate a JWT token (manually using HMACSHA256)
         private static string GenerateJwtToken(int userId, string username)
         {
-            // JWT Header (Base64Url encode)
             var header = new
             {
                 alg = "HS256",
@@ -285,7 +279,6 @@ namespace CozyNestAPIHub.Handlers
             var headerBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header));
             var base64UrlHeader = Base64UrlEncode(headerBytes);
 
-            // JWT Payload (Base64Url encode)
             var payload = new
             {
                 sub = username,
@@ -297,39 +290,35 @@ namespace CozyNestAPIHub.Handlers
             var payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
             var base64UrlPayload = Base64UrlEncode(payloadBytes);
 
-            // JWT Signature (HMACSHA256)
             var signatureInput = $"{base64UrlHeader}.{base64UrlPayload}";
-            var keyBytes = Encoding.UTF8.GetBytes(SecretKey);
+            var keyBytes = Encoding.UTF8.GetBytes(secretKey);
             using (var hmac = new HMACSHA256(keyBytes))
             {
                 var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(signatureInput));
                 var base64UrlSignature = Base64UrlEncode(signatureBytes);
 
-                // Final JWT token
                 return $"{base64UrlHeader}.{base64UrlPayload}.{base64UrlSignature}";
             }
         }
 
-        // Helper function to Base64Url encode
         private static string Base64UrlEncode(byte[] input)
         {
             var base64 = Convert.ToBase64String(input);
-            base64 = base64.Split('=')[0];  // Remove trailing '=' characters
-            base64 = base64.Replace('+', '-');  // Replace URL-unsafe characters
-            base64 = base64.Replace('/', '_');  // Replace URL-unsafe characters
+            base64 = base64.Split('=')[0];
+            base64 = base64.Replace('+', '-');
+            base64 = base64.Replace('/', '_');
             return base64;
         }
 
-        // Create a new token for a user
         public static async Task<Token?> CreateToken(User user)
         {
             await _dbLock.WaitAsync();
             try
             {
-                string accessToken = GenerateJwtToken(user.Id, user.Username);  // Generate JWT for access token
-                string refreshToken = GenerateToken();  // Generate refresh token
-                DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);  // 30 minutes for access token
-                DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);    // 7 days for refresh token
+                string accessToken = GenerateJwtToken(user.Id, user.Username); 
+                string refreshToken = GenerateToken();
+                DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);
+                DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);
 
                 string insertTokenQuery = @"INSERT INTO tokens (user_id, access_token, refresh_token, access_expiry, refresh_expiry, is_active) 
                                     VALUES (@userId, @accessToken, @refreshToken, @accessExpiry, @refreshExpiry, @isActive);";
@@ -365,7 +354,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Validate access token
         public static async Task<bool> ValidateAccessToken(string accessToken)
         {
             await _dbLock.WaitAsync();
@@ -392,7 +380,7 @@ namespace CozyNestAPIHub.Handlers
                     }
                 }
 
-                return false;  // Token is invalid
+                return false;
             }
             finally
             {
@@ -400,7 +388,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Validate refresh token
         public static async Task<bool> ValidateRefreshToken(string refreshToken)
         {
             await _dbLock.WaitAsync();
@@ -427,7 +414,7 @@ namespace CozyNestAPIHub.Handlers
                     }
                 }
 
-                return false;  // Token is invalid
+                return false;
             }
             finally
             {
@@ -435,7 +422,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Revoke tokens (set them as inactive)
         public static async Task<bool> RevokeToken(string accessToken, string refreshToken)
         {
             await _dbLock.WaitAsync();
@@ -452,7 +438,7 @@ namespace CozyNestAPIHub.Handlers
                     command.Parameters.AddWithValue("@refreshToken", refreshToken);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
-                    return rowsAffected > 0;  // Return true if tokens were successfully revoked
+                    return rowsAffected > 0;
                 }
             }
             finally
@@ -461,7 +447,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Get user ID by access token
         public static async Task<int?> GetUserIdByAccessToken(string accessToken)
         {
             if (!await ValidateAccessToken(accessToken)) return null;
@@ -493,7 +478,6 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        // Get user ID by refresh token
         public static async Task<int?> GetUserIdByRefreshToken(string refreshToken)
         {
             if (!await ValidateRefreshToken(refreshToken)) return null;
