@@ -33,3 +33,6 @@ CREATE TABLE tokens (
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+
+INSERT INTO roles (name) VALUES ('Guest'), ('Admin');
