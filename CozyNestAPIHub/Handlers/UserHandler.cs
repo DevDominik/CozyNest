@@ -202,10 +202,10 @@ namespace CozyNestAPIHub.Handlers
         // Create a new user and cache it
         public static async Task<User?> CreateUser(User user)
         {
+            if (await UserExists(user.Username, user.Email)) return null;
             await _dbLock.WaitAsync();
             try
             {
-                if (await UserExists(user.Username, user.Email)) return null;
 
                 string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, join_date, role_id) 
                                VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);";

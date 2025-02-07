@@ -28,6 +28,7 @@ namespace CozyNestAPIHub.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
+            Console.WriteLine("");
             if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) || string.IsNullOrEmpty(loginRequest.Password))
             {
                 return BadRequest(new 
