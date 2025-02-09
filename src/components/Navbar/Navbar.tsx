@@ -97,7 +97,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
         {role == "Admin" ? <a href="/Admin">Admin Panel</a> : <p></p>}
         {username ? (
           <div className={styles.authSpace}>
-            <a href={`/dashboard/`}>Hello, {username}</a>
+            <a href={`/profile/`}>{username.toUpperCase()}</a>
             <a href={`/auth`} onClick={handleLogout}>Logout</a>
           </div>
         ) : (
