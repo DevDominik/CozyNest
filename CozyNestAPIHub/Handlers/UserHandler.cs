@@ -14,7 +14,9 @@ namespace CozyNestAPIHub.Handlers
     {
         private static string _connectionString;
         private static string secretKey; 
-        private static readonly SemaphoreSlim _dbLock = new(1, 1);
+        private static readonly SemaphoreSlim _userLock = new(1, 1);
+        private static readonly SemaphoreSlim _roleLock = new(1, 1);
+        private static readonly SemaphoreSlim _tokenLock = new(1, 1);
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
         private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
         private static readonly ConcurrentDictionary<int, Role> _roleCacheById = new();
@@ -34,7 +36,7 @@ namespace CozyNestAPIHub.Handlers
         public static async Task<List<User>> GetUsers()
         {
             var users = new List<User>();
-            await _dbLock.WaitAsync();
+            await _userLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
@@ -65,7 +67,7 @@ namespace CozyNestAPIHub.Handlers
                 }
             }
             finally
-            { _dbLock.Release(); }
+            { _userLock.Release(); }
             return users;
 
         }
@@ -75,7 +77,7 @@ namespace CozyNestAPIHub.Handlers
             {
                 return cachedUser;
             }
-            await _dbLock.WaitAsync();
+            await _userLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
@@ -107,7 +109,7 @@ namespace CozyNestAPIHub.Handlers
                 }
             }
             finally 
-            { _dbLock.Release(); }
+            { _userLock.Release(); }
             return null;
         }
 
@@ -117,7 +119,7 @@ namespace CozyNestAPIHub.Handlers
             {
                 return cachedUser;
             }
-            await _dbLock.WaitAsync();
+            await _userLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
@@ -149,13 +151,13 @@ namespace CozyNestAPIHub.Handlers
                 }
             }
             finally
-            { _dbLock.Release(); }
+            { _userLock.Release(); }
             return null;
         }
 
         public static async Task<User?> ModifyUser(User user)
         {
-            await _dbLock.WaitAsync();
+            await _userLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
@@ -193,14 +195,14 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _userLock.Release();
             }
             return null;
         }
 
         public static async Task<User?> CreateUser(User user)
         {
-            await _dbLock.WaitAsync();
+            await _userLock.WaitAsync();
             try
             {
 
@@ -230,13 +232,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _userLock.Release();
             }
         }
 
         public static async Task<bool> UserExists(string username, string email)
         {
-            await _dbLock.WaitAsync();
+            await _userLock.WaitAsync();
             try
             {
                 string checkQuery = "SELECT COUNT(*) FROM users WHERE username = @username OR email = @email;";
@@ -254,7 +256,7 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _userLock.Release();
             }
         }
 
@@ -312,7 +314,7 @@ namespace CozyNestAPIHub.Handlers
 
         public static async Task<Token?> CreateToken(User user)
         {
-            await _dbLock.WaitAsync();
+            await _tokenLock.WaitAsync();
             try
             {
                 string accessToken = GenerateJwtToken(user.Id, user.Username); 
@@ -350,13 +352,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _tokenLock.Release();
             }
         }
 
         public static async Task<bool> ValidateAccessToken(string accessToken)
         {
-            await _dbLock.WaitAsync();
+            await _tokenLock.WaitAsync();
             try
             {
                 string checkQuery = "SELECT is_active, access_expiry FROM tokens WHERE access_token = @accessToken;";
@@ -384,13 +386,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _tokenLock.Release();
             }
         }
 
         public static async Task<bool> ValidateRefreshToken(string refreshToken)
         {
-            await _dbLock.WaitAsync();
+            await _tokenLock.WaitAsync();
             try
             {
                 string checkQuery = "SELECT is_active, refresh_expiry FROM tokens WHERE refresh_token = @refreshToken;";
@@ -418,13 +420,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _tokenLock.Release();
             }
         }
 
         public static async Task<bool> RevokeToken(string accessToken, string refreshToken)
         {
-            await _dbLock.WaitAsync();
+            await _tokenLock.WaitAsync();
             try
             {
                 string revokeQuery = "UPDATE tokens SET is_active = false WHERE access_token = @accessToken OR refresh_token = @refreshToken;";
@@ -443,14 +445,14 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _tokenLock.Release();
             }
         }
 
         public static async Task<int?> GetUserIdByAccessToken(string accessToken)
         {
             if (!await ValidateAccessToken(accessToken)) return null;
-            await _dbLock.WaitAsync();
+            await _tokenLock.WaitAsync();
             try
             {
                 string query = "SELECT user_id FROM tokens WHERE access_token = @accesstoken;";
@@ -474,14 +476,14 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _tokenLock.Release();
             }
         }
 
         public static async Task<int?> GetUserIdByRefreshToken(string refreshToken)
         {
             if (!await ValidateRefreshToken(refreshToken)) return null;
-            await _dbLock.WaitAsync();
+            await _tokenLock.WaitAsync();
             try
             {
                 string query = "SELECT user_id FROM tokens WHERE refresh_token = @refreshtoken;";
@@ -505,7 +507,7 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _tokenLock.Release();
             }
         }
 
@@ -535,7 +537,7 @@ namespace CozyNestAPIHub.Handlers
         }
         public static async Task<bool> BuildRoles()
         {
-            await _dbLock.WaitAsync();
+            await _roleLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
@@ -559,7 +561,7 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _dbLock.Release();
+                _roleLock.Release();
             }
         }
         public static List<Role> GetRoles() 

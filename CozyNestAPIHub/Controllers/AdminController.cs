@@ -34,7 +34,7 @@ namespace CozyNestAPIHub.Controllers
             var user = await UserHandler.GetUserById(userId.Value);
             var userRole = UserHandler.GetRoleById(user.RoleId)?.Name;
 
-            if (userRole != "Admin")
+            if (userRole != "Manager")
                 return StatusCode(403, new { message = "Access denied." });
 
             List<User> userList = await UserHandler.GetUsers();

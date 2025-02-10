@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
-UserHandler.SetSecretKey();
+UserHandler.SetSecretKey("asdasd");
 UserHandler.Initialize("root", "");
 await UserHandler.BuildRoles();
 
