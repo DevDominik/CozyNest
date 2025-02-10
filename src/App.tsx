@@ -21,7 +21,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
-      <Navbar darkmode={darkmode} setDarkMode={setDarkMode} ></Navbar>
+        <Navbar darkmode={darkmode} setDarkMode={setDarkMode} ></Navbar>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />

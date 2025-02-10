@@ -61,7 +61,7 @@ function Content() {
       </section>
       <section className={styles.Section3} id="info">
         <div className={styles.informations}>
-          <div className={styles.Style50}>
+          <div className={styles.Style33}>
             <p>
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
               asperiores consectetur ducimus dolores culpa, sint vero atque non
@@ -70,7 +70,15 @@ function Content() {
             </p>
 
           </div>
-          <div className={styles.Style50}>
+          <div className={styles.Style33}>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
+              asperiores consectetur ducimus dolores culpa, sint vero atque non
+              saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
+              iste totam fuga?
+            </p>
+          </div>
+          <div className={styles.Style33}>
             <p>
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
               asperiores consectetur ducimus dolores culpa, sint vero atque non

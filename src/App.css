@@ -94,6 +94,8 @@ h1 {
 
 
 .light {
+  --nav-bg: rgba(204, 203, 255, 0.97);
+  --section-shade: rgba(204, 203, 255, 0.4);
   --footer-bg: #cccbff;
   --footer-line: #7091e6; 
   --body-bg: #fffafa; 
@@ -109,6 +111,8 @@ h1 {
 
 
 .dark {
+  --nav-bg: rgba(28, 28, 28, 0.97);
+  --section-shade: rgba(0, 0, 0, 0.3);
   --footer-bg: #1c1c1c;
   --footer-line: #673ab7;
   --body-bg: #1c1f2e; 
