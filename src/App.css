@@ -92,26 +92,34 @@ h1 {
 }
 
 
-/* Light Mode Variables */
+
 .light {
-  --body-bg: #ece8f5; /* Background color */
-  --app-bg: #beb9c9; /* Application container background */
-  --text-color-one: #3d52a0; /* Primary text color (darker blue) */
-  --text-color-two: #7091e6; /* Secondary text color (bright blue) */
-  --text-color-three: #8697c4; /* Subtle or tertiary text color */
-  --theme-toggle-hover-color: #3d52a0; /* Hover effect for toggle */
-  --box-shadow: 0px 16px 30px -10px rgba(70, 96, 187, 0.198567); /* Keep existing shadow */
+  --footer-bg: #cccbff;
+  --footer-line: #7091e6; 
+  --body-bg: #fffafa; 
+  --app-bg: #cccbff; 
+  --footer-text: #171717; 
+  --footer-text-hover: #7091e6;
+  --text-color-one: #3d52a0; 
+  --text-color-two: #7091e6;
+  --text-color-three: #8697c4; 
+  --theme-toggle-hover-color: #3d52a0; 
+  --box-shadow: 0px 16px 30px -10px rgba(70, 96, 187, 0.198567);
 }
 
-/* Dark Mode Variables */
+
 .dark {
-  --body-bg: #1c1f2e; /* Darker background for body */
-  --app-bg: #242838; /* Slightly lighter dark tone for containers */
-  --text-color-one: #adbbd4; /* Soft blue for primary text */
-  --text-color-two: #8697c4; /* Muted blue for secondary text */
-  --text-color-three: #7091e6; /* Bright blue for links or highlights */
-  --theme-toggle-hover-color: #ede8f5; /* Light hover effect for toggle */
-  --box-shadow: none; /* No shadow in dark mode for simplicity */
+  --footer-bg: #1c1c1c;
+  --footer-line: #673ab7;
+  --body-bg: #1c1f2e; 
+  --app-bg: #242838; 
+  --footer-text: #fffafa; 
+  --footer-text-hover: #a87df1;
+  --text-color-one: #adbbd4; 
+  --text-color-two: #8697c4; 
+  --text-color-three: #7091e6;
+  --theme-toggle-hover-color: #ede8f5; 
+  --box-shadow: none; 
 
 }
 

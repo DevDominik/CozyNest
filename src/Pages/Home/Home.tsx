@@ -40,7 +40,7 @@ function Content() {
             initial={{ x: "-100%", opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 50, damping: 20 }}
-            viewport={{ once: true }} // Ensures the animation plays only once
+            viewport={{ once: true }}
           ></motion.div>
 
           <div className={styles.StoryTextConatiner}>
@@ -61,12 +61,23 @@ function Content() {
       </section>
       <section className={styles.Section3} id="info">
         <div className={styles.informations}>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
-            asperiores consectetur ducimus dolores culpa, sint vero atque non
-            saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
-            iste totam fuga?
-          </p>
+          <div className={styles.Style50}>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
+              asperiores consectetur ducimus dolores culpa, sint vero atque non
+              saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
+              iste totam fuga?
+            </p>
+
+          </div>
+          <div className={styles.Style50}>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
+              asperiores consectetur ducimus dolores culpa, sint vero atque non
+              saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
+              iste totam fuga?
+            </p>
+          </div>
         </div>
       </section>
       <section className={styles.Section4} id="contact">

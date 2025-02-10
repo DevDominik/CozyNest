@@ -2,13 +2,14 @@
   font-family: "Space Grotesk", serif;
 }
 .FormContainer {
+  margin-top: 10vh;
   display: flex;
-  flex-direction: column; /* Stack elements vertically by default */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: auto;
-  padding: 2vh; /* Add padding for spacing on smaller screens */
+  padding: 2vh; 
   box-sizing: border-box;
 }
 
@@ -17,7 +18,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%; /* Take full width for smaller screens */
+  width: 100%;
   background-color: var(--app-bg);
   padding: 1vh;
   border-radius: var(--border-radius);
@@ -40,14 +41,14 @@
 
 .ContactInfo,
 .ContactForm {
-  width: 100%; /* Full width on smaller screens */
-  height: auto; /* Adjust to content */
+  width: 100%;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 2vh; /* Space between sections */
-  padding: 1em; /* Add padding inside sections */
+  margin-bottom: 2vh; 
+  padding: 1em; 
   box-sizing: border-box;
   text-align: center;
 }
@@ -56,7 +57,7 @@
   font-size: medium;
 }
 .ContactForm input {
-  width: 90%; /* Responsive input fields */
+  width: 90%; 
   padding: 0.5em;
   margin: 0.5em 0;
   border-radius: 4px;
@@ -95,15 +96,15 @@
   
 }
 
-/* Media query for larger screens */
+
 @media (min-width: 920px) {
   .FormContainer {
-    flex-direction: row; /* Side-by-side layout for larger screens */
+    flex-direction: row; 
     height: 100vh;
   }
 
   .Container {
-    width: 500px; /* Split width equally */
+    width: 500px;
     border-radius: 8px;
     padding: 30px;
     background-color: var(--app-bg);
@@ -111,12 +112,12 @@
 
   .ContactInfo,
   .ContactForm {
-    width: 50%; /* Equal width for both sections */
-    height: 100%; /* Stretch to fill height */
+    width: 50%; 
+    height: 100%;
     margin-bottom: 0;
   }
 
   .ContactForm input {
-    width: 80%; /* Wider input fields on larger screens */
+    width: 80%; 
   }
 }

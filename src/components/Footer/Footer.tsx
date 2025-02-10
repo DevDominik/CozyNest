@@ -2,36 +2,36 @@ import styles from "./Footer.module.css";
 
 const Footer = () => {
   return (
-    <div className={styles.container}>
-      <div className={styles.left}>
-        <div className={styles.menu}>
-          <h1 className={styles.name}>COZYNEST</h1>
-          <div>
-            <p>
-              Elérhetőség: 
-            </p>
-          </div>
-          <div></div>
+    <div className={styles.footerContainer}>
+      <div className={styles.footerContent}>
+        <div className={styles.column}>
+          <h3>COZYNEST</h3>
+          <p>Here you can use rows and columns to organize your footer content. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
         </div>
-      </div>
-      <div className={styles.middle}>
-        <div className={styles.menu}>
-          <a href="/#home">Főoldal</a>
-          <a href="/#story">Történet</a>
-          <a href="/#info">Információ</a>
-          <a href="/#contact">Elérhetőség</a>
-          <a href="/login">Bejelentkezés</a>
-          <a href="/register">Regisztráció</a>
+        <div className={styles.column}>
+          <h3>SERVICES</h3>
+          <ul>
+            <li><a href="/profile">Your Account</a></li>
+            <li><a href="/profile#rooms">Your Rooms</a></li>
+            <li><a href="/profile#edit">Account Information</a></li>
+            <li><a href="/rooms">Order Room</a></li>
+          </ul>
         </div>
-      </div>
-      <div className={styles.right}>
-        <div className={styles.menu}>
-          <a href="/#home">Főoldal</a>
-          <a href="/#story">Történet</a>
-          <a href="/#info">Információ</a>
-          <a href="/#contact">Elérhetőség</a>
-          <a href="/login">Bejelentkezés</a>
-          <a href="/register">Regisztráció</a>
+        <div className={styles.column}>
+          <h3>USEFUL LINKS</h3>
+          <ul>
+            <li><a href="/">Main page</a></li>
+            <li><a href="/#contact">Contact Form</a></li>
+          </ul>
+        </div>
+        <div className={styles.column}>
+          <h3>CONTACT</h3>
+          <ul>
+            <li>📍 Debrecen, Valahol, HU</li>
+            <li>📧 info@cozynest.com</li>
+            <li>📞 + 36 30 567 88</li>
+            <li>📠 + 36 30 567 89</li>
+          </ul>
         </div>
       </div>
     </div>
