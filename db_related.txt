@@ -64,4 +64,4 @@ CREATE TABLE room (
 
 
 
-INSERT INTO roles (name) VALUES ('Guest'), ('Admin');
+INSERT INTO roles (name) VALUES ('Guest'), ('Receptionist'), ('Manager');
