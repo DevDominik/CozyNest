@@ -34,5 +34,31 @@ CREATE TABLE tokens (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- ROOM STATUS
+CREATE TABLE roomstatus (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    description VARCHAR(255) NOT NULL
+);
+
+-- ROOM TYPE
+CREATE TABLE roomtype (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    description VARCHAR(255) NOT NULL,
+    image_path VARCHAR(512) NOT NULL
+);
+
+-- ROOM
+CREATE TABLE room (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    room_number VARCHAR(50) NOT NULL UNIQUE,
+    type INT NOT NULL,
+    price_per_night DECIMAL(10,2) NOT NULL,
+    status INT NOT NULL,
+    description TEXT,
+    FOREIGN KEY (type) REFERENCES roomtype(id) ON DELETE CASCADE,
+    FOREIGN KEY (status) REFERENCES roomstatus(id) ON DELETE CASCADE
+);
+
+
 
 INSERT INTO roles (name) VALUES ('Guest'), ('Admin');
