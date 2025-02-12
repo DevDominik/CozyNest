@@ -58,6 +58,7 @@ CREATE TABLE room (
     price_per_night DECIMAL(10,2) NOT NULL,
     status INT NOT NULL,
     description TEXT,
+    deleted BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (type) REFERENCES roomtype(id) ON DELETE CASCADE,
     FOREIGN KEY (status) REFERENCES roomstatus(id) ON DELETE CASCADE
 );
