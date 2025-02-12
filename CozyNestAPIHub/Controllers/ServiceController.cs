@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CozyNestAPIHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/service")]
     [ApiController]
     public class ServiceController : ControllerBase
     {

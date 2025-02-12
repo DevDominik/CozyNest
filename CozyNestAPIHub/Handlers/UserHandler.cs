@@ -14,9 +14,12 @@ namespace CozyNestAPIHub.Handlers
     {
         private static string _connectionString;
         private static string secretKey; 
-        private static readonly SemaphoreSlim _userLock = new(1, 1);
-        private static readonly SemaphoreSlim _roleLock = new(1, 1);
-        private static readonly SemaphoreSlim _tokenLock = new(1, 1);
+        private static readonly SemaphoreSlim _userReadLock = new(1, 1);
+        private static readonly SemaphoreSlim _userWriteLock = new(1, 1);
+        private static readonly SemaphoreSlim _roleReadLock = new(1, 1);
+        private static readonly SemaphoreSlim _roleWriteLock = new(1, 1);
+        private static readonly SemaphoreSlim _tokenReadLock = new(1, 1);
+        private static readonly SemaphoreSlim _tokenWriteLock = new(1, 1);
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
         private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
         private static readonly ConcurrentDictionary<int, Role> _roleCacheById = new();
@@ -33,10 +36,26 @@ namespace CozyNestAPIHub.Handlers
             _connectionString = $"Server=localhost;Database=cozynest;User ID={username};Password={password};";
         }
         private static MySqlConnection CreateConnection() => new(_connectionString);
+        private static User MapUser(DbDataReader reader)
+        {
+            return new User
+            {
+                Id = reader.GetInt32("id"),
+                Username = reader.GetString("username"),
+                Email = reader.GetString("email"),
+                Address = reader.GetString("address"),
+                HashedPassword = reader.GetString("hashed_password"),
+                FirstName = reader.GetString("first_name"),
+                LastName = reader.GetString("last_name"),
+                Closed = reader.GetBoolean("closed"),
+                JoinDate = reader.GetDateTime("join_date"),
+                RoleId = reader.GetInt32("role_id")
+            };
+        }
         public static async Task<List<User>> GetUsers()
         {
             var users = new List<User>();
-            await _userLock.WaitAsync();
+            await _userReadLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
@@ -46,70 +65,47 @@ namespace CozyNestAPIHub.Handlers
                 using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    User user = new User
-                    {
-                        Id = reader.GetInt32("id"),
-                        Username = reader.GetString("username"),
-                        Email = reader.GetString("email"),
-                        Address = reader.GetString("address"),
-                        HashedPassword = reader.GetString("hashed_password"),
-                        FirstName = reader.GetString("first_name"),
-                        LastName = reader.GetString("last_name"),
-                        Closed = reader.GetBoolean("closed"),
-                        JoinDate = reader.GetDateTime("join_date"),
-                        RoleId = reader.GetInt32("role_id")
-                    };
-
+                    var user = MapUser(reader);
                     _userCacheById[user.Id] = user;
                     _userCacheByUsername[user.Username] = user;
-
                     users.Add(user);
                 }
             }
             finally
-            { _userLock.Release(); }
+            {
+                _userReadLock.Release();
+            }
             return users;
-
         }
+
         public static async Task<User?> GetUserById(int id)
         {
             if (_userCacheById.TryGetValue(id, out User cachedUser))
             {
                 return cachedUser;
             }
-            await _userLock.WaitAsync();
+
+            await _userReadLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
-                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE id = @userId;";
+                string query = "SELECT * FROM users WHERE id = @userId;";
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@userId", id);
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
-                    User user = new User
-                    {
-                        Id = id,
-                        Username = reader.GetString("username"),
-                        Email = reader.GetString("email"),
-                        Address = reader.GetString("address"),
-                        HashedPassword = reader.GetString("hashed_password"),
-                        FirstName = reader.GetString("first_name"),
-                        LastName = reader.GetString("last_name"),
-                        Closed = reader.GetBoolean("closed"),
-                        JoinDate = reader.GetDateTime("join_date"),
-                        RoleId = reader.GetInt32("role_id")
-                    };
-
+                    var user = MapUser(reader);
                     _userCacheById[id] = user;
                     _userCacheByUsername[user.Username] = user;
-
                     return user;
                 }
             }
-            finally 
-            { _userLock.Release(); }
+            finally
+            {
+                _userReadLock.Release();
+            }
             return null;
         }
 
@@ -119,60 +115,48 @@ namespace CozyNestAPIHub.Handlers
             {
                 return cachedUser;
             }
-            await _userLock.WaitAsync();
+
+            await _userReadLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
-                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE username = @username;";
+                string query = "SELECT * FROM users WHERE username = @username;";
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@username", username);
                 using var reader = await command.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
-                    User user = new User
-                    {
-                        Id = reader.GetInt32("id"),
-                        Username = username,
-                        Email = reader.GetString("email"),
-                        Address = reader.GetString("address"),
-                        HashedPassword = reader.GetString("hashed_password"),
-                        FirstName = reader.GetString("first_name"),
-                        LastName = reader.GetString("last_name"),
-                        Closed = reader.GetBoolean("closed"),
-                        JoinDate = reader.GetDateTime("join_date"),
-                        RoleId = reader.GetInt32("role_id")
-                    };
-
+                    var user = MapUser(reader);
                     _userCacheById[user.Id] = user;
                     _userCacheByUsername[username] = user;
-
                     return user;
                 }
             }
             finally
-            { _userLock.Release(); }
+            {
+                _userReadLock.Release();
+            }
             return null;
         }
 
         public static async Task<User?> ModifyUser(User user)
         {
-            await _userLock.WaitAsync();
+            await _userWriteLock.WaitAsync();
             try
             {
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
-
                 string updateQuery = @"UPDATE users SET 
-                    username = @username,
-                    email = @email,
-                    address = @address,
-                    hashed_password = @hashedpassword,
-                    first_name = @firstname,
-                    last_name = @lastname,
-                    closed = @closed,
-                    role_id = @roleid
-                WHERE id = @userId;";
+            username = @username,
+            email = @email,
+            address = @address,
+            hashed_password = @hashedpassword,
+            first_name = @firstname,
+            last_name = @lastname,
+            closed = @closed,
+            role_id = @roleid
+        WHERE id = @userId;";
 
                 using var command = new MySqlCommand(updateQuery, connection);
                 command.Parameters.AddWithValue("@userId", user.Id);
@@ -195,50 +179,49 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _userLock.Release();
+                _userWriteLock.Release();
             }
             return null;
         }
 
         public static async Task<User?> CreateUser(User user)
         {
-            await _userLock.WaitAsync();
+            await _userWriteLock.WaitAsync();
             try
             {
-
                 string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, join_date, role_id) 
-                               VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);";
+                                       VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);
+                                       SELECT LAST_INSERT_ID();";
 
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                await using (var command = new MySqlCommand(insertQuery, connection))
+                using var command = new MySqlCommand(insertQuery, connection);
+                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@email", user.Email);
+                command.Parameters.AddWithValue("@address", user.Address);
+                command.Parameters.AddWithValue("@hashedpassword", user.HashedPassword);
+                command.Parameters.AddWithValue("@firstname", user.FirstName);
+                command.Parameters.AddWithValue("@lastname", user.LastName);
+                command.Parameters.AddWithValue("@joindate", DateTime.UtcNow);
+                command.Parameters.AddWithValue("@roleid", user.RoleId);
+                object result = await command.ExecuteScalarAsync();
+                if (result != null && int.TryParse(result.ToString(), out int newUserId))
                 {
-                    command.Parameters.AddWithValue("@username", user.Username);
-                    command.Parameters.AddWithValue("@email", user.Email);
-                    command.Parameters.AddWithValue("@address", user.Address);
-                    command.Parameters.AddWithValue("@hashedpassword", user.HashedPassword);
-                    command.Parameters.AddWithValue("@firstname", user.FirstName);
-                    command.Parameters.AddWithValue("@lastname", user.LastName);
-                    command.Parameters.AddWithValue("@joindate", DateTime.Now);
-                    command.Parameters.AddWithValue("@roleid", user.RoleId);
-
-                    await command.ExecuteNonQueryAsync();
+                    user.Id = newUserId;
+                    return user;
                 }
-                _userCacheById[user.Id] = user;
-                _userCacheByUsername[user.Username] = user;
-
-                return user;
             }
             finally
             {
-                _userLock.Release();
+                _userWriteLock.Release();
             }
+            return null;
         }
 
         public static async Task<bool> UserExists(string username, string email)
         {
-            await _userLock.WaitAsync();
+            await _userReadLock.WaitAsync();
             try
             {
                 string checkQuery = "SELECT COUNT(*) FROM users WHERE username = @username OR email = @email;";
@@ -250,13 +233,13 @@ namespace CozyNestAPIHub.Handlers
                 {
                     command.Parameters.AddWithValue("@username", username);
                     command.Parameters.AddWithValue("@email", email);
-                    var result = await command.ExecuteScalarAsync();
-                    return Convert.ToInt32(result) > 0;
+                    int result = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    return result > 0;
                 }
             }
             finally
             {
-                _userLock.Release();
+                _userReadLock.Release();
             }
         }
 
@@ -286,7 +269,7 @@ namespace CozyNestAPIHub.Handlers
                 sub = username,
                 jti = Guid.NewGuid().ToString(),
                 userId = userId,
-                exp = DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds()  // 30 minutes expiration
+                exp = DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds()
             };
 
             var payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
@@ -314,7 +297,7 @@ namespace CozyNestAPIHub.Handlers
 
         public static async Task<Token?> CreateToken(User user)
         {
-            await _tokenLock.WaitAsync();
+            await _tokenWriteLock.WaitAsync();
             try
             {
                 string accessToken = GenerateJwtToken(user.Id, user.Username); 
@@ -352,13 +335,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _tokenLock.Release();
+                _tokenWriteLock.Release();
             }
         }
 
         public static async Task<bool> ValidateAccessToken(string accessToken)
         {
-            await _tokenLock.WaitAsync();
+            await _tokenReadLock.WaitAsync();
             try
             {
                 string checkQuery = "SELECT is_active, access_expiry FROM tokens WHERE access_token = @accessToken;";
@@ -386,13 +369,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _tokenLock.Release();
+                _tokenReadLock.Release();
             }
         }
 
         public static async Task<bool> ValidateRefreshToken(string refreshToken)
         {
-            await _tokenLock.WaitAsync();
+            await _tokenReadLock.WaitAsync();
             try
             {
                 string checkQuery = "SELECT is_active, refresh_expiry FROM tokens WHERE refresh_token = @refreshToken;";
@@ -420,13 +403,13 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _tokenLock.Release();
+                _tokenReadLock.Release();
             }
         }
 
         public static async Task<bool> RevokeToken(string accessToken, string refreshToken)
         {
-            await _tokenLock.WaitAsync();
+            await _tokenWriteLock.WaitAsync();
             try
             {
                 string revokeQuery = "UPDATE tokens SET is_active = false WHERE access_token = @accessToken OR refresh_token = @refreshToken;";
@@ -445,14 +428,14 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _tokenLock.Release();
+                _tokenWriteLock.Release();
             }
         }
 
-        public static async Task<int?> GetUserIdByAccessToken(string accessToken)
+        public static async Task<User?> GetUserByAccessToken(string accessToken)
         {
             if (!await ValidateAccessToken(accessToken)) return null;
-            await _tokenLock.WaitAsync();
+            await _tokenReadLock.WaitAsync();
             try
             {
                 string query = "SELECT user_id FROM tokens WHERE access_token = @accesstoken;";
@@ -467,7 +450,7 @@ namespace CozyNestAPIHub.Handlers
                     {
                         if (await reader.ReadAsync())
                         {
-                            return reader.GetInt32("user_id");
+                            return await GetUserById(reader.GetInt32("user_id"));
                         }
                     }
                 }
@@ -476,14 +459,15 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _tokenLock.Release();
+                _tokenReadLock.Release();
             }
         }
 
-        public static async Task<int?> GetUserIdByRefreshToken(string refreshToken)
+        public static async Task<User?> GetUserByRefreshToken(string refreshToken)
         {
             if (!await ValidateRefreshToken(refreshToken)) return null;
-            await _tokenLock.WaitAsync();
+
+            await _tokenReadLock.WaitAsync();
             try
             {
                 string query = "SELECT user_id FROM tokens WHERE refresh_token = @refreshtoken;";
@@ -494,11 +478,12 @@ namespace CozyNestAPIHub.Handlers
                 await using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@refreshtoken", refreshToken);
+
                     await using (var reader = await command.ExecuteReaderAsync())
                     {
                         if (await reader.ReadAsync())
                         {
-                            return reader.GetInt32("user_id");
+                            return await GetUserById(reader.GetInt32("user_id"));
                         }
                     }
                 }
@@ -507,9 +492,10 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _tokenLock.Release();
+                _tokenReadLock.Release();
             }
         }
+
 
         public static Role? GetRoleById(int id) 
         { 
@@ -537,7 +523,8 @@ namespace CozyNestAPIHub.Handlers
         }
         public static async Task<bool> BuildRoles()
         {
-            await _roleLock.WaitAsync();
+            await _roleReadLock.WaitAsync();
+            
             try
             {
                 using var connection = CreateConnection();
@@ -561,7 +548,7 @@ namespace CozyNestAPIHub.Handlers
             }
             finally
             {
-                _roleLock.Release();
+                _roleReadLock.Release();
             }
         }
         public static List<Role> GetRoles() 

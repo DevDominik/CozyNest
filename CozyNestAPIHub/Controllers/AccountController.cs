@@ -169,8 +169,7 @@ namespace CozyNestAPIHub.Controllers
                     message = "Invalid or expired token." 
                 });
             }
-            int? userid = await UserHandler.GetUserIdByAccessToken(request.AccessToken);
-            User? user = await UserHandler.GetUserById(userid.Value);
+            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
             Role? role = UserHandler.GetRoleById(user.RoleId);
             return Ok(new 
             { 
@@ -197,9 +196,8 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new { message = "Token is required." });
             }
-            int? userId = await UserHandler.GetUserIdByRefreshToken(request.RefreshToken);
-            bool isRefreshTokenValidated = await UserHandler.ValidateRefreshToken(request.RefreshToken);
-            if (userId == null || !isRefreshTokenValidated)
+            User? user = await UserHandler.GetUserByRefreshToken(request.RefreshToken);
+            if (user == null)
             {
                 return BadRequest(new 
                 { 
@@ -207,18 +205,20 @@ namespace CozyNestAPIHub.Controllers
                 });
             }
 
-            if (userId.HasValue)
+            Token? newToken = await UserHandler.CreateToken(user);
+            if (newToken == null) 
             {
-                User? user = await UserHandler.GetUserById(userId.Value);
-                Token? newToken = await UserHandler.CreateToken(user);
-                return Ok(new 
-                { 
-                    message = "Token successfully regenerated.", 
-                    accessToken = newToken.AccessToken, 
-                    refreshToken = newToken.RefreshToken
+                return StatusCode(500, new
+                {
+                    message = "Token generation failed."
                 });
             }
-            return StatusCode(500, new { message = "Unknown error." });
+            return Ok(new
+            {
+                message = "Token successfully regenerated.",
+                accessToken = newToken.AccessToken,
+                refreshToken = newToken.RefreshToken
+            });
         }
         [Route("updatedata")]
         [HttpPost]
@@ -226,11 +226,8 @@ namespace CozyNestAPIHub.Controllers
         {
             if (!await UserHandler.ValidateAccessToken(request.AccessToken)) { return Unauthorized(new { message = "Invalid or expired access token." }); }
 
-            int? userId = await UserHandler.GetUserIdByAccessToken(request.AccessToken);
-            if (userId == null || !userId.HasValue) { return NotFound(new { message = "User not found." }); }
-
-            User? user = await UserHandler.GetUserById(userId.Value);
-            if (user == null) { return NotFound(new { message = "User data not found." }); }
+            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            if (user == null) { return NotFound(new { message = "User not found." }); }
 
             if (!string.IsNullOrWhiteSpace(request.Email)) user.Email = request.Email;
             if (!string.IsNullOrWhiteSpace(request.Username)) user.Username = request.Username;
@@ -241,8 +238,22 @@ namespace CozyNestAPIHub.Controllers
 
             User? updateSuccess = await UserHandler.ModifyUser(user);
             if (updateSuccess == null) { return StatusCode(500, new { message = "Failed to update user data." }); }
-
-            return Ok(new { message = "User data updated successfully." });
+            string roleName = UserHandler.GetRoleById(user.RoleId)?.Name;
+            return Ok(new
+            {
+                message = "User data updated successfully.",
+                userData = new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    username = user.Username,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    closed = user.Closed,
+                    joinDate = user.JoinDate,
+                    roleName = roleName
+                }
+            });
         }
 
         private static string HashPassword(string password)

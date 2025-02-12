@@ -9,5 +9,6 @@
         public decimal PricePerNight { get; set; }
         public int Status { get; set; }
         public string Description { get; set; }
+        public bool Deleted { get; set; }
     }
 }
