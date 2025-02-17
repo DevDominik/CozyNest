@@ -1,0 +1,32 @@
+.roomPage{
+    max-height: 300vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10vh;
+}
+
+.Container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.Wrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 2vw;
+    flex-wrap: wrap;
+    padding: 4vh;
+}
+
+.Card{
+    background-color: var(--app-bg);
+    border-radius: var(--border-radius);
+    padding: 3vw;
+}

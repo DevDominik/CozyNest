@@ -7,6 +7,7 @@ import AuthPage from "./Pages/Auth/AuthPage";
 import Footer from "./components/Footer/Footer";
 import { Admin } from "./Pages/Admin/Admin";
 import Profile from "./Pages/Profile/Profile";
+import { Rooms } from "./Pages/Rooms/Rooms";
 
 function App() {
   const [darkmode, setDarkMode] = useState(false);
@@ -27,6 +28,7 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/rooms" element={<Rooms />} />
         </Routes>
         <Footer></Footer>
       </BrowserRouter>
