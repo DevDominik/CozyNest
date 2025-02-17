@@ -33,7 +33,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM rooms";
+                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM room";
                 if (!includeDeleted)
                 {
                     query += " WHERE deleted = 0";
@@ -79,7 +79,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM rooms WHERE id = @id";
+                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM room WHERE id = @id";
 
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@id", id);
@@ -114,7 +114,7 @@ namespace CozyNestAPIHub.Handlers
             await _roomWriteLock.WaitAsync();
             try
             {
-                string insertQuery = @"INSERT INTO rooms (room_number, type, price_per_night, status, description, deleted) 
+                string insertQuery = @"INSERT INTO room (room_number, type, price_per_night, status, description, deleted) 
                                        VALUES (@roomNumber, @type, @pricePerNight, @status, @description, 0);";
 
                 using var connection = CreateConnection();
@@ -148,7 +148,7 @@ namespace CozyNestAPIHub.Handlers
             await _roomWriteLock.WaitAsync();
             try
             {
-                string updateQuery = @"UPDATE rooms SET 
+                string updateQuery = @"UPDATE room SET 
                                         room_number = @roomNumber, 
                                         type = @type, 
                                         price_per_night = @pricePerNight, 
