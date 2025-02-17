@@ -12,7 +12,7 @@ namespace CozyNestAPIHub.Controllers
     public class RoomController : ControllerBase
     {
         [Route("list")]
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> List() 
         {
             List<Room> roomList = await RoomHandler.GetRooms();
