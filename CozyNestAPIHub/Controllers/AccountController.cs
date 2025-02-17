@@ -221,7 +221,7 @@ namespace CozyNestAPIHub.Controllers
             });
         }
         [Route("updatedata")]
-        [HttpPost]
+        [HttpPatch]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
             if (!await UserHandler.ValidateAccessToken(request.AccessToken)) { return Unauthorized(new { message = "Invalid or expired access token." }); }

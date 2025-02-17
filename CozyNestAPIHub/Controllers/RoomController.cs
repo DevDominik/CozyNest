@@ -20,13 +20,15 @@ namespace CozyNestAPIHub.Controllers
             foreach (Room item in roomList)
             {
                 RoomStatus? roomstatus = await RoomHandler.GetRoomStatusById(item.Status);
+                RoomType? roomtype = await RoomHandler.GetRoomTypeById(item.Type);
                 final.Add(new {
                     id = item.Id,
                     roomNumber = item.RoomNumber,
-                    type = roomstatus.Description,
+                    type = roomtype.Description,
                     pricePerNight = item.PricePerNight,
                     description = item.Description,
-                    deleted = item.Deleted
+                    deleted = item.Deleted,
+                    status = roomstatus.Description
                 });
             }
             return Ok(new {
