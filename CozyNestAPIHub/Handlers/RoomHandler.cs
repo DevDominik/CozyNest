@@ -10,6 +10,8 @@ namespace CozyNestAPIHub.Handlers
         private static string _connectionString;
         private static readonly SemaphoreSlim _roomReadLock = new(1, 1);
         private static readonly SemaphoreSlim _roomWriteLock = new(1, 1);
+        private static readonly SemaphoreSlim _roomTypeRead = new(1, 1);
+        private static readonly SemaphoreSlim _roomStatusRead = new(1, 1);
         private static readonly ConcurrentDictionary<int, Room> _roomCacheById = new();
 
         public static void Initialize(string username, string password)
@@ -177,6 +179,179 @@ namespace CozyNestAPIHub.Handlers
             finally
             {
                 _roomWriteLock.Release();
+            }
+            return null;
+        }
+        public static async Task<List<RoomType>> GetRoomTypes()
+        {
+            var roomTypes = new List<RoomType>();
+            await _roomTypeRead.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, description FROM roomtype";
+                using var command = new MySqlCommand(query, connection);
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    roomTypes.Add(new RoomType
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description")
+                    });
+                }
+            }
+            finally
+            {
+                _roomTypeRead.Release();
+            }
+            return roomTypes;
+        }
+
+        public static async Task<List<RoomStatus>> GetRoomStatuses()
+        {
+            var roomStatuses = new List<RoomStatus>();
+            await _roomStatusRead.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, description FROM roomstatus";
+                using var command = new MySqlCommand(query, connection);
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    roomStatuses.Add(new RoomStatus
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description")
+                    });
+                }
+            }
+            finally
+            {
+                _roomStatusRead.Release();
+            }
+            return roomStatuses;
+        }
+
+        public static async Task<RoomType?> GetRoomTypeById(int id)
+        {
+            await _roomTypeRead.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, description FROM roomtype WHERE id = @id";
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@id", id);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new RoomType
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description")
+                    };
+                }
+            }
+            finally
+            {
+                _roomTypeRead.Release();
+            }
+            return null;
+        }
+
+        public static async Task<RoomStatus?> GetRoomStatusById(int id)
+        {
+            await _roomStatusRead.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, description FROM roomstatus WHERE id = @id";
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@id", id);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new RoomStatus
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description")
+                    };
+                }
+            }
+            finally
+            {
+                _roomStatusRead.Release();
+            }
+            return null;
+        }
+
+        public static async Task<RoomType?> GetRoomTypeByDescription(string description)
+        {
+            await _roomTypeRead.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, description FROM roomtype WHERE description = @description";
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@description", description);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new RoomType
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description")
+                    };
+                }
+            }
+            finally
+            {
+                _roomTypeRead.Release();
+            }
+            return null;
+        }
+
+        public static async Task<RoomStatus?> GetRoomStatusByDescription(string description)
+        {
+            await _roomStatusRead.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                string query = "SELECT id, description FROM roomstatus WHERE description = @description";
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@description", description);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new RoomStatus
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description")
+                    };
+                }
+            }
+            finally
+            {
+                _roomStatusRead.Release();
             }
             return null;
         }

@@ -20,7 +20,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("getusers")]
         [HttpPost]
-        public async Task<IActionResult> GetUsers([FromBody] IntrospectTokenRequest request) 
+        public async Task<IActionResult> GetUsers() 
         {
 
             List<User> userList = await UserHandler.GetUsers();
