@@ -66,5 +66,5 @@ CREATE TABLE room (
 
 
 INSERT INTO roles (name) VALUES ('Guest'), ('Receptionist'), ('Manager');
-INSERT INTO roomtype (description, image_path) VALUES ('Standard', '//'), ('Deluxe', '//'), ('Suite', '//')
-INSERT INTO roomstatus (description) VALUES ('Available'), ('Maintenance'), ('Occupied')
+INSERT INTO roomtype (description, image_path) VALUES ('Standard', '//'), ('Deluxe', '//'), ('Suite', '//');
+INSERT INTO roomstatus (description) VALUES ('Available'), ('Maintenance'), ('Occupied');
