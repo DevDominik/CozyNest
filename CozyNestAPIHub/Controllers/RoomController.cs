@@ -9,7 +9,6 @@ namespace CozyNestAPIHub.Controllers
 {
     [Route("api/room")]
     [ApiController]
-    [Role("Receptionist", "Manager")]
     public class RoomController : ControllerBase
     {
         [Route("list")]
