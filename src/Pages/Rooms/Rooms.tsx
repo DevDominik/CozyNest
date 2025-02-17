@@ -10,20 +10,19 @@ export const Rooms = () => {
             <div className={styles.Container}>
                 <h1>AVAILABLE ROOMS</h1>
                 <div className={styles.SearchDiv}>
-                    <select name="" id="" className={styles.Select}>
-                        <option value="">Kicsi</option>
-                        <option value="">Közepes</option>
-                        <option value="">Nagy</option>
+                    <select name="roomType" id="roomType" className={styles.Select}>
+                        <option value="">Normal</option>
+                        <option value="">Deluxe</option>
                         <option value="">Suite</option>
                     </select>
 
-                    <select name="" id="" className={styles.Select}>
-                        <option value="">Kicsi</option>
-                        <option value="">Közepes</option>
-                        <option value="">Nagy</option>
-                        <option value="">Suite</option>
-                    </select>   
+                    <select name="" id="roomAvailability" className={styles.Select}>
+                        <option value="">Show Available</option>
+                        <option value="">Show Unavailable</option>
+                        <option value="">Show Both</option>
+                    </select>
                     <input type="text" className={styles.SearchBar} />
+                    <input type="range" id="volume" name="volume" min="0" max="11" />
 
                 </div>
                 <div className={styles.Wrapper}>
