@@ -1,4 +1,4 @@
-.roomPage{
+.roomPage {
     max-height: 300vh;
     display: flex;
     flex-direction: column;
@@ -7,7 +7,7 @@
     margin-top: 10vh;
 }
 
-.Container{
+.Container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -15,7 +15,7 @@
     width: 100%;
 }
 
-.Wrapper{
+.Wrapper {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -25,8 +25,34 @@
     padding: 4vh;
 }
 
-.Card{
+.Card {
     background-color: var(--app-bg);
     border-radius: var(--border-radius);
     padding: 3vw;
+}
+
+.SearchBar {
+    width: 100%;
+}
+
+.Select {
+    outline: none;
+    width: 200px;
+    height: 40px;
+    resize: none;
+    background-color: var(--app-bg);
+    border: none;
+    border-radius: var(--border-radius);
+    text-align: center;
+    justify-content: center;
+    font-size: large;
+    color: inherit;
+    margin: 10px;
+}
+
+.SearchDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
