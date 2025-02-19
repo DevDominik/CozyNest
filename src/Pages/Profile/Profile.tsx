@@ -48,30 +48,65 @@ const Profile = () => {
     setUserData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
+  
     const token = localStorage.getItem("accessToken");
-    if (!token) return;
+    if (!token) {
+      setMessage("Access token not found. Please log in.");
+      return;
+    }
+  
+    const updatedData = {
+      username: userData.username,
+      password: userData.password,  // Only include if you're updating the password
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      address: userData.address,
+      accessToken: token,
+    };
+  
+    console.log("Sending updated data:", updatedData);  // Log data being sent
   
     try {
       const response = await fetch(`${BASEURL}/api/account/updatedata`, {
-        method: "PUT",  // Changed from PATCH to PUT
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...userData, accessToken: token }),  // Token included in body
+        body: JSON.stringify(updatedData),
       });
-      console.log(response);
   
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
+      const data = await response.json();  // Wait for the response to be parsed
+      console.log("Response data:", data);  // Log the entire response data
   
-      setMessage("Profile updated successfully!");
+      if (!response.ok) {
+        console.error("Failed to update profile:", data);  // Log detailed response if the request fails
+        setMessage(data.message || "Failed to update profile.");
+        return;
+      }
+  
+      setMessage("Profile updated successfully.");
+      setUserData(data.userData);  // Assuming the updated user data is returned in the response
+  
+      // Check if newTokens exists and update tokens
+      if (data.newTokens && data.newTokens.accessToken && data.newTokens.refreshToken) {
+        localStorage.setItem("accessToken", data.newTokens.accessToken);
+        localStorage.setItem("refreshToken", data.newTokens.refreshToken);
+        console.log("New tokens stored in localStorage");
+      } else {
+        console.error("No new tokens found in the response.");
+      }
     } catch (error) {
-      console.error("Failed to update profile:", error);
-      setMessage("Failed to update profile.");
+      console.error("Error updating profile:", error);
+      setMessage("Error updating profile.");
     }
   };
+  
+  
   
   
 
