@@ -175,7 +175,7 @@ namespace CozyNestAPIHub.Controllers
             if (!string.IsNullOrWhiteSpace(request.Description)) room.Description = request.Description;
 
             Room? updateSuccess = await RoomHandler.ModifyRoom(room);
-            if (updateSuccess == null) { return StatusCode(500, new { message = "Failed to update room." }); }
+            if (updateSuccess == null) { return StatusCode(500, new { message = "Error arose when updating room." }); }
 
             string roomStatusDesc = (await RoomHandler.GetRoomStatusById(room.Status))?.Description ?? "Unknown";
             string roomTypeDesc = (await RoomHandler.GetRoomTypeById(room.Type))?.Description ?? "Unknown";
