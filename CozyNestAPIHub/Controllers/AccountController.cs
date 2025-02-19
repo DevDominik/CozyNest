@@ -256,8 +256,13 @@ namespace CozyNestAPIHub.Controllers
             if (passwordIsUpdated)
             {
                 bool success = await UserHandler.RevokeAllTokensForUser(user);
-                if ()
-
+                if (!success)
+                {
+                    return StatusCode(500, new
+                    {
+                        message = "Failed to revoke all tokens for user."
+                    });
+                }
                 Token? token = await UserHandler.CreateToken(user);
                 if (token == null)
                 {
@@ -300,7 +305,65 @@ namespace CozyNestAPIHub.Controllers
             });
         }
 
+        [Route("deleteaccount")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAccount([FromBody] IntrospectTokenRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.AccessToken))
+            {
+                return BadRequest(new { message = "Invalid request." });
+            }
+            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
+            {
+                return Unauthorized(new { message = "Invalid or expired access token." });
+            }
+            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+            if (user.Closed)
+            {
+                return Unauthorized(new { message = "Account already closed."});
+            }
+            user.Closed = true;
+            User? updatedUser = await UserHandler.ModifyUser(user);
+            if (updatedUser == null)
+            {
+                return StatusCode(500, new { message = "Failed to close account." });
+            }
+            bool success = await UserHandler.RevokeAllTokensForUser(user);
+            if (!success)
+            {
+                return StatusCode(500, new { message = "Failed to revoke all tokens for user." });
+            }
+            return Ok(new { message = "Account closed successfully." });
+        }
 
+        [Route("logouteverywhere")]
+        [HttpPost]
+        public async Task<IActionResult> LogoutEverywhere([FromBody] IntrospectTokenRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.AccessToken))
+            {
+                return BadRequest(new { message = "Invalid request." });
+            }
+            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
+            {
+                return Unauthorized(new { message = "Invalid or expired access token." });
+            }
+            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+            bool success = await UserHandler.RevokeAllTokensForUser(user);
+            if (!success)
+            {
+                return StatusCode(500, new { message = "Failed to revoke all tokens for user." });
+            }
+            return Ok(new { message = "Logged out from all devices." });
+        }
         private static string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
