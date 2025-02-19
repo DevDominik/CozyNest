@@ -222,7 +222,7 @@ namespace CozyNestAPIHub.Controllers
         }
 
         [Route("updatedata")]
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
             if (!await UserHandler.ValidateAccessToken(request.AccessToken))
