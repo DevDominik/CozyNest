@@ -28,7 +28,7 @@ export const Admin = () => {
           throw new Error(data.message);
         }
 
-        if (data.userData.roleName != "Admin") {
+        if (data.userData.roleName != "Manager") {
           navigate("/");
         }
       } catch (error) {

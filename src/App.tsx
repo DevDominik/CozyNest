@@ -8,6 +8,7 @@ import Footer from "./components/Footer/Footer";
 import { Admin } from "./Pages/Admin/Admin";
 import Profile from "./Pages/Profile/Profile";
 import { Rooms } from "./Pages/Rooms/Rooms";
+import CreateRoom from "./Pages/CreateRoom/CreateRoom";
 
 function App() {
   const [darkmode, setDarkMode] = useState(false);
@@ -29,6 +30,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/rooms" element={<Rooms />} />
+          <Route path="/CreateRoom" element={<CreateRoom />} />
         </Routes>
         <Footer></Footer>
       </BrowserRouter>

@@ -1,9 +1,69 @@
-.profileContainer{
-    margin-top: 10vh;
+.profileContainer {
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profileTitle {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #333;
+  }
+  
+  .message {
+    text-align: center;
+    color: green;
+    margin-bottom: 10px;
+  }
+  
+  .profileForm {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
+    gap: 15px;
+  }
+  
+  .label {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .submitButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .submitButton:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .profileContainer {
+      width: 90%;
+      padding: 15px;
+    }
+  
+    .input {
+      padding: 8px;
+    }
+  
+    .submitButton {
+      padding: 8px;
+    }
+  }
+  

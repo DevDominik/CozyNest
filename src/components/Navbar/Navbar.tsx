@@ -94,7 +94,9 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
         <a href="/#story">Story</a>
         <a href="/#info">Info</a>
         <a href="/#contact">Contact</a>
-        {role == "Admin" ? <a href="/Admin">Admin Panel</a> : <p></p>}
+        <a href="/rooms">Rooms</a>
+        {role == "Manager" ? <a href="/Admin">Admin Panel</a> : <p></p>}
+        {role == "Manager" ? <a href="/CreateRoom">Create Room</a> : <p></p>}
         {username ? (
           <div className={styles.authSpace}>
             <a href={`/profile/`}>{username.toUpperCase()}</a>

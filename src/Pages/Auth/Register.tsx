@@ -58,7 +58,7 @@ const Register = () => {
       localStorage.setItem("refreshToken", data.refreshToken);
 
       // Redirect to dashboard
-      navigate("/dashboard");
+      navigate("/profile");
     } catch (err: any) {
       setError(err.message);
     }
