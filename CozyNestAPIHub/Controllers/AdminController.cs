@@ -19,7 +19,7 @@ namespace CozyNestAPIHub.Controllers
         }
 
         [Route("getusers")]
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetUsers() 
         {
 
