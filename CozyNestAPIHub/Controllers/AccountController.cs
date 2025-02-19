@@ -220,25 +220,64 @@ namespace CozyNestAPIHub.Controllers
                 refreshToken = newToken.RefreshToken
             });
         }
+
         [Route("updatedata")]
-        [HttpPatch]
+        [HttpPut]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
-            if (!await UserHandler.ValidateAccessToken(request.AccessToken)) { return Unauthorized(new { message = "Invalid or expired access token." }); }
+            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
+            {
+                return Unauthorized(new { message = "Invalid or expired access token." });
+            }
 
             User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
-            if (user == null) { return NotFound(new { message = "User not found." }); }
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            bool passwordIsUpdated = false;
 
             if (!string.IsNullOrWhiteSpace(request.Email)) user.Email = request.Email;
             if (!string.IsNullOrWhiteSpace(request.Username)) user.Username = request.Username;
             if (!string.IsNullOrWhiteSpace(request.Address)) user.Address = request.Address;
             if (!string.IsNullOrWhiteSpace(request.FirstName)) user.FirstName = request.FirstName;
             if (!string.IsNullOrWhiteSpace(request.LastName)) user.LastName = request.LastName;
-            if (!string.IsNullOrWhiteSpace(request.Password)) user.HashedPassword = HashPassword(request.Password);
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+            {
+                user.HashedPassword = HashPassword(request.Password);
+                passwordIsUpdated = true;
+            }
+
+            string? newAccessToken = null;
+            string? newRefreshToken = null;
+
+            if (passwordIsUpdated)
+            {
+                bool success = await UserHandler.RevokeAllTokensForUser(user);
+                if ()
+
+                Token? token = await UserHandler.CreateToken(user);
+                if (token == null)
+                {
+                    return StatusCode(500, new
+                    {
+                        message = "Error arose when creating a new set of tokens."
+                    });
+                }
+                newAccessToken = token.AccessToken;
+                newRefreshToken = token.RefreshToken;
+            }
 
             User? updateSuccess = await UserHandler.ModifyUser(user);
-            if (updateSuccess == null) { return StatusCode(500, new { message = "Failed to update user data." }); }
+            if (updateSuccess == null)
+            {
+                return StatusCode(500, new { message = "Failed to update user data." });
+            }
+
             string roleName = UserHandler.GetRoleById(user.RoleId)?.Name;
+
             return Ok(new
             {
                 message = "User data updated successfully.",
@@ -252,9 +291,15 @@ namespace CozyNestAPIHub.Controllers
                     closed = user.Closed,
                     joinDate = user.JoinDate,
                     roleName = roleName
-                }
+                },
+                newTokens = passwordIsUpdated ? new
+                {
+                    accessToken = newAccessToken,
+                    refreshToken = newRefreshToken
+                } : null
             });
         }
+
 
         private static string HashPassword(string password)
         {

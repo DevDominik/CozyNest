@@ -432,6 +432,31 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
+        public static async Task<bool> RevokeAllTokensForUser(User user)
+        {
+            await _tokenWriteLock.WaitAsync();
+            try
+            {
+                string revokeQuery = "UPDATE tokens SET is_active = false WHERE user_id = @userId;";
+
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+
+                await using (var command = new MySqlCommand(revokeQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@userId", user.Id);
+
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    return rowsAffected > 0;
+                }
+            }
+            finally
+            {
+                _tokenWriteLock.Release();
+            }
+        }
+
+
         public static async Task<User?> GetUserByAccessToken(string accessToken)
         {
             if (!await ValidateAccessToken(accessToken)) return null;

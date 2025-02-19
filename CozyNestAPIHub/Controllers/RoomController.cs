@@ -144,7 +144,7 @@ namespace CozyNestAPIHub.Controllers
             });
         }
         [Route("modify")]
-        [HttpPatch]
+        [HttpPut]
         [Role("Manager")]
         public async Task<IActionResult> Modify([FromBody] RoomModifyRequest request)
         {

@@ -355,5 +355,18 @@ namespace CozyNestAPIHub.Handlers
             }
             return null;
         }
+        public static async Task<Room?> GetRoomByRoomNumber(string roomNumber) 
+        { 
+            await _roomReadLock.WaitAsync();
+            try
+            {
+
+            }
+            finally
+            {
+                _roomReadLock.Release();
+            }
+            return null;
+        }
     }
 }
