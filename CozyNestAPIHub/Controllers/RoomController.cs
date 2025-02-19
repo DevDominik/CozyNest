@@ -101,6 +101,47 @@ namespace CozyNestAPIHub.Controllers
                 }
             });
         }
-        
+
+        [Route("delete")]
+        [HttpDelete]
+        [Role("Manager")]
+        public async Task<IActionResult> Delete([FromBody] RoomDeleteRequest request) 
+        {
+            if (request == null || request.RoomId == null)
+            {
+                return BadRequest(new 
+                { 
+                    message = "Invalid request."    
+                });
+            }
+            Room? room = await RoomHandler.GetRoomById(request.RoomId);
+            if (room == null) 
+            { 
+                return NotFound(new 
+                {
+                    message = "Room not found."
+                });
+            }
+            if (room.Deleted)
+            {
+                return Unauthorized(new
+                {
+                    message = "Room is already deleted."
+                });
+            }
+            room.Deleted = true;
+            if (await RoomHandler.ModifyRoom(room) == null) 
+            {
+                return StatusCode(500, new 
+                {
+                    message = "Error arose when deleting room."
+                });
+            }
+            return Ok(new
+            {
+                message = "Successfully deleted room.",
+                roomId = room.Id,
+            });
+        }
     }
 }
