@@ -12,6 +12,8 @@ const Profile = () => {
     lastName: "",
     address: "",
   });
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -45,32 +47,43 @@ const Profile = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setUserData((prevData) => ({ ...prevData, [name]: value }));
+    if (name === "password") {
+      setPassword(value);
+    } else if (name === "confirmPassword") {
+      setConfirmPassword(value);
+    } else {
+      setUserData((prevData) => ({ ...prevData, [name]: value }));
+    }
   };
 
-
-  
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     const token = localStorage.getItem("accessToken");
     if (!token) {
       setMessage("Access token not found. Please log in.");
       return;
     }
-  
+
     const updatedData = {
       username: userData.username,
-      password: userData.password,  // Only include if you're updating the password
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
       address: userData.address,
       accessToken: token,
     };
-  
+
+    // Only add password if it's valid and matches the confirmation
+    if (password && password === confirmPassword) {
+      updatedData.password = password;
+    } else if (password || confirmPassword) {
+      setMessage("Passwords do not match.");
+      return;
+    }
+
     console.log("Sending updated data:", updatedData);  // Log data being sent
-  
+
     try {
       const response = await fetch(`${BASEURL}/api/account/updatedata`, {
         method: "PUT",
@@ -79,36 +92,34 @@ const Profile = () => {
         },
         body: JSON.stringify(updatedData),
       });
-  
+
       const data = await response.json();  // Wait for the response to be parsed
       console.log("Response data:", data);  // Log the entire response data
-  
+
       if (!response.ok) {
         console.error("Failed to update profile:", data);  // Log detailed response if the request fails
         setMessage(data.message || "Failed to update profile.");
         return;
       }
-  
+
       setMessage("Profile updated successfully.");
       setUserData(data.userData);  // Assuming the updated user data is returned in the response
-  
-      // Check if newTokens exists and update tokens
-      if (data.newTokens && data.newTokens.accessToken && data.newTokens.refreshToken) {
-        localStorage.setItem("accessToken", data.newTokens.accessToken);
-        localStorage.setItem("refreshToken", data.newTokens.refreshToken);
-        console.log("New tokens stored in localStorage");
-      } else {
-        console.error("No new tokens found in the response.");
+
+      // If the password was updated, update tokens as well
+      if (password && password === confirmPassword) {
+        if (data.newTokens && data.newTokens.accessToken && data.newTokens.refreshToken) {
+          localStorage.setItem("accessToken", data.newTokens.accessToken);
+          localStorage.setItem("refreshToken", data.newTokens.refreshToken);
+          console.log("New tokens stored in localStorage");
+        } else {
+          console.error("No new tokens found in the response.");
+        }
       }
     } catch (error) {
       console.error("Error updating profile:", error);
       setMessage("Error updating profile.");
     }
   };
-  
-  
-  
-  
 
   if (loading) {
     return <p>Loading profile...</p>;
@@ -155,6 +166,26 @@ const Profile = () => {
             type="text"
             name="address"
             value={userData?.address || ""}
+            onChange={handleChange}
+            className={Styles.input}
+          />
+        </label>
+        <label className={Styles.label}>
+          New Password:
+          <input
+            type="password"
+            name="password"
+            value={password}
+            onChange={handleChange}
+            className={Styles.input}
+          />
+        </label>
+        <label className={Styles.label}>
+          Confirm Password:
+          <input
+            type="password"
+            name="confirmPassword"
+            value={confirmPassword}
             onChange={handleChange}
             className={Styles.input}
           />
