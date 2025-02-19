@@ -42,10 +42,10 @@ namespace CozyNestAPIHub.Controllers
         public async Task<IActionResult> Create([FromBody] RoomCreateRequest request)
         {
             if (request == null |
-                string.IsNullOrEmpty(request.StatusDescription) |
-                string.IsNullOrEmpty(request.TypeDescription) |
-                string.IsNullOrEmpty(request.RoomNumber) |
-                request.PricePerNight == null |
+                string.IsNullOrEmpty(request.StatusDescription) ||
+                string.IsNullOrEmpty(request.TypeDescription) ||
+                string.IsNullOrEmpty(request.RoomNumber) ||
+                request.PricePerNight == null ||
                 request.Description == null)
             {
                 return BadRequest(new
@@ -143,5 +143,58 @@ namespace CozyNestAPIHub.Controllers
                 roomId = room.Id,
             });
         }
+        [Route("modify")]
+        [HttpPatch]
+        [Role("Manager")]
+        public async Task<IActionResult> Modify([FromBody] RoomModifyRequest request)
+        {
+            if (request == null || request.RoomId == null)
+            {
+                return BadRequest(new { message = "Invalid request." });
+            }
+
+            Room? room = await RoomHandler.GetRoomById(request.RoomId);
+            if (room == null) { return NotFound(new { message = "Room not found." }); }
+
+            if (!string.IsNullOrWhiteSpace(request.StatusDescription))
+            {
+                RoomStatus? roomStatus = await RoomHandler.GetRoomStatusByDescription(request.StatusDescription);
+                if (roomStatus == null) { return BadRequest(new { message = "Invalid room status." }); }
+                room.Status = roomStatus.Id;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.TypeDescription))
+            {
+                RoomType? roomType = await RoomHandler.GetRoomTypeByDescription(request.TypeDescription);
+                if (roomType == null) { return BadRequest(new { message = "Invalid room type." }); }
+                room.Type = roomType.Id;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.RoomNumber)) room.RoomNumber = request.RoomNumber;
+            if (request.PricePerNight != null) room.PricePerNight = request.PricePerNight;
+            if (!string.IsNullOrWhiteSpace(request.Description)) room.Description = request.Description;
+
+            Room? updateSuccess = await RoomHandler.ModifyRoom(room);
+            if (updateSuccess == null) { return StatusCode(500, new { message = "Failed to update room." }); }
+
+            string roomStatusDesc = (await RoomHandler.GetRoomStatusById(room.Status))?.Description ?? "Unknown";
+            string roomTypeDesc = (await RoomHandler.GetRoomTypeById(room.Type))?.Description ?? "Unknown";
+
+            return Ok(new
+            {
+                message = "Room data updated successfully.",
+                roomData = new
+                {
+                    id = room.Id,
+                    roomNumber = room.RoomNumber,
+                    type = roomTypeDesc,
+                    pricePerNight = room.PricePerNight,
+                    description = room.Description,
+                    deleted = room.Deleted,
+                    status = roomStatusDesc
+                }
+            });
+        }
+
     }
 }
