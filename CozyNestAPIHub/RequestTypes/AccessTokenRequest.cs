@@ -2,9 +2,8 @@
 
 namespace CozyNestAPIHub.RequestTypes
 {
-    public class LogoutRequest : IAccessToken, IRefreshToken
+    public class AccessTokenRequest : IAccessToken
     {
         public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
     }
 }

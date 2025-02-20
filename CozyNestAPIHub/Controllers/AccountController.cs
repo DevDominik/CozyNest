@@ -149,7 +149,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("introspect")]
         [HttpPost]
-        public async Task<IActionResult> IntrospectToken([FromBody] IntrospectTokenRequest request)
+        public async Task<IActionResult> IntrospectToken([FromBody] AccessTokenRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {
@@ -190,7 +190,7 @@ namespace CozyNestAPIHub.Controllers
         }
         [Route("renewtoken")]
         [HttpPost]
-        public async Task<IActionResult> RenewToken([FromBody] RenewTokenRequest request) 
+        public async Task<IActionResult> RenewToken([FromBody] RefreshTokenRequest request) 
         {
             if (request == null || string.IsNullOrEmpty(request.RefreshToken))
             {
@@ -307,7 +307,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("deleteaccount")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteAccount([FromBody] IntrospectTokenRequest request)
+        public async Task<IActionResult> DeleteAccount([FromBody] AccessTokenRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {
@@ -342,7 +342,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("logouteverywhere")]
         [HttpPost]
-        public async Task<IActionResult> LogoutEverywhere([FromBody] IntrospectTokenRequest request)
+        public async Task<IActionResult> LogoutEverywhere([FromBody] AccessTokenRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {

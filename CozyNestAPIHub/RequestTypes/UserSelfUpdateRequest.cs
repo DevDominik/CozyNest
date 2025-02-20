@@ -1,6 +1,8 @@
-﻿namespace CozyNestAPIHub.RequestTypes
+﻿using CozyNestAPIHub.Interfaces;
+
+namespace CozyNestAPIHub.RequestTypes
 {
-    public class UserSelfUpdateRequest
+    public class UserSelfUpdateRequest : IAccessToken, IUsername, IPassword
     {
         public string Username { get; set; }
         public string? Password { get; set; }
