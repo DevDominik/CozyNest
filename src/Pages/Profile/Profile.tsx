@@ -82,7 +82,7 @@ const Profile = () => {
       return;
     }
 
-    console.log("Sending updated data:", updatedData);  // Log data being sent
+    console.log("Sending updated data:", updatedData); // Log data being sent
 
     try {
       const response = await fetch(`${BASEURL}/api/account/updatedata`, {
@@ -93,21 +93,25 @@ const Profile = () => {
         body: JSON.stringify(updatedData),
       });
 
-      const data = await response.json();  // Wait for the response to be parsed
-      console.log("Response data:", data);  // Log the entire response data
+      const data = await response.json(); // Wait for the response to be parsed
+      console.log("Response data:", data); // Log the entire response data
 
       if (!response.ok) {
-        console.error("Failed to update profile:", data);  // Log detailed response if the request fails
+        console.error("Failed to update profile:", data); // Log detailed response if the request fails
         setMessage(data.message || "Failed to update profile.");
         return;
       }
 
       setMessage("Profile updated successfully.");
-      setUserData(data.userData);  // Assuming the updated user data is returned in the response
+      setUserData(data.userData); // Assuming the updated user data is returned in the response
 
       // If the password was updated, update tokens as well
       if (password && password === confirmPassword) {
-        if (data.newTokens && data.newTokens.accessToken && data.newTokens.refreshToken) {
+        if (
+          data.newTokens &&
+          data.newTokens.accessToken &&
+          data.newTokens.refreshToken
+        ) {
           localStorage.setItem("accessToken", data.newTokens.accessToken);
           localStorage.setItem("refreshToken", data.newTokens.refreshToken);
           console.log("New tokens stored in localStorage");
@@ -127,11 +131,11 @@ const Profile = () => {
 
   return (
     <div className={Styles.profileContainer}>
+    
       <h2 className={Styles.profileTitle}>Profile</h2>
-      {message && <p className={Styles.message}>{message}</p>}
       <form onSubmit={handleSubmit} className={Styles.profileForm}>
         <label className={Styles.label}>
-          Email:
+          Email
           <input
             type="email"
             name="email"
@@ -141,7 +145,7 @@ const Profile = () => {
           />
         </label>
         <label className={Styles.label}>
-          First Name:
+          First Name
           <input
             type="text"
             name="firstName"
@@ -151,7 +155,7 @@ const Profile = () => {
           />
         </label>
         <label className={Styles.label}>
-          Last Name:
+          Last Name
           <input
             type="text"
             name="lastName"
@@ -161,7 +165,7 @@ const Profile = () => {
           />
         </label>
         <label className={Styles.label}>
-          Address:
+          Address
           <input
             type="text"
             name="address"
@@ -171,7 +175,7 @@ const Profile = () => {
           />
         </label>
         <label className={Styles.label}>
-          New Password:
+          New Password
           <input
             type="password"
             name="password"
@@ -181,7 +185,7 @@ const Profile = () => {
           />
         </label>
         <label className={Styles.label}>
-          Confirm Password:
+          Confirm Password
           <input
             type="password"
             name="confirmPassword"
@@ -193,6 +197,7 @@ const Profile = () => {
         <button type="submit" className={Styles.submitButton}>
           Update Profile
         </button>
+        {message && <p className={Styles.message}>{message}</p>}
       </form>
     </div>
   );
