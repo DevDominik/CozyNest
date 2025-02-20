@@ -1,10 +1,7 @@
-using CozyNestAPIHub.Interfaces;
-
 namespace CozyNestAPIHub.RequestTypes
 {
-    public class RoomCreateRequest : IAccessToken
+    public class RoomCreateRequest
     {
-        public string AccessToken { get; set; }
         public string RoomNumber { get; set; }
 
         public string TypeDescription { get; set; }

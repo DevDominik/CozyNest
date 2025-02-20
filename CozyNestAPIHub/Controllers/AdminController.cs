@@ -19,7 +19,7 @@ namespace CozyNestAPIHub.Controllers
         }
 
         [Route("getusers")]
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> GetUsers() 
         {
 
@@ -39,7 +39,26 @@ namespace CozyNestAPIHub.Controllers
                     roleName = UserHandler.GetRoleById(loopedUser.RoleId).Name
                 });
             }
-            return Ok(new { message = "Request successful.", users = usersFinal.ToArray() });
+            return Ok(new { message = "Request successful.", users = usersFinal });
+        }
+        [Route("getroles")]
+        [HttpGet]
+        public async Task<IActionResult> GetRoles()
+        {
+            List<Role> roleList = UserHandler.GetRoles();
+            List<object> rolesFinal = new List<object>();
+            foreach (Role loopedRole in roleList)
+            {
+                rolesFinal.Add(loopedRole.Name);
+            }
+            return Ok(new { message = "Request successful.", roles = rolesFinal });
+        }
+        [Route("editusers")]
+        [HttpPut]
+        [Role("Manager")]
+        public async Task<IActionResult> EditUsers([FromBody] UserBulkUpdateRequest request) 
+        {
+            return Ok();
         }
     }
 }

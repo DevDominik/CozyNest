@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using CozyNestAPIHub.RequestTypes;
+using CozyNestAPIHub.Attributes;
 
 namespace CozyNestAPIHub.Controllers
 {
@@ -121,8 +122,9 @@ namespace CozyNestAPIHub.Controllers
         }
 
         [Route("logout")]
-        [HttpPost]
-        public async Task<IActionResult> Logout([FromBody] LogoutRequest request)
+        [HttpGet]
+        [RequireAccessToken, RequireRefreshToken]
+        public async Task<IActionResult> Logout()
         {
             if (string.IsNullOrEmpty(request.AccessToken) || string.IsNullOrEmpty(request.RefreshToken))
             {
@@ -148,8 +150,9 @@ namespace CozyNestAPIHub.Controllers
         }
 
         [Route("introspect")]
-        [HttpPost]
-        public async Task<IActionResult> IntrospectToken([FromBody] AccessTokenRequest request)
+        [HttpGet]
+        [RequireAccessToken]
+        public async Task<IActionResult> IntrospectToken()
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {
@@ -189,8 +192,9 @@ namespace CozyNestAPIHub.Controllers
             });
         }
         [Route("renewtoken")]
-        [HttpPost]
-        public async Task<IActionResult> RenewToken([FromBody] RefreshTokenRequest request) 
+        [HttpGet]
+        [RequireRefreshToken]
+        public async Task<IActionResult> RenewToken() 
         {
             if (request == null || string.IsNullOrEmpty(request.RefreshToken))
             {
@@ -223,8 +227,10 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("updatedata")]
         [HttpPut]
+        [RequireAccessToken]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
+
             if (!await UserHandler.ValidateAccessToken(request.AccessToken))
             {
                 return Unauthorized(new { message = "Invalid or expired access token." });
@@ -307,6 +313,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("deleteaccount")]
         [HttpDelete]
+        [RequireAccessToken]
         public async Task<IActionResult> DeleteAccount([FromBody] AccessTokenRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
@@ -341,8 +348,9 @@ namespace CozyNestAPIHub.Controllers
         }
 
         [Route("logouteverywhere")]
-        [HttpPost]
-        public async Task<IActionResult> LogoutEverywhere([FromBody] AccessTokenRequest request)
+        [HttpGet]
+        [RequireAccessToken]
+        public async Task<IActionResult> LogoutEverywhere()
         {
             if (request == null || string.IsNullOrEmpty(request.AccessToken))
             {

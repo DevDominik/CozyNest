@@ -1,8 +1,6 @@
-﻿using CozyNestAPIHub.Interfaces;
-
-namespace CozyNestAPIHub.RequestTypes
+﻿namespace CozyNestAPIHub.RequestTypes
 {
-    public class LoginRequest : IUsername, IPassword
+    public class LoginRequest
     {
         public string Username { get; set; }
         public string Password { get; set; }

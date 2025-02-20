@@ -1,8 +1,6 @@
-﻿using CozyNestAPIHub.Interfaces;
-
-namespace CozyNestAPIHub.RequestTypes
+﻿namespace CozyNestAPIHub.RequestTypes
 {
-    public class UserSelfUpdateRequest : IAccessToken, IUsername, IPassword
+    public class UserSelfUpdateRequest
     {
         public string Username { get; set; }
         public string? Password { get; set; }
@@ -10,6 +8,5 @@ namespace CozyNestAPIHub.RequestTypes
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Address { get; set; }
-        public string AccessToken { get; set; }
     }
 }

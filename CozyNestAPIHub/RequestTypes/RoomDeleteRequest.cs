@@ -1,10 +1,7 @@
-﻿using CozyNestAPIHub.Interfaces;
-
-namespace CozyNestAPIHub.RequestTypes
+﻿namespace CozyNestAPIHub.RequestTypes
 {
-    public class RoomDeleteRequest : IAccessToken
+    public class RoomDeleteRequest
     {
-        public string AccessToken { get; set; }
         public int RoomId { get; set; }
     }
 }

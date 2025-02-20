@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CozyNestAPIHub.Attributes
 {
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class RoleAttribute : Attribute, IAsyncAuthorizationFilter
     {
         private readonly string[] _roles;
@@ -14,69 +15,25 @@ namespace CozyNestAPIHub.Attributes
         {
             _roles = roles;
         }
-
+        [RequireAccessToken]
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            var token = context.HttpContext.Request;
+            var httpContext = context.HttpContext;
 
-            if (token == null || ExtractTokenFromBody(token) == null)
+            if (!httpContext.Items.TryGetValue("AccessToken", out var tokenObj) || tokenObj is not string token || string.IsNullOrEmpty(token))
             {
-                context.Result = new ObjectResult(new { message = "Token is missing." }) { StatusCode = 400 };
+                context.Result = new ObjectResult(new { message = "Token is missing or invalid." }) { StatusCode = 401 };
                 return;
             }
 
-            var tokenString = await ExtractTokenFromBody(token);
-            if (string.IsNullOrEmpty(tokenString))
-            {
-                context.Result = new ObjectResult(new { message = "Token is missing." }) { StatusCode = 400 };
-                return;
-            }
-
-            var (isValid, errorMessage) = await Check(tokenString);
+            var (isValid, errorMessage) = await CheckUserRole(token);
             if (!isValid)
             {
                 context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = 403 };
             }
         }
 
-        private async Task<string?> ExtractTokenFromBody(HttpRequest request)
-        {
-            if (!request.ContentType?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return null;
-            }
-
-            request.EnableBuffering();
-
-            using (var reader = new System.IO.StreamReader(request.Body, System.Text.Encoding.UTF8, leaveOpen: true))
-            {
-                string bodyContent = await reader.ReadToEndAsync();
-                request.Body.Position = 0;
-
-                if (string.IsNullOrWhiteSpace(bodyContent)) return null;
-
-                try
-                {
-                    var jsonObject = Newtonsoft.Json.Linq.JObject.Parse(bodyContent);
-                    foreach (var property in jsonObject.Properties())
-                    {
-                        if (property.Name.ToLower() == "accesstoken")
-                        {
-                            return property.Value.ToString();
-                        }
-                    }
-
-                    return null;
-                }
-                catch (Newtonsoft.Json.JsonReaderException)
-                {
-                    return null;
-                }
-            }
-        }
-
-
-        private async Task<(bool, string?)> Check(string token)
+        private async Task<(bool, string?)> CheckUserRole(string token)
         {
             var user = await UserHandler.GetUserByAccessToken(token);
             if (user == null) return (false, "User not found.");
