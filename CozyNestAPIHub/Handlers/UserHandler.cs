@@ -269,7 +269,7 @@ namespace CozyNestAPIHub.Handlers
                 sub = username,
                 jti = Guid.NewGuid().ToString(),
                 userId = userId,
-                exp = DateTimeOffset.UtcNow.AddMinutes(2).ToUnixTimeSeconds()
+                exp = DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds()
             };
 
             var payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
@@ -302,7 +302,7 @@ namespace CozyNestAPIHub.Handlers
             {
                 string accessToken = GenerateJwtToken(user.Id, user.Username); 
                 string refreshToken = GenerateToken();
-                DateTime accessExpiry = DateTime.UtcNow.AddMinutes(2);
+                DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);
                 DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);
 
                 string insertTokenQuery = @"INSERT INTO tokens (user_id, access_token, refresh_token, access_expiry, refresh_expiry, is_active) 
