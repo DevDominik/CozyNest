@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CozyNestAPIHub.RequestTypes;
 using CozyNestAPIHub.Attributes;
+using Konscious.Security.Cryptography;
 
 namespace CozyNestAPIHub.Controllers
 {
@@ -336,19 +337,38 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new { message = "Logged out from all devices." });
         }
-        private static string HashPassword(string password)
+
+        public static string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
+            byte[] salt = RandomNumberGenerator.GetBytes(16); // Generate a secure salt
+            using (var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password)))
             {
-                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
+                argon2.Salt = salt;
+                argon2.DegreeOfParallelism = 4;
+                argon2.MemorySize = 65536;
+                argon2.Iterations = 3;
+
+                byte[] hash = argon2.GetBytes(32);
+                return Convert.ToBase64String(salt) + "$" + Convert.ToBase64String(hash);
             }
         }
 
-        private static bool VerifyPassword(string password, string storedHash)
+        public static bool VerifyPassword(string password, string hashedPassword)
         {
-            string hashedPassword = HashPassword(password);
-            return hashedPassword == storedHash;
+            string[] parts = hashedPassword.Split('$');
+            byte[] salt = Convert.FromBase64String(parts[0]);
+            byte[] storedHash = Convert.FromBase64String(parts[1]);
+
+            using (var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password)))
+            {
+                argon2.Salt = salt;
+                argon2.DegreeOfParallelism = 4;
+                argon2.MemorySize = 65536;
+                argon2.Iterations = 3;
+
+                byte[] computedHash = argon2.GetBytes(32);
+                return storedHash.SequenceEqual(computedHash);
+            }
         }
     }
 }

@@ -419,8 +419,7 @@ namespace CozyNestAPIHub.Handlers
 
                 await using (var command = new MySqlCommand(revokeQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@accessToken", token);
-                    command.Parameters.AddWithValue("@refreshToken", token);
+                    command.Parameters.AddWithValue("@token", token);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
                     return rowsAffected > 0;
