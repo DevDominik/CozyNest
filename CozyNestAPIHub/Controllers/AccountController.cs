@@ -123,7 +123,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("logout")]
         [HttpGet]
-        [RequireAccessToken, RequireRefreshToken]
+        [RequireRefreshToken]
         public async Task<IActionResult> Logout()
         {
             if (string.IsNullOrEmpty(request.AccessToken) || string.IsNullOrEmpty(request.RefreshToken))
