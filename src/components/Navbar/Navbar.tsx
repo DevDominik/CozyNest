@@ -72,10 +72,38 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
     fetchUserData();
   }, [navigate]);
 
-  const handleLogout = () =>{
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-  }
+  const handleLogout = async () => {
+    const token = localStorage.getItem("refreshToken");
+  
+    if (!token) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      navigate("/auth");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${API_URL}/api/account/logout`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Sending refresh token in header
+        },
+      });
+  
+      if (!response.ok) {
+        console.error("Logout failed:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      console.log("logout done")
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      navigate("/auth");
+    }
+  };
+  
 
   return (
     <nav
