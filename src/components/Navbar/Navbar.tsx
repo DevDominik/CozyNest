@@ -43,11 +43,11 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
 
       try {
         const response = await fetch(`${API_URL}/api/account/introspect`, {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ accessToken: token }),
+            "Authorization": `Bearer ${token}` // <-- Send token in header
+          }
         });
 
         const data = await response.json();

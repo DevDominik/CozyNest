@@ -21,19 +21,19 @@ const Profile = () => {
     const fetchProfileData = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
-
+    
       try {
         const response = await fetch(`${BASEURL}/api/account/introspect`, {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ accessToken: token }),
+            "Authorization": `Bearer ${token}` // <-- Send token in header
+          }
         });
-
+    
         const data = await response.json();
         if (!response.ok || !data.active) throw new Error("Invalid session");
-
+    
         setUserData(data.userData);
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
@@ -41,6 +41,7 @@ const Profile = () => {
         setLoading(false);
       }
     };
+    
 
     fetchProfileData();
   }, []);
@@ -58,22 +59,21 @@ const Profile = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     const token = localStorage.getItem("accessToken");
     if (!token) {
       setMessage("Access token not found. Please log in.");
       return;
     }
-
+  
     const updatedData = {
       username: userData.username,
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
       address: userData.address,
-      accessToken: token,
     };
-
+  
     // Only add password if it's valid and matches the confirmation
     if (password && password === confirmPassword) {
       updatedData.password = password;
@@ -81,37 +81,31 @@ const Profile = () => {
       setMessage("Passwords do not match.");
       return;
     }
-
-    console.log("Sending updated data:", updatedData); // Log data being sent
-
+  
     try {
       const response = await fetch(`${BASEURL}/api/account/updatedata`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // <-- Send token in header
         },
         body: JSON.stringify(updatedData),
       });
-
-      const data = await response.json(); // Wait for the response to be parsed
-      console.log("Response data:", data); // Log the entire response data
-
+  
+      const data = await response.json();
+  
       if (!response.ok) {
-        console.error("Failed to update profile:", data); // Log detailed response if the request fails
+        console.error("Failed to update profile:", data);
         setMessage(data.message || "Failed to update profile.");
         return;
       }
-
+  
       setMessage("Profile updated successfully.");
-      setUserData(data.userData); // Assuming the updated user data is returned in the response
-
+      setUserData(data.userData); // Assuming updated user data is returned
+  
       // If the password was updated, update tokens as well
       if (password && password === confirmPassword) {
-        if (
-          data.newTokens &&
-          data.newTokens.accessToken &&
-          data.newTokens.refreshToken
-        ) {
+        if (data.newTokens?.accessToken && data.newTokens?.refreshToken) {
           localStorage.setItem("accessToken", data.newTokens.accessToken);
           localStorage.setItem("refreshToken", data.newTokens.refreshToken);
           console.log("New tokens stored in localStorage");
@@ -124,6 +118,7 @@ const Profile = () => {
       setMessage("Error updating profile.");
     }
   };
+  
 
   if (loading) {
     return <p>Loading profile...</p>;

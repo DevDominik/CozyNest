@@ -6,6 +6,7 @@ import UserList from "./UserList";
 export const Admin = () => {
   const navigate = useNavigate();
   const API_URL = "https://localhost:7290";
+
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("accessToken");
@@ -16,11 +17,11 @@ export const Admin = () => {
 
       try {
         const response = await fetch(`${API_URL}/api/account/introspect`, {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ accessToken: token }),
+            "Authorization": `Bearer ${token}`
+          }
         });
 
         const data = await response.json();
@@ -28,7 +29,7 @@ export const Admin = () => {
           throw new Error(data.message);
         }
 
-        if (data.userData.roleName != "Manager") {
+        if (data.userData.roleName !== "Manager") {
           navigate("/");
         }
       } catch (error) {
@@ -44,7 +45,7 @@ export const Admin = () => {
   return (
     <div className={Styles.Page}>
       <div className={Styles.UserListContainer}>
-        <UserList></UserList>
+        <UserList />
       </div>
     </div>
   );
