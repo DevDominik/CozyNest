@@ -35,7 +35,7 @@ namespace CozyNestAPIHub.Attributes
                 context.Result = new ObjectResult(new { message = "Invalid access token." }) { StatusCode = 403 };
                 return;
             }
-            httpContext.Items["AccessToken"] = token;
+            context.HttpContext.Items["Token"] = token;
 
             await next();
         }

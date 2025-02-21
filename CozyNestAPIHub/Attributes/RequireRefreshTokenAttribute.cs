@@ -35,7 +35,7 @@ namespace CozyNestAPIHub.Attributes
                 context.Result = new ObjectResult(new { message = "Invalid refresh token." }) { StatusCode = 403 };
                 return;
             }
-            httpContext.Items["RefreshToken"] = token;
+            context.HttpContext.Items["Token"] = token;
 
             await next();
         }

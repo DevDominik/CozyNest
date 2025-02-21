@@ -407,20 +407,20 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        public static async Task<bool> RevokeToken(string accessToken, string refreshToken)
+        public static async Task<bool> RevokeToken(string token)
         {
             await _tokenWriteLock.WaitAsync();
             try
             {
-                string revokeQuery = "UPDATE tokens SET is_active = false WHERE access_token = @accessToken OR refresh_token = @refreshToken;";
+                string revokeQuery = "UPDATE tokens SET is_active = false WHERE access_token = @token OR refresh_token = @token;";
 
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
                 await using (var command = new MySqlCommand(revokeQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@accessToken", accessToken);
-                    command.Parameters.AddWithValue("@refreshToken", refreshToken);
+                    command.Parameters.AddWithValue("@accessToken", token);
+                    command.Parameters.AddWithValue("@refreshToken", token);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
                     return rowsAffected > 0;

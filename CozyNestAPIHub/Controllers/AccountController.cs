@@ -126,15 +126,10 @@ namespace CozyNestAPIHub.Controllers
         [RequireRefreshToken]
         public async Task<IActionResult> Logout()
         {
-            if (string.IsNullOrEmpty(request.AccessToken) || string.IsNullOrEmpty(request.RefreshToken))
-            {
-                return BadRequest(new 
-                { 
-                    message = "Tokens are required." 
-                });
-            }
 
-            bool revoked = await UserHandler.RevokeToken(request.AccessToken, request.RefreshToken);
+            string token = HttpContext.Items["Token"].ToString();
+
+            bool revoked = await UserHandler.RevokeToken(token);
             if (!revoked)
             {
                 return BadRequest(new 
@@ -154,25 +149,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> IntrospectToken()
         {
-            if (request == null || string.IsNullOrEmpty(request.AccessToken))
-            {
-                return BadRequest(new 
-                { 
-                    active = false, 
-                    message = "Token is required." 
-                });
-            }
-
-            bool isValid = await UserHandler.ValidateAccessToken(request.AccessToken);
-            if (!isValid)
-            {
-                return Ok(new 
-                { 
-                    active = false, 
-                    message = "Invalid or expired token." 
-                });
-            }
-            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            string token = HttpContext.Items["Token"].ToString();
+            User? user = await UserHandler.GetUserByAccessToken(token);
             Role? role = UserHandler.GetRoleById(user.RoleId);
             return Ok(new 
             { 
@@ -196,16 +174,21 @@ namespace CozyNestAPIHub.Controllers
         [RequireRefreshToken]
         public async Task<IActionResult> RenewToken() 
         {
-            if (request == null || string.IsNullOrEmpty(request.RefreshToken))
-            {
-                return BadRequest(new { message = "Token is required." });
-            }
-            User? user = await UserHandler.GetUserByRefreshToken(request.RefreshToken);
+            string token = HttpContext.Items["Token"].ToString();
+            User? user = await UserHandler.GetUserByRefreshToken(token);
             if (user == null)
             {
                 return BadRequest(new 
                 { 
                     message = "Token is invalid." 
+                });
+            }
+            bool revokeSuccess = await UserHandler.RevokeToken(token);
+            if (!revokeSuccess)
+            {
+                return StatusCode(500, new 
+                {
+                    message = "Token revoke failure."
                 });
             }
 
@@ -230,13 +213,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
-
-            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
-            {
-                return Unauthorized(new { message = "Invalid or expired access token." });
-            }
-
-            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            string token = HttpContext.Items["Token"].ToString();
+            User? user = await UserHandler.GetUserByAccessToken(token);
             if (user == null)
             {
                 return NotFound(new { message = "User not found." });
@@ -269,16 +247,16 @@ namespace CozyNestAPIHub.Controllers
                         message = "Failed to revoke all tokens for user."
                     });
                 }
-                Token? token = await UserHandler.CreateToken(user);
-                if (token == null)
+                Token? newToken = await UserHandler.CreateToken(user);
+                if (newToken == null)
                 {
                     return StatusCode(500, new
                     {
                         message = "Error arose when creating a new set of tokens."
                     });
                 }
-                newAccessToken = token.AccessToken;
-                newRefreshToken = token.RefreshToken;
+                newAccessToken = newToken.AccessToken;
+                newRefreshToken = newToken.RefreshToken;
             }
 
             User? updateSuccess = await UserHandler.ModifyUser(user);
@@ -314,17 +292,10 @@ namespace CozyNestAPIHub.Controllers
         [Route("deleteaccount")]
         [HttpDelete]
         [RequireAccessToken]
-        public async Task<IActionResult> DeleteAccount([FromBody] AccessTokenRequest request)
+        public async Task<IActionResult> DeleteAccount()
         {
-            if (request == null || string.IsNullOrEmpty(request.AccessToken))
-            {
-                return BadRequest(new { message = "Invalid request." });
-            }
-            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
-            {
-                return Unauthorized(new { message = "Invalid or expired access token." });
-            }
-            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            string token = HttpContext.Items["Token"].ToString();
+            User? user = await UserHandler.GetUserByAccessToken(token);
             if (user == null)
             {
                 return NotFound(new { message = "User not found." });
@@ -352,15 +323,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> LogoutEverywhere()
         {
-            if (request == null || string.IsNullOrEmpty(request.AccessToken))
-            {
-                return BadRequest(new { message = "Invalid request." });
-            }
-            if (!await UserHandler.ValidateAccessToken(request.AccessToken))
-            {
-                return Unauthorized(new { message = "Invalid or expired access token." });
-            }
-            User? user = await UserHandler.GetUserByAccessToken(request.AccessToken);
+            string token = HttpContext.Items["Token"].ToString();
+            User? user = await UserHandler.GetUserByAccessToken(token);
             if (user == null)
             {
                 return NotFound(new { message = "User not found." });
