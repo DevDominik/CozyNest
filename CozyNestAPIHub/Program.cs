@@ -18,6 +18,7 @@ UserHandler.SetSecretKey("asdasd");
 UserHandler.Initialize("root", "");
 await UserHandler.BuildRoles();
 RoomHandler.Initialize("root", "");
+ReservationHandler.Initialize("root", "");
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

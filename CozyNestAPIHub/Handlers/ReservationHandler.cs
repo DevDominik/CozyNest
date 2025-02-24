@@ -177,5 +177,40 @@ namespace CozyNestAPIHub.Handlers
                 _reservationWriteLock.Release();
             }
         }
+        public static async Task<List<Reservation>> GetUserReservations(User user)
+        {
+            await _reservationReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var reservations = new List<Reservation>();
+                var query = "SELECT * FROM reservations WHERE guest_id = @guestId";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@guestId", user.Id);
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var reservation = new Reservation
+                    {
+                        Id = reader.GetInt32("id"),
+                        GuestId = reader.GetInt32("guest_id"),
+                        RoomId = reader.GetInt32("room_id"),
+                        CheckInDate = reader.GetDateTime("check_in_date"),
+                        CheckOutDate = reader.GetDateTime("check_out_date"),
+                        Status = reader.GetInt32("status"),
+                        Notes = reader.GetString("notes")
+                    };
+                    reservations.Add(reservation);
+                    _reservationCache[reservation.Id] = reservation;
+                }
+                return reservations;
+            }
+            finally
+            {
+                _reservationReadLock.Release();
+            }
+        }
+
     }
 }
