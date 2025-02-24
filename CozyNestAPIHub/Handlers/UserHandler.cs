@@ -17,7 +17,6 @@ namespace CozyNestAPIHub.Handlers
         private static readonly SemaphoreSlim _userReadLock = new(1, 1);
         private static readonly SemaphoreSlim _userWriteLock = new(1, 1);
         private static readonly SemaphoreSlim _roleReadLock = new(1, 1);
-        private static readonly SemaphoreSlim _roleWriteLock = new(1, 1);
         private static readonly SemaphoreSlim _tokenReadLock = new(1, 1);
         private static readonly SemaphoreSlim _tokenWriteLock = new(1, 1);
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
@@ -294,14 +293,61 @@ namespace CozyNestAPIHub.Handlers
             base64 = base64.Replace('/', '_');
             return base64;
         }
-
+        public static async Task<bool> TokenExists(string token)
+        {
+            await _tokenReadLock.WaitAsync();
+            try
+            {
+                string checkQuery = "SELECT COUNT(*) FROM tokens WHERE access_token = @token OR refresh_token = @token;";
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                await using (var command = new MySqlCommand(checkQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@token", token);
+                    int result = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    return result > 0;
+                }
+            }
+            finally
+            {
+                _tokenReadLock.Release();
+            }
+        }
+        public static async Task<bool> TokenExists(string accessToken, string refreshToken)
+        {
+            await _tokenReadLock.WaitAsync();
+            try
+            {
+                string checkQuery = "SELECT COUNT(*) FROM tokens WHERE access_token = @accessToken OR refresh_token = @refreshToken;";
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                await using (var command = new MySqlCommand(checkQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@accessToken", accessToken);
+                    command.Parameters.AddWithValue("@refreshToken", refreshToken);
+                    int result = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    return result > 0;
+                }
+            }
+            finally
+            {
+                _tokenReadLock.Release();
+            }
+        }
         public static async Task<Token?> CreateToken(User user)
         {
             await _tokenWriteLock.WaitAsync();
             try
             {
-                string accessToken = GenerateJwtToken(user.Id, user.Username); 
-                string refreshToken = GenerateToken();
+                bool tokenExists = false;
+                string accessToken = ""; 
+                string refreshToken = "";
+                do
+                {
+                    accessToken = GenerateJwtToken(user.Id, user.Username);
+                    refreshToken = GenerateToken();
+                    tokenExists = await TokenExists(accessToken, refreshToken);
+                } while (tokenExists);
                 DateTime accessExpiry = DateTime.UtcNow.AddMinutes(30);
                 DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -406,7 +452,6 @@ namespace CozyNestAPIHub.Handlers
                 _tokenReadLock.Release();
             }
         }
-
         public static async Task<bool> RevokeToken(string token)
         {
             await _tokenWriteLock.WaitAsync();
@@ -430,7 +475,6 @@ namespace CozyNestAPIHub.Handlers
                 _tokenWriteLock.Release();
             }
         }
-
         public static async Task<bool> RevokeAllTokensForUser(User user)
         {
             await _tokenWriteLock.WaitAsync();
@@ -454,7 +498,6 @@ namespace CozyNestAPIHub.Handlers
                 _tokenWriteLock.Release();
             }
         }
-
 
         public static async Task<User?> GetUserByAccessToken(string accessToken)
         {
@@ -519,7 +562,6 @@ namespace CozyNestAPIHub.Handlers
                 _tokenReadLock.Release();
             }
         }
-
 
         public static Role? GetRoleById(int id) 
         { 

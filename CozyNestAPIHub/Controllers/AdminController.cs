@@ -22,7 +22,6 @@ namespace CozyNestAPIHub.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers() 
         {
-
             List<User> userList = await UserHandler.GetUsers();
             List<object> usersFinal = new List<object>();
             foreach (User loopedUser in userList)
