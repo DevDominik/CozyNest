@@ -88,8 +88,8 @@ CREATE TABLE reservationservices (
     reservation_id INT NOT NULL,
     service_id INT NOT NULL,
     quantity INT NOT NULL,
-    FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
-    FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    FOREIGN KEY (reservation_id) REFERENCES reservations(id),
+    FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
 -- START DATA
