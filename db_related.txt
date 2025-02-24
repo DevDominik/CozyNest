@@ -59,12 +59,40 @@ CREATE TABLE room (
     status INT NOT NULL,
     description TEXT,
     deleted BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (type) REFERENCES roomtype(id) ON DELETE CASCADE,
-    FOREIGN KEY (status) REFERENCES roomstatus(id) ON DELETE CASCADE
+    FOREIGN KEY (type) REFERENCES roomtype(id),
+    FOREIGN KEY (status) REFERENCES roomstatus(id)
 );
 
+-- RESERVATIONS
+CREATE TABLE reservations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    guest_id INT NOT NULL,
+    room_id INT NOT NULL,
+    check_in_date DATETIME NOT NULL,
+    check_out_date DATETIME NOT NULL,
+    status INT NOT NULL,
+    notes TEXT
+);
 
+-- SERVICES
+CREATE TABLE services (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL
+);
 
+-- RESERVATIONSERVICES
+CREATE TABLE reservationservices (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    reservation_id INT NOT NULL,
+    service_id INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+);
+
+-- START DATA
 INSERT INTO roles (name) VALUES ('Guest'), ('Receptionist'), ('Manager');
 INSERT INTO roomtype (description, image_path) VALUES ('Standard', '//'), ('Deluxe', '//'), ('Suite', '//');
 INSERT INTO roomstatus (description) VALUES ('Available'), ('Maintenance'), ('Occupied');
