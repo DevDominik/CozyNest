@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:CozyNestAdmin"
         mc:Ignorable="d" 
         Title="Auth"
@@ -100,7 +101,21 @@
                          Foreground="Black"
                          HorizontalAlignment="Center"
                          VerticalAlignment="Center"
-                         Style="{StaticResource RoundedTextBox}" FontFamily="Bahnschrift Light"/>
+                         Style="{StaticResource RoundedTextBox}" FontFamily="Bahnschrift Light">
+                    <TextBox.Template>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">   
+                                <Grid>
+                                    <materialDesign:PackIcon Kind="User" Margin="10"/>
+                                    <ScrollViewer x:Name="PART_ContentHost" Foreground="Black"/>
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </TextBox.Template>
+                </TextBox>
 
                 <Label>Jelszó</Label>
                 <TextBox x:Name="tbPassword"
@@ -121,14 +136,7 @@
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     CornerRadius="4">
                                 <Grid>
-                                    <TextBlock x:Name="KeyIcon" 
-                                               FontFamily="MaterialDesignIcons" 
-                                               Text="&#xf2db;" 
-                                               FontSize="18" 
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Left"
-                                               Margin="8,0,0,0"
-                                               Foreground="Gray"/>
+                                    <materialDesign:PackIcon Kind="Key" Margin="10"/>
                                     <ScrollViewer x:Name="PART_ContentHost" Foreground="Black"/>
                                 </Grid>
                             </Border>
