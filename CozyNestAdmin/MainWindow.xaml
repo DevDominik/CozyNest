@@ -46,14 +46,14 @@
 
     <Border Background="White" CornerRadius="15" BorderBrush="Black" BorderThickness="2">
         <Grid>
-            <Grid Background="#007ACC" Height="40" VerticalAlignment="Top">
+            <Grid Background="#2C3E50" Height="40" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="40"/>
                     <ColumnDefinition Width="40"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Content="Main Window" Foreground="White" FontSize="16" 
+                <Label x:Name="Username" Content="" Foreground="White" FontSize="16" 
                        VerticalAlignment="Center" Padding="10,0,0,0"
                        MouseLeftButtonDown="Window_MouseLeftButtonDown"/>
 
@@ -93,7 +93,7 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                             <ListView.Items>
-                                <ListViewItem>
+                                <ListViewItem Selected="ListViewItem_Selected" >
                                     <ListViewItem.Content>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="Home" VerticalAlignment="Center" Foreground="White" Margin="5" Width="20" Height="20"/>
@@ -134,8 +134,9 @@
                 </Border>
 
                 <Grid Grid.Column="1">
-                    <Label Content="Main Content Goes Here" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Frame Name="MainContentFrame" NavigationUIVisibility="Hidden" />
                 </Grid>
+
 
             </Grid>
         </Grid>

@@ -28,3 +28,5 @@ C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-win
 C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-windows\CozyNestAdmin.pdb
 C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-windows\CozyNestAdmin.genruntimeconfig.cache
 C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-windows\ref\CozyNestAdmin.dll
+C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-windows\Main.g.cs
+C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-windows\Main.baml

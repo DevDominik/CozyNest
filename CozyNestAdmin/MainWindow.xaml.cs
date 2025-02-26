@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls; // For Page Navigation
 
 namespace CozyNestAdmin
 {
@@ -30,5 +31,17 @@ namespace CozyNestAdmin
                 this.DragMove();
             }
         }
+
+        private void ListViewItem_Selected(object sender, RoutedEventArgs e)
+        {
+            var selectedItem = ((ListViewItem)sender).Content as StackPanel;
+            var textBlock = (TextBlock)selectedItem.Children[1];
+
+            if (textBlock.Text == "Main")
+            {
+                MainContentFrame.Navigate(new Uri("Main.xaml", UriKind.Relative));
+            }
+        }
+
     }
 }
