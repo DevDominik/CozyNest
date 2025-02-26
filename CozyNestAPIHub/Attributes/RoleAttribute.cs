@@ -26,24 +26,24 @@ namespace CozyNestAPIHub.Attributes
                 return;
             }
 
-            var (isValid, errorMessage) = await CheckUserRole(token);
+            var (isValid, errorMessage, errorCode) = await CheckUserRole(token);
             if (!isValid)
             {
-                context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = 403 };
+                context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = errorCode };
             }
         }
 
-        private async Task<(bool, string?)> CheckUserRole(string token)
+        private async Task<(bool, string?, int)> CheckUserRole(string token)
         {
             var user = await UserHandler.GetUserByAccessToken(token);
-            if (user == null) return (false, "User not found.");
+            if (user == null) return (false, "User not found.", 404);
 
             var role = UserHandler.GetRoleById(user.RoleId);
-            if (role == null) return (false, "Role not found.");
+            if (role == null) return (false, "Role not found.", 404);
 
-            if (!_roles.Contains(role.Name)) return (false, "Access denied.");
+            if (!_roles.Contains(role.Name)) return (false, "Access denied.", 403);
 
-            return (true, null);
+            return (true, null, 200);
         }
     }
 }

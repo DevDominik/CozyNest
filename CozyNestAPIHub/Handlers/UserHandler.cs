@@ -89,7 +89,7 @@ namespace CozyNestAPIHub.Handlers
             {
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
-                string query = "SELECT * FROM users WHERE id = @userId;";
+                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE id = @userId;";
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@userId", id);
                 using var reader = await command.ExecuteReaderAsync();
@@ -120,7 +120,7 @@ namespace CozyNestAPIHub.Handlers
             {
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
-                string query = "SELECT * FROM users WHERE username = @username;";
+                string query = "SELECT id, username, email, address, hashed_password, first_name, last_name, closed, join_date, role_id FROM users WHERE username = @username;";
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@username", username);
                 using var reader = await command.ExecuteReaderAsync();
@@ -189,8 +189,7 @@ namespace CozyNestAPIHub.Handlers
             try
             {
                 string insertQuery = @"INSERT INTO users (username, email, address, hashed_password, first_name, last_name, join_date, role_id) 
-                                       VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);
-                                       SELECT LAST_INSERT_ID();";
+                                       VALUES (@username, @email, @address, @hashedpassword, @firstname, @lastname, @joindate, @roleid);";
 
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
@@ -204,18 +203,13 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@lastname", user.LastName);
                 command.Parameters.AddWithValue("@joindate", DateTime.UtcNow);
                 command.Parameters.AddWithValue("@roleid", user.RoleId);
-                object result = await command.ExecuteScalarAsync();
-                if (result != null && int.TryParse(result.ToString(), out int newUserId))
-                {
-                    user.Id = newUserId;
-                    return user;
-                }
+                await command.ExecuteScalarAsync();
+                return await GetUserByUsername(user.Username);
             }
             finally
             {
                 _userWriteLock.Release();
             }
-            return null;
         }
 
         public static async Task<bool> UserExists(string username, string email)

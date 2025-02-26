@@ -15,10 +15,6 @@ namespace CozyNestAPIHub.Handlers
         private static readonly SemaphoreSlim _serviceReadLock = new(1, 1);
         private static readonly SemaphoreSlim _serviceWriteLock = new(1, 1);
 
-        private static readonly ConcurrentDictionary<int, Reservation> _reservationCache = new();
-        private static readonly ConcurrentDictionary<int, Service> _serviceCache = new();
-        private static readonly ConcurrentDictionary<int, ReservationService> _reservationServiceCache = new();
-
         public static void Initialize(string username, string password)
         {
             if (!string.IsNullOrEmpty(_connectionString))
@@ -38,7 +34,7 @@ namespace CozyNestAPIHub.Handlers
                 await connection.OpenAsync();
 
                 var reservations = new List<Reservation>();
-                var query = "SELECT * FROM reservations";
+                var query = "SELECT id, guest_id, room_id, check_in_date, check_out_date, status, notes FROM reservations";
                 using var cmd = new MySqlCommand(query, connection);
                 using var reader = await cmd.ExecuteReaderAsync();
 
@@ -56,7 +52,6 @@ namespace CozyNestAPIHub.Handlers
                     };
 
                     reservations.Add(reservation);
-                    _reservationCache[reservation.Id] = reservation;
                 }
 
                 return reservations;
@@ -69,10 +64,6 @@ namespace CozyNestAPIHub.Handlers
 
         public static async Task<Reservation?> GetReservationById(int id)
         {
-            if (_reservationCache.TryGetValue(id, out var cachedReservation))
-            {
-                return cachedReservation;
-            }
 
             await _reservationReadLock.WaitAsync();
             try
@@ -80,7 +71,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                var query = "SELECT * FROM reservations WHERE id = @id";
+                var query = "SELECT guest_id, room_id, check_in_date, check_out_date, status, notes FROM reservations WHERE id = @id";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@id", id);
 
@@ -89,7 +80,7 @@ namespace CozyNestAPIHub.Handlers
                 {
                     var reservation = new Reservation
                     {
-                        Id = reader.GetInt32("id"),
+                        Id = id,
                         GuestId = reader.GetInt32("guest_id"),
                         RoomId = reader.GetInt32("room_id"),
                         CheckInDate = reader.GetDateTime("check_in_date"),
@@ -97,8 +88,6 @@ namespace CozyNestAPIHub.Handlers
                         Status = reader.GetInt32("status"),
                         Notes = reader.GetString("notes")
                     };
-
-                    _reservationCache[id] = reservation;
                     return reservation;
                 }
 
@@ -132,7 +121,6 @@ namespace CozyNestAPIHub.Handlers
 
                 var newId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 reservation.Id = newId;
-                _reservationCache[newId] = reservation;
 
                 return await GetReservationById(reservation.Id);
             }
@@ -167,7 +155,6 @@ namespace CozyNestAPIHub.Handlers
                 var rowsAffected = await cmd.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
                 {
-                    _reservationCache[reservation.Id] = reservation;
                     return await GetReservationById(reservation.Id);
                 }
                 return null;
@@ -185,7 +172,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
                 var reservations = new List<Reservation>();
-                var query = "SELECT * FROM reservations WHERE guest_id = @guestId";
+                var query = "SELECT id, room_id, check_in_date, check_out_date, status, notes FROM reservations WHERE guest_id = @guestId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@guestId", user.Id);
                 using var reader = await cmd.ExecuteReaderAsync();
@@ -194,7 +181,7 @@ namespace CozyNestAPIHub.Handlers
                     var reservation = new Reservation
                     {
                         Id = reader.GetInt32("id"),
-                        GuestId = reader.GetInt32("guest_id"),
+                        GuestId = user.Id,
                         RoomId = reader.GetInt32("room_id"),
                         CheckInDate = reader.GetDateTime("check_in_date"),
                         CheckOutDate = reader.GetDateTime("check_out_date"),
@@ -202,7 +189,6 @@ namespace CozyNestAPIHub.Handlers
                         Notes = reader.GetString("notes")
                     };
                     reservations.Add(reservation);
-                    _reservationCache[reservation.Id] = reservation;
                 }
                 return reservations;
             }
@@ -211,6 +197,266 @@ namespace CozyNestAPIHub.Handlers
                 _reservationReadLock.Release();
             }
         }
+        public static async Task<List<ReservationService>> GetReservationServices(Reservation reservation)
+        {
+            await _reservationServiceReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var reservationServices = new List<ReservationService>();
+                var query = "SELECT id, reservation_id, service_id, quantity FROM reservationservices WHERE reservation_id = @reservationId";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@reservationId", reservation.Id);
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var reservationService = new ReservationService
+                    {
+                        Id = reader.GetInt32("id"),
+                        ReservationId = reader.GetInt32("reservation_id"),
+                        ServiceId = reader.GetInt32("service_id"),
+                        Quantity = reader.GetInt32("quantity")
+                    };
+                    reservationServices.Add(reservationService);
+                }
+                return reservationServices;
+            }
+            finally
+            {
+                _reservationServiceReadLock.Release();
+            }
+        }
+        public static async Task<ReservationService?> GetReservationServiceById(int id)
+        {
+            await _reservationServiceReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = "SELECT reservation_id, service_id, quantity FROM reservationservices WHERE id = @id";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", id);
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    var reservationService = new ReservationService
+                    {
+                        Id = id,
+                        ReservationId = reader.GetInt32("reservation_id"),
+                        ServiceId = reader.GetInt32("service_id"),
+                        Quantity = reader.GetInt32("quantity")
+                    };
+                    return reservationService;
+                }
+                return null;
+            }
+            finally
+            {
+                _reservationServiceReadLock.Release();
+            }
+        }
 
+        public static async Task<ReservationService?> CreateReservationService(ReservationService reservationService)
+        {
+            await _reservationServiceWriteLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"INSERT INTO reservationservices (reservation_id, service_id, quantity) VALUES (@reservationId, @serviceId, @quantity); SELECT LAST_INSERT_ID();";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@reservationId", reservationService.ReservationId);
+                cmd.Parameters.AddWithValue("@serviceId", reservationService.ServiceId);
+                cmd.Parameters.AddWithValue("@quantity", reservationService.Quantity);
+                await cmd.ExecuteScalarAsync();
+                return await GetReservationServiceById(reservationService.ServiceId);
+            }
+            finally
+            {
+                _reservationServiceWriteLock.Release();
+            }
+        }
+
+        public static async Task<ReservationService?> ModifyReservationService(ReservationService reservationService)
+        {
+            await _reservationServiceWriteLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"UPDATE reservationservices SET reservation_id = @reservationId, service_id = @serviceId, quantity = @quantity WHERE id = @id";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", reservationService.Id);
+                cmd.Parameters.AddWithValue("@reservationId", reservationService.ReservationId);
+                cmd.Parameters.AddWithValue("@serviceId", reservationService.ServiceId);
+                cmd.Parameters.AddWithValue("@quantity", reservationService.Quantity);
+                await cmd.ExecuteNonQueryAsync();
+                return await GetReservationServiceById(reservationService.Id);
+            }
+            finally
+            {
+                _reservationServiceWriteLock.Release();
+            }
+        }
+
+        public static async Task<bool> ServiceExists(string name)
+        {
+            await _serviceReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = "SELECT COUNT(*) FROM services WHERE name = @name";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@name", name);
+                var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                return count > 0;
+            }
+            finally
+            {
+                _serviceReadLock.Release();
+            }
+        }
+
+        public static async Task<List<Service>> GetServices()
+        {
+            await _serviceReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var services = new List<Service>();
+                var query = "SELECT id, name, description, price FROM services";
+                using var cmd = new MySqlCommand(query, connection);
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var service = new Service
+                    {
+                        Id = reader.GetInt32("id"),
+                        Name = reader.GetString("name"),
+                        Description = reader.GetString("description"),
+                        Price = reader.GetDecimal("price"),
+                        IsActive = reader.GetBoolean("is_active")
+                    };
+                    services.Add(service);
+                }
+                return services;
+            }
+            finally
+            {
+                _serviceReadLock.Release();
+            }
+        }
+        public static async Task<Service?> GetServiceById(int id)
+        {
+            await _serviceReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = "SELECT name, description, price, is_active FROM services WHERE id = @id";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", id);
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    var service = new Service
+                    {
+                        Id = id,
+                        Name = reader.GetString("name"),
+                        Description = reader.GetString("description"),
+                        Price = reader.GetDecimal("price"),
+                        IsActive = reader.GetBoolean("is_active")
+                    };
+                    return service;
+                }
+                return null;
+            }
+            finally
+            {
+                _serviceReadLock.Release();
+            }
+        }
+        public static async Task<Service?> GetServiceByName(string name)
+        {
+            await _serviceReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = "SELECT id, description, price, is_active FROM services WHERE name = @name";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@name", name);
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    var service = new Service
+                    {
+                        Id = reader.GetInt32("id"),
+                        Name = name,
+                        Description = reader.GetString("description"),
+                        Price = reader.GetDecimal("price")
+                    };
+                    return service;
+                }
+                return null;
+            }
+            finally
+            {
+                _serviceReadLock.Release();
+            }
+        }
+        public static async Task<Service?> CreateService(Service service)
+        {
+            if (await ServiceExists(service.Name))
+            {
+                return null;
+            }
+            await _serviceWriteLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"INSERT INTO services (name, description, price) VALUES (@name, @description, @price);";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@name", service.Name);
+                cmd.Parameters.AddWithValue("@description", service.Description);
+                cmd.Parameters.AddWithValue("@price", service.Price);
+                await cmd.ExecuteScalarAsync();
+                return await GetServiceByName(service.Name);
+            }
+            finally
+            {
+                _serviceWriteLock.Release();
+            }
+        }
+        public static async Task<Service?> ModifyService(Service service)
+        {
+            await _serviceWriteLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"UPDATE services SET name = @name, description = @description, price = @price, is_active = @isActive WHERE id = @id";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", service.Id);
+                cmd.Parameters.AddWithValue("@name", service.Name);
+                cmd.Parameters.AddWithValue("@description", service.Description);
+                cmd.Parameters.AddWithValue("@price", service.Price);
+                cmd.Parameters.AddWithValue("@isActive", service.IsActive);
+                var rowsAffected = await cmd.ExecuteNonQueryAsync();
+                if (rowsAffected > 0)
+                {
+                    return await GetServiceById(service.Id);
+                }
+                return null;
+            }
+            finally
+            {
+                _serviceWriteLock.Release();
+            }
+        }
     }
 }
