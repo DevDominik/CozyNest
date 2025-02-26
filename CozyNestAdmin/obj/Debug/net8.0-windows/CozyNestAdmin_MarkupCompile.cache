@@ -8,12 +8,12 @@ C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\obj\Debug\net8.0-win
 CozyNestAdmin
 none
 false
-TRACE;RELEASE;NET;NET8_0;NETCOREAPP
+TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Users\szabo.tamas\Source\Repos\CozyNestwpf\CozyNestAdmin\App.xaml
 2629792908
 
-81316884648
-424-84884760
+5-1676025948
+2122105041268
 Auth.xaml;MainWindow.xaml;
 
 False

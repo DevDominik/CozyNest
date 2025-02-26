@@ -28,14 +28,14 @@
             </Setter>
         </Style>
 
-        <!-- Style for selected ListViewItem with a left border -->
+        <!-- Style for ListViewItem with left border when selected -->
         <Style x:Key="ListViewItemStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Padding" Value="10,5"/>
             <Style.Triggers>
-                <!-- Apply left border on selection -->
+                <!-- Apply left border ONLY when the item is selected -->
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="BorderBrush" Value="#007ACC"/>
                     <Setter Property="BorderThickness" Value="5,0,0,0"/>
@@ -78,11 +78,10 @@
 
                 <Border Background="#2C3E50" Grid.Column="0" CornerRadius="0,0,0,0" Margin="0">
                     <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
-                        <TextBlock Text="CozyNest" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="24" FontWeight="Bold" />
-                        <TextBlock Text="Management" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="14" Margin="0,10,0,0"/>
+                        <TextBlock Margin="10px" Text="CozyNest" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="32" FontWeight="Bold" FontFamily="MV Boli" />
+                        <TextBlock Text="Management" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="14" Margin="0,10,0,0" FontFamily="MV Boli"/>
 
-                        <!-- ListView with Clickable Buttons and Icons -->
-                        <ListView Width="180" Margin="10" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Center" ItemContainerStyle="{StaticResource ListViewItemStyle}">
+                        <ListView Width="180" Margin="5" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Center" ItemContainerStyle="{StaticResource ListViewItemStyle}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Button Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Center">
