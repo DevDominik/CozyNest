@@ -26,7 +26,7 @@ namespace CozyNestAdmin
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             var username = tbUsername.Text;
-            var password = tbPassword.Text;
+            var password = tbPassword.Password;
 
             var loginData = new
             {
@@ -152,7 +152,7 @@ namespace CozyNestAdmin
             }
         }
 
-        private void LoadSavedLoginData()
+        private async void LoadSavedLoginData()
         {
             string filePath = "loginData.json";
             if (System.IO.File.Exists(filePath))
@@ -167,7 +167,37 @@ namespace CozyNestAdmin
 
                     // Populate the username and password fields
                     tbUsername.Text = savedData?.Username;
-                    tbPassword.Text = savedData?.Password;
+                    tbPassword.Password = savedData?.Password;
+
+                    // Check if the saved access token is still active
+                    if (!string.IsNullOrEmpty(savedData?.AccessToken))
+                    {
+                        bool isTokenActive = await CheckTokenActiveAsync(savedData?.AccessToken);
+
+                        if (isTokenActive)
+                        {
+                            // Token is active, log the user in automatically
+                            _accessToken = savedData?.AccessToken;
+                            _refreshToken = savedData?.RefreshToken;
+
+                            bool isManager = await CheckUserRoleAsync(_accessToken);
+                            if (isManager)
+                            {
+                                // Open MainWindow.xaml
+                                MainWindow mainWindow = new MainWindow();
+                                mainWindow.Show();
+                                this.Close(); // Close the Auth window
+                            }
+                            else
+                            {
+                                lbResponse.Content = "Access denied: You do not have Manager role.";
+                            }
+                        }
+                        else
+                        {
+                            lbResponse.Content = "Token is no longer active. Please log in again.";
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -175,6 +205,38 @@ namespace CozyNestAdmin
                 }
             }
         }
+
+        private async Task<bool> CheckTokenActiveAsync(string accessToken)
+        {
+            try
+            {
+                // Set up the Authorization header with the access token
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+                var response = await _httpClient.GetAsync("https://localhost:7290/api/account/introspect");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    var introspectData = JsonConvert.DeserializeObject<dynamic>(responseBody);
+
+                    // Check if the token is active
+                    return introspectData?.active == true;
+                }
+                else
+                {
+                    lbResponse.Content = $"Failed to introspect: {response.ReasonPhrase}";
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                lbResponse.Content = $"Error checking token status: {ex.Message}";
+                return false;
+            }
+        }
+
 
         // Helper classes to deserialize token and user info responses
         public class TokenResponse

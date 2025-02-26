@@ -5,8 +5,74 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CozyNestAdmin"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="450" Width="800"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen">
 
-    </Grid>
+    <Window.Resources>
+        <Style x:Key="RoundedButton" TargetType="Button">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="White" CornerRadius="15" BorderBrush="Black" BorderThickness="2">
+        <Grid>
+            <Grid Background="#007ACC" Height="40" VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Main Window" Foreground="White" FontSize="16" 
+                       VerticalAlignment="Center" Padding="10,0,0,0"
+                       MouseLeftButtonDown="Window_MouseLeftButtonDown"/>
+
+                <Button Grid.Column="1" Content="━"
+                        FontSize="18" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        ToolTip="Minimize"
+                        Click="MinimizeWindow"/>
+
+                <Button Grid.Column="2" Content="✖"
+                        FontSize="18" Foreground="White"
+                        Background="Transparent" BorderThickness="0"
+                        ToolTip="Close"
+                        Click="CloseWindow"/>
+            </Grid>
+
+            <Grid Margin="0,40,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Background="#2C3E50" Grid.Column="0" CornerRadius="0,0,0,0" Margin="0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="CozyNest" Foreground="White" FontSize="24" FontWeight="Bold" />
+                        <TextBlock Text="Management" HorizontalAlignment="Center" Foreground="White" FontSize="14"/>
+                    </StackPanel>
+                </Border>
+                
+                <Grid Grid.Column="1">
+                    <Label Content="Main Content Goes Here" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
+
+            </Grid>
+        </Grid>
+    </Border>
 </Window>

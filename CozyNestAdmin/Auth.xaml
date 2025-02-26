@@ -107,10 +107,10 @@
                             <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">   
+                                CornerRadius="4">
                                 <Grid>
-                                    <materialDesign:PackIcon Kind="User" Margin="10"/>
-                                    <ScrollViewer x:Name="PART_ContentHost" Foreground="Black"/>
+                                    <materialDesign:PackIcon Kind="User" Margin="10" VerticalAlignment="Center"/>
+                                    <ScrollViewer x:Name="PART_ContentHost" Foreground="Black" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </ControlTemplate>
@@ -118,31 +118,32 @@
                 </TextBox>
 
                 <Label>Jelszó</Label>
-                <TextBox x:Name="tbPassword"
-                         Width="250" Height="40"
-                         FontSize="18"
-                         Margin="8"
-                         BorderThickness="2"
-                         BorderBrush="#007ACC"
-                         Background="White"
-                         Foreground="Black"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         Style="{StaticResource RoundedTextBox}" FontFamily="Bahnschrift Light">
-                    <TextBox.Template>
-                        <ControlTemplate TargetType="TextBox">
+                <PasswordBox x:Name="tbPassword"
+                             Width="250" Height="40"
+                             FontSize="18"
+                             Margin="8"
+                             Padding="30,0,8,0"
+                             BorderThickness="2"
+                             BorderBrush="#007ACC"
+                             Background="White"
+                             Foreground="Black"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             FontFamily="Bahnschrift Light">
+                    <PasswordBox.Template>
+                        <ControlTemplate TargetType="PasswordBox">
                             <Border Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     CornerRadius="4">
                                 <Grid>
-                                    <materialDesign:PackIcon Kind="Key" Margin="10"/>
-                                    <ScrollViewer x:Name="PART_ContentHost" Foreground="Black"/>
+                                    <materialDesign:PackIcon Kind="Key" Margin="10" VerticalAlignment="Center"/>
+                                    <ScrollViewer x:Name="PART_ContentHost" Foreground="Black" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </ControlTemplate>
-                    </TextBox.Template>
-                </TextBox>
+                    </PasswordBox.Template>
+                </PasswordBox>
 
                 <Label Height="40px" x:Name="lbResponse"></Label>
 
