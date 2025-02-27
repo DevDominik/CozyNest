@@ -47,7 +47,6 @@ CREATE TABLE roomstatus (
 CREATE TABLE roomtype (
     id INT PRIMARY KEY AUTO_INCREMENT,
     description VARCHAR(255) NOT NULL,
-    image_path VARCHAR(512) NOT NULL
 );
 
 -- ROOM
@@ -102,6 +101,6 @@ CREATE TABLE reservationservices (
 
 -- START DATA
 INSERT INTO roles (name) VALUES ('Guest'), ('Receptionist'), ('Manager');
-INSERT INTO roomtype (description, image_path) VALUES ('Standard', '//'), ('Deluxe', '//'), ('Suite', '//');
+INSERT INTO roomtype (description, image_path) VALUES ('Standard'), ('Deluxe'), ('Suite');
 INSERT INTO roomstatus (description) VALUES ('Available'), ('Maintenance'), ('Occupied');
 INSERT INTO reservationstatuses (description) VALUES ('Incomplete'), ('Complete'), ('Cancelled')
