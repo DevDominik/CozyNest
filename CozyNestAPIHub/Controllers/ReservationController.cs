@@ -33,7 +33,7 @@ namespace CozyNestAPIHub.Controllers
                     roomId = item.RoomId,
                     checkInDate = item.CheckInDate,
                     checkOutDate = item.CheckOutDate,
-                    status = item.Status,
+                    status = (await ReservationHandler.GetReservationStatusById(item.Status)).Description,
                     notes = item.Notes
                 });
             }

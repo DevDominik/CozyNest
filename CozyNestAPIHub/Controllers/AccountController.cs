@@ -340,7 +340,7 @@ namespace CozyNestAPIHub.Controllers
 
         public static string HashPassword(string password)
         {
-            byte[] salt = RandomNumberGenerator.GetBytes(16); // Generate a secure salt
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
             using (var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password)))
             {
                 argon2.Salt = salt;

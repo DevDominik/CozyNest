@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Xml.Linq;
 
 namespace CozyNestAPIHub.Handlers
 {
@@ -14,6 +15,7 @@ namespace CozyNestAPIHub.Handlers
         private static readonly SemaphoreSlim _reservationServiceWriteLock = new(1, 1);
         private static readonly SemaphoreSlim _serviceReadLock = new(1, 1);
         private static readonly SemaphoreSlim _serviceWriteLock = new(1, 1);
+        private static readonly SemaphoreSlim _reservationStatusesReadLock = new(1, 1);
 
         public static void Initialize(string username, string password)
         {
@@ -456,6 +458,83 @@ namespace CozyNestAPIHub.Handlers
             finally
             {
                 _serviceWriteLock.Release();
+            }
+        }
+        public static async Task<List<ReservationStatus>> GetReservationStatuses()
+        {
+            await _reservationStatusesReadLock.WaitAsync();
+            try
+            {
+                List<ReservationStatus> reservationStatuses = new List<ReservationStatus>();
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"SELECT id, description FROM reservationstatuses";
+                using var cmd = new MySqlCommand(query, connection);
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reservationStatuses.Add(new ReservationStatus
+                    {
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description"),
+                    });
+                }
+                return reservationStatuses;
+            } 
+            finally 
+            { 
+                _reservationStatusesReadLock.Release();
+            }
+        }
+        public static async Task<ReservationStatus?> GetReservationStatusById(int id)
+        {
+            await _reservationStatusesReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"SELECT description FROM reservationstatuses WHERE id = @id";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", id);
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new ReservationStatus
+                    {
+                        Id = id,
+                        Description = reader.GetString("description"),
+                    };
+                }
+                return null;
+            }
+            finally 
+            { 
+                _reservationStatusesReadLock.Release(); 
+            }
+        }
+        public static async Task<ReservationStatus?> GetReservationStatusByDescription(string description)
+        {
+            await _reservationStatusesReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var query = @"SELECT id FROM reservationstatuses WHERE description = @description";
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@description", description);
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync()) {
+                    return new ReservationStatus 
+                    { 
+                        Id = reader.GetInt32("id"),
+                        Description = reader.GetString("description"),
+                    };
+                }
+                return null;
+
+            } finally
+            {
+                _reservationStatusesReadLock.Release();
             }
         }
     }
