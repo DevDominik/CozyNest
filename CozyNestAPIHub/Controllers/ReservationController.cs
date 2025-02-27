@@ -35,7 +35,7 @@ namespace CozyNestAPIHub.Controllers
                     roomId = item.RoomId,
                     roomNumber = room.RoomNumber,
                     roomDescription = room.Description,
-                    roomImage = rType.ImagePath,
+                    roomType = rType.Description,
                     checkInDate = item.CheckInDate,
                     checkOutDate = item.CheckOutDate,
                     status = (await ReservationHandler.GetReservationStatusById(item.Status))?.Description,
