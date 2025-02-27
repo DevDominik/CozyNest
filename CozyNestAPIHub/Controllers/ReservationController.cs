@@ -27,13 +27,16 @@ namespace CozyNestAPIHub.Controllers
             List<object> finalList = new List<object>();
             foreach (var item in reservations)
             {
+                Room? room = await RoomHandler.GetRoomById(item.RoomId);
                 finalList.Add(new
                 {
                     id = item.Id,
                     roomId = item.RoomId,
+                    roomNumber = room.RoomNumber,
+                    roomDescription = room.Description,
                     checkInDate = item.CheckInDate,
                     checkOutDate = item.CheckOutDate,
-                    status = (await ReservationHandler.GetReservationStatusById(item.Status)).Description,
+                    status = (await ReservationHandler.GetReservationStatusById(item.Status))?.Description,
                     notes = item.Notes
                 });
             }
