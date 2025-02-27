@@ -1,127 +1,133 @@
 /* Base mobile-first styles */
 .container {
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-  }
-  
-  .heading {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-  }
-  
-  .loading, .error {
-    text-align: center;
-    font-size: 1.2rem;
-    color: inherit;
-  }
-  
-  .noReservations {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #999;
-  }
-  
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.heading {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.loading,
+.error {
+  text-align: center;
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+.noReservations {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #999;
+}
+
+.cardWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.card {
+  background-color: var(--app-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  color: inherit;
+  width: 100%;
+  max-width: 400px; /* Max width for better appearance on larger screens */
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roomDescription,
+.roomNumber {
+  font-size: 1rem;
+  color: inherit;
+}
+
+.dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.status {
+  font-size: 1rem;
+  color: #4caf50;
+}
+
+.notes {
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+/* Updated to remove margin, full width */
+.cardImage {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%; /* Full width */
+  height: 200px; /* Set a height for the image */
+  border-radius: 8px 8px 0px 0px;
+  margin: 0; /* Ensure no margin around the image */
+}
+
+.cardImageBasic {
+  background-image: url("./Basic.png");
+}
+
+.cardImageDeluxe {
+  background-image: url("./Deluxe.png");
+}
+
+.cardImageSuite {
+  background-image: url("./Suite.png");
+}
+
+/* Media queries for larger screens */
+@media (min-width: 768px) {
   .cardWrapper {
-    display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 30px;
     justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-  }
-  
-  .card {
-    background-color: var(--app-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    color: inherit;
-    width: 100%;
-    max-width: 400px; /* Max width for better appearance on larger screens */
-  }
-  
-  .cardHeader {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: inherit;
-  }
-  
-  .cardBody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .roomDescription,
-  .roomNumber {
-    font-size: 1rem;
-    color: inherit;
-  }
-  
-  .dates {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: inherit;
-  }
-  
-  .status {
-    font-size: 1rem;
-    color: #4CAF50;
-  }
-  
-  .notes {
-    font-size: 0.9rem;
-    color: inherit;
   }
 
-  .cardImage {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 200px; /* Set a height for the image */
-    border-radius: 8px;
+  .card {
+    width: calc(33.333% - 20px);
+    margin-bottom: 20px;
   }
-  
-  .cardImageBasic {
-    background-image: url('./Basic.png');
+}
+
+@media (min-width: 1024px) {
+  .card {
+    width: calc(25% - 20px);
   }
-  
-  .cardImageDeluxe {
-    background-image: url('./Deluxe.png');
-  }
-  
-  .cardImageSuite {
-    background-image: url('./Suite.png');
-  }
-  
-  /* Media queries for larger screens */
-  @media (min-width: 768px) {
-    .cardWrapper {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 30px;
-      justify-content: center;
-    }
-  
-    .card {
-      width: calc(33.333% - 20px);
-      margin-bottom: 20px;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .card {
-      width: calc(25% - 20px);
-    }
-  }
-  
+}
