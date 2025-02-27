@@ -26,7 +26,7 @@
 
 .Container textarea {
   outline: none;
-  width: 400px;
+  width: 80%;
   height: 130px;
   resize: none;
   background-color: var(--body-bg);
@@ -96,6 +96,9 @@
   
 }
 
+.gmailImage{
+  height: 10vh;
+}
 
 @media (min-width: 920px) {
   .FormContainer {

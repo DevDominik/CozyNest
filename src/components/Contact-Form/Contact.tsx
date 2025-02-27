@@ -31,26 +31,31 @@ export default function Contact() {
     <div className={styles.FormContainer}>
       <div className={styles.ContactInfo}>
         <div>
-          <div id="google-maps-display">
-            <iframe className="google-maps" src="https://www.google.com/maps/embed/v1/place?q=budapest&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8"></iframe>
-          </div>
+          <img className={styles.gmailImage} src="./gmail.png" alt="Gmail Logo" />
+          <h1>Kapcsolat</h1>
         </div>
         <p>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni,
-          corrupti! A id consequuntur necessitatibus omnis natus minus
-          voluptatibus aperiam voluptate maxime earum accusantium laboriosam
-          animi eius aliquam nam, obcaecati labore?
+          Ha bármilyen kérdése van, vagy további információra van szüksége,
+          lépjen kapcsolatba velünk! Töltse ki az alábbi űrlapot, és csapatunk
+          hamarosan válaszol Önnek.
         </p>
+  
+        {/* További elérhetőségi információk */}
+        <div className={styles.ContactDetails}>
+          <h3>Support</h3>
+          <p>Hétfő - Péntek: 9:00 - 17:00</p>
+        </div>
       </div>
+  
       <div className={styles.ContactForm}>
         <form onSubmit={onSubmit}>
           <div className={styles.Container}>
-            <input type="hidden" name="from_name" value="BOROS WEBSITE"></input>
-            <input type="text" name="subject" placeholder="Tárgy"></input>
+            <input type="hidden" name="from_name" value="COZYNEST" />
+            <input type="text" name="subject" placeholder="Tárgy" />
             <input type="text" name="name" placeholder="Név" required />
             <input type="email" name="email" placeholder="Email" required />
             <textarea name="message" placeholder="Üzenet" required></textarea>
-
+  
             <button type="submit">Elküldés</button>
             <br />
             <span>{result}</span>
@@ -59,4 +64,5 @@ export default function Contact() {
       </div>
     </div>
   );
+  
 }

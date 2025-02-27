@@ -9,6 +9,7 @@ import { Admin } from "./Pages/Admin/Admin";
 import Profile from "./Pages/Profile/Profile";
 import { Rooms } from "./Pages/Rooms/Rooms";
 import CreateRoom from "./Pages/CreateRoom/CreateRoom";
+import Reservations from "./Pages/Reservations/Reservations";
 
 function App() {
   const [darkmode, setDarkMode] = useState(false);
@@ -31,6 +32,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/rooms" element={<Rooms />} />
           <Route path="/CreateRoom" element={<CreateRoom />} />
+          <Route path="/Reservations" element={<Reservations />} />
         </Routes>
         <Footer></Footer>
       </BrowserRouter>
