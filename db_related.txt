@@ -63,6 +63,12 @@ CREATE TABLE room (
     FOREIGN KEY (status) REFERENCES roomstatus(id)
 );
 
+-- RESERVATIONSTATUSES
+CREATE TABLE reservationstatuses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    description TEXT NOT NULL
+);
+
 -- RESERVATIONS
 CREATE TABLE reservations (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -71,7 +77,8 @@ CREATE TABLE reservations (
     check_in_date DATETIME NOT NULL,
     check_out_date DATETIME NOT NULL,
     status INT NOT NULL,
-    notes TEXT
+    notes TEXT,
+    FOREIGN KEY (status) REFERENCES reservationstatuses(id)
 );
 
 -- SERVICES
