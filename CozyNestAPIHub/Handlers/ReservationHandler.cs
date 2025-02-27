@@ -527,7 +527,7 @@ namespace CozyNestAPIHub.Handlers
                     return new ReservationStatus 
                     { 
                         Id = reader.GetInt32("id"),
-                        Description = reader.GetString("description"),
+                        Description = description,
                     };
                 }
                 return null;
