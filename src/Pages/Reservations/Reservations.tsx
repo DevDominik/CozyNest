@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Reservations.module.css';
 
-// Define the Reservation type
+// Define the Reservation type with additional fields
 type Reservation = {
   id: number;
   roomId: number;
+  roomDescription: string;
+  roomNumber: string;
+  roomType: string;
   checkInDate: string;
   checkOutDate: string;
   status: number;
@@ -62,11 +65,11 @@ const Reservations = () => {
   }, []);
 
   if (loading) {
-    console.log('Loading...'); 
+    console.log('Loading...');
     return <p className={styles.loading}>Loading reservations...</p>;
   }
   if (error) {
-    console.error('Error:', error); 
+    console.error('Error:', error);
     return <p className={styles.error}>Error: {error}</p>;
   }
 
@@ -81,10 +84,15 @@ const Reservations = () => {
         <div className={styles.cardWrapper}>
           {reservations.map((reservation) => (
             <div key={reservation.id} className={styles.card}>
+                <div className={`${styles.cardImage} ${reservation.roomType == "Standard" ? styles.cardImageBasic : reservation.roomType == "Deluxe" ? styles.cardImageDeluxe : styles.cardImageSuite}`}></div>
               <div className={styles.cardHeader}>
-                <span className={styles.roomId}>Room ID: {reservation.roomId}</span>
+                <span className={styles.roomId}>Room Number</span>
+                <span className={styles.roomNumber}>{reservation.roomNumber}</span>
               </div>
               <div className={styles.cardBody}>
+                <div className={styles.roomDescription}>
+                  <span>Room Description: {reservation.roomDescription}</span>
+                </div>
                 <div className={styles.dates}>
                   <span>Check-In: {new Date(reservation.checkInDate).toLocaleString()}</span>
                   <span>Check-Out: {new Date(reservation.checkOutDate).toLocaleString()}</span>

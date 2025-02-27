@@ -1,7 +1,11 @@
 /* Base mobile-first styles */
 .container {
     padding: 20px;
-    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
   }
   
   .heading {
@@ -27,20 +31,25 @@
     justify-content: center;
     align-items: center;
     gap: 20px;
+    width: 100%;
   }
   
   .card {
     background-color: var(--app-bg);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    color: inherit
+    gap: 15px;
+    color: inherit;
+    width: 100%;
+    max-width: 400px; /* Max width for better appearance on larger screens */
   }
   
   .cardHeader {
+    display: flex;
+    justify-content: space-between;
     font-weight: bold;
     font-size: 1.2rem;
     color: inherit;
@@ -49,7 +58,13 @@
   .cardBody {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+  }
+  
+  .roomDescription,
+  .roomNumber {
+    font-size: 1rem;
+    color: inherit;
   }
   
   .dates {
@@ -68,6 +83,26 @@
     font-size: 0.9rem;
     color: inherit;
   }
+
+  .cardImage {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 200px; /* Set a height for the image */
+    border-radius: 8px;
+  }
+  
+  .cardImageBasic {
+    background-image: url('./Basic.png');
+  }
+  
+  .cardImageDeluxe {
+    background-image: url('./Deluxe.png');
+  }
+  
+  .cardImageSuite {
+    background-image: url('./Suite.png');
+  }
   
   /* Media queries for larger screens */
   @media (min-width: 768px) {
@@ -75,6 +110,7 @@
       flex-direction: row;
       flex-wrap: wrap;
       gap: 30px;
+      justify-content: center;
     }
   
     .card {
