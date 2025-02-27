@@ -248,7 +248,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                string query = "SELECT id, description FROM roomtype WHERE id = @id";
+                string query = "SELECT description FROM roomtype WHERE id = @id";
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@id", id);
 
@@ -257,7 +257,7 @@ namespace CozyNestAPIHub.Handlers
                 {
                     return new RoomType
                     {
-                        Id = reader.GetInt32("id"),
+                        Id = id,
                         Description = reader.GetString("description")
                     };
                 }
