@@ -29,6 +29,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 Room? room = await RoomHandler.GetRoomById(item.RoomId);
                 RoomType? rType = await RoomHandler.GetRoomTypeById(room.Type);
+                RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(room.Status);
                 finalList.Add(new
                 {
                     id = item.Id,
@@ -38,7 +39,7 @@ namespace CozyNestAPIHub.Controllers
                     roomType = rType.Description,
                     checkInDate = item.CheckInDate,
                     checkOutDate = item.CheckOutDate,
-                    status = (await ReservationHandler.GetReservationStatusById(item.Status))?.Description,
+                    status = rStatus.Description,
                     notes = item.Notes
                 });
             }
