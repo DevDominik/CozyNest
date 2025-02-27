@@ -9,6 +9,7 @@
       Title="Misc">
 
     <Grid>
-        
+        <Button Margin="10px">Misc</Button>
+
     </Grid>
 </Page>

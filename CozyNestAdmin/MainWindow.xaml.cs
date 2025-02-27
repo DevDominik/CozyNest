@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Controls; // For Page Navigation
+using System.Windows.Controls;
+using CozyNestAdmin.Models; // For Page Navigation
 
 namespace CozyNestAdmin
 {
@@ -9,6 +10,7 @@ namespace CozyNestAdmin
         public MainWindow()
         {
             InitializeComponent();
+            Username.Content = UserInfo.userName;
         }
 
         // Minimize the window
@@ -32,7 +34,7 @@ namespace CozyNestAdmin
             }
         }
 
-        private void ListViewItem_Selected(object sender, RoutedEventArgs e)
+        private void LoadPage(object sender, RoutedEventArgs e)
         {
             var selectedItem = ((ListViewItem)sender).Content as StackPanel;
             var textBlock = (TextBlock)selectedItem.Children[1];
@@ -40,6 +42,18 @@ namespace CozyNestAdmin
             if (textBlock.Text == "Main")
             {
                 MainContentFrame.Navigate(new Uri("Main.xaml", UriKind.Relative));
+            }
+            if (textBlock.Text == "Rooms")
+            {
+                MainContentFrame.Navigate(new Uri("Rooms.xaml", UriKind.Relative));
+            }
+            if (textBlock.Text == "Users")
+            {
+                MainContentFrame.Navigate(new Uri("Users.xaml", UriKind.Relative));
+            }
+            if (textBlock.Text == "Misc")
+            {
+                MainContentFrame.Navigate(new Uri("Misc.xaml", UriKind.Relative));
             }
         }
 

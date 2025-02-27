@@ -7,11 +7,11 @@
   "targets": {
     ".NETCoreApp,Version=v8.0": {
       "FontAwesome/4.7.0": {},
-      "FontAwesome.Sharp/6.6.0": {
+      "FontAwesome.Sharp/6.1.1": {
         "runtime": {
-          "lib/net8.0-windows7.0/FontAwesome.Sharp.dll": {
-            "assemblyVersion": "6.6.0.0",
-            "fileVersion": "6.6.0.0"
+          "lib/net6.0-windows7.0/FontAwesome.Sharp.dll": {
+            "assemblyVersion": "6.1.1.0",
+            "fileVersion": "6.1.1.0"
           }
         }
       },
@@ -61,12 +61,12 @@
       "path": "fontawesome/4.7.0",
       "hashPath": "fontawesome.4.7.0.nupkg.sha512"
     },
-    "FontAwesome.Sharp/6.6.0": {
+    "FontAwesome.Sharp/6.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-bJCb2x73UC1nD9+9iMLaUy6Ujf9Pf+buL6FHwVnaoDYT4CQNLazz59hO5gQ0+SMSW0G+ZXmjjShOYr3Jn2UZiw==",
-      "path": "fontawesome.sharp/6.6.0",
-      "hashPath": "fontawesome.sharp.6.6.0.nupkg.sha512"
+      "sha512": "sha512-p6dnSMcKQg790vGSJgvFk6S8gXQnEcCugfaJ21WFxZz9h+9KyxL+sX6kbGv8p4iVoX/e5BAMnTV4QJFJvx8QxQ==",
+      "path": "fontawesome.sharp/6.1.1",
+      "hashPath": "fontawesome.sharp.6.1.1.nupkg.sha512"
     },
     "MaterialDesignColors/5.2.1": {
       "type": "package",

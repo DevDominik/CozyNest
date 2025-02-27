@@ -9,6 +9,39 @@
       Title="Rooms">
 
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Margin="20" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <TextBlock Text="Room Information" FontWeight="Bold" FontSize="18" Margin="0,0,0,20"/>
+            <TextBlock Text="Room Name:"/>
+            <TextBox Name="RoomNameTextBox" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Room Type:"/>
+            <ComboBox Name="RoomTypeComboBox" Margin="0,0,0,10">
+                <ComboBoxItem Content="Basic"/>
+                <ComboBoxItem Content="Deluxe"/>
+                <ComboBoxItem Content="Suite"/>
+            </ComboBox>
+
+            <TextBlock Text="Price per Night:"/>
+            <TextBox Name="PriceTextBox" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Capacity:"/>
+            <TextBox Name="CapacityTextBox" Margin="0,0,0,20"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Name="ConfirmButton" Content="Confirm Edit" Width="100" Margin="5" Click="ConfirmButton_Click"/>
+                <Button Name="AddButton" Content="Add Room" Width="100" Margin="5" Click="AddButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <ScrollViewer Grid.Column="1" Margin="20">
+            <WrapPanel Name="RoomsWrapPanel" HorizontalAlignment="Left" VerticalAlignment="Top" ItemWidth="250" ItemHeight="150">
+            </WrapPanel>
+        </ScrollViewer>
+
     </Grid>
 </Page>

@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using CozyNestAdmin.Models;
 using Newtonsoft.Json;
 
 namespace CozyNestAdmin
@@ -46,6 +47,7 @@ namespace CozyNestAdmin
                 if (isManager)
                 {
                     // Open MainWindow.xaml
+                    UserInfo.userName = tbUsername.Text;
                     MainWindow mainWindow = new MainWindow();
                     mainWindow.Show();
                     this.Close(); // Close the Auth window
@@ -236,26 +238,6 @@ namespace CozyNestAdmin
                 return false;
             }
         }
-
-
-        // Helper classes to deserialize token and user info responses
-        public class TokenResponse
-        {
-            public string AccessToken { get; set; }
-            public string RefreshToken { get; set; }
-        }
-
-        // Updated to avoid member name conflict
-        public class UserRoleData
-        {
-            public UserInfo UserData { get; set; }
-        }
-
-        public class UserInfo
-        {
-            public string RoleName { get; set; }
-        }
-
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ButtonState == MouseButtonState.Pressed)

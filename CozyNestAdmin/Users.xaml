@@ -9,6 +9,6 @@
       Title="Users">
 
     <Grid>
-        
+        <Button Margin="10px">Users</Button>
     </Grid>
 </Page>

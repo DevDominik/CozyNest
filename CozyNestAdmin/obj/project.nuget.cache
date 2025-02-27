@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "95ObCnPrzP0=",
+  "dgSpecHash": "XSPuW/LKx/E=",
   "success": true,
   "projectFilePath": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpf\\CozyNestAdmin\\CozyNestAdmin.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\szabo.tamas\\.nuget\\packages\\fontawesome\\4.7.0\\fontawesome.4.7.0.nupkg.sha512",
-    "C:\\Users\\szabo.tamas\\.nuget\\packages\\fontawesome.sharp\\6.6.0\\fontawesome.sharp.6.6.0.nupkg.sha512",
+    "C:\\Users\\szabo.tamas\\.nuget\\packages\\fontawesome.sharp\\6.1.1\\fontawesome.sharp.6.1.1.nupkg.sha512",
     "C:\\Users\\szabo.tamas\\.nuget\\packages\\materialdesigncolors\\5.2.1\\materialdesigncolors.5.2.1.nupkg.sha512",
     "C:\\Users\\szabo.tamas\\.nuget\\packages\\materialdesignthemes\\5.2.1\\materialdesignthemes.5.2.1.nupkg.sha512",
     "C:\\Users\\szabo.tamas\\.nuget\\packages\\microsoft.xaml.behaviors.wpf\\1.1.39\\microsoft.xaml.behaviors.wpf.1.1.39.nupkg.sha512",

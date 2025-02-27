@@ -93,7 +93,7 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                             <ListView.Items>
-                                <ListViewItem Selected="ListViewItem_Selected" >
+                                <ListViewItem Selected="LoadPage" >
                                     <ListViewItem.Content>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="Home" VerticalAlignment="Center" Foreground="White" Margin="5" Width="20" Height="20"/>
@@ -102,7 +102,7 @@
                                     </ListViewItem.Content>
                                 </ListViewItem>
 
-                                <ListViewItem>
+                                <ListViewItem Selected="LoadPage">
                                     <ListViewItem.Content>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="AccountGroup" VerticalAlignment="Center" Foreground="White" Margin="5" Width="20" Height="20"/>
@@ -111,7 +111,7 @@
                                     </ListViewItem.Content>
                                 </ListViewItem>
 
-                                <ListViewItem>
+                                <ListViewItem Selected="LoadPage">
                                     <ListViewItem.Content>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Foreground="White" Margin="5" Width="20" Height="20"/>
@@ -120,7 +120,7 @@
                                     </ListViewItem.Content>
                                 </ListViewItem>
 
-                                <ListViewItem>
+                                <ListViewItem Selected="LoadPage">
                                     <ListViewItem.Content>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="Cog" VerticalAlignment="Center" Foreground="White" Margin="5" Width="20" Height="20"/>
