@@ -1,0 +1,91 @@
+/* Base mobile-first styles */
+.container {
+    padding: 20px;
+    height: 100vh;
+  }
+  
+  .heading {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .loading, .error {
+    text-align: center;
+    font-size: 1.2rem;
+    color: inherit;
+  }
+  
+  .noReservations {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #999;
+  }
+  
+  .cardWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .card {
+    background-color: var(--app-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: inherit
+  }
+  
+  .cardHeader {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: inherit;
+  }
+  
+  .cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .dates {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: inherit;
+  }
+  
+  .status {
+    font-size: 1rem;
+    color: #4CAF50;
+  }
+  
+  .notes {
+    font-size: 0.9rem;
+    color: inherit;
+  }
+  
+  /* Media queries for larger screens */
+  @media (min-width: 768px) {
+    .cardWrapper {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+  
+    .card {
+      width: calc(33.333% - 20px);
+      margin-bottom: 20px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .card {
+      width: calc(25% - 20px);
+    }
+  }
+  

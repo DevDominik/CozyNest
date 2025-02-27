@@ -48,12 +48,6 @@ const Reservations = () => {
         }
 
         const data: ReservationsResponse = await response.json();
-        console.log('Reservations data:', data);
-
-        // Optionally log the success message
-        console.log('Message from server:', data.message);
-
-        // Set the reservations data
         setReservations(data.reservations || []);
       } catch (err) {
         console.error('Error fetching reservations:', err);
@@ -68,11 +62,11 @@ const Reservations = () => {
   }, []);
 
   if (loading) {
-    console.log('Loading...'); // Debugging loading state
+    console.log('Loading...'); 
     return <p className={styles.loading}>Loading reservations...</p>;
   }
   if (error) {
-    console.error('Error:', error); // Debugging error state
+    console.error('Error:', error); 
     return <p className={styles.error}>Error: {error}</p>;
   }
 
@@ -84,17 +78,23 @@ const Reservations = () => {
       {reservations.length === 0 ? (
         <p className={styles.noReservations}>No reservations found.</p>
       ) : (
-        <ul className={styles.reservationList}>
-          {reservations.map((reservation, index) => (
-            <li key={reservation.id} className={styles.reservationItem}>
-              <span className={styles.roomId}>Room ID: {reservation.roomId}</span> | 
-              <span className={styles.dates}>Check-In: {new Date(reservation.checkInDate).toLocaleString()}</span> | 
-              <span className={styles.dates}>Check-Out: {new Date(reservation.checkOutDate).toLocaleString()}</span> | 
-              <span className={styles.status}>Status: {reservation.status}</span>
-              {reservation.notes && <p className={styles.notes}>Notes: {reservation.notes}</p>}
-            </li>
+        <div className={styles.cardWrapper}>
+          {reservations.map((reservation) => (
+            <div key={reservation.id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <span className={styles.roomId}>Room ID: {reservation.roomId}</span>
+              </div>
+              <div className={styles.cardBody}>
+                <div className={styles.dates}>
+                  <span>Check-In: {new Date(reservation.checkInDate).toLocaleString()}</span>
+                  <span>Check-Out: {new Date(reservation.checkOutDate).toLocaleString()}</span>
+                </div>
+                <div className={styles.status}>Status: {reservation.status}</div>
+                {reservation.notes && <p className={styles.notes}>Notes: {reservation.notes}</p>}
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
