@@ -21,6 +21,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 RoomStatus? roomstatus = await RoomHandler.GetRoomStatusById(item.Status);
                 RoomType? roomtype = await RoomHandler.GetRoomTypeById(item.Type);
+                if (roomtype == null || roomstatus == null) { continue; }
                 final.Add(new {
                     id = item.Id,
                     roomNumber = item.RoomNumber,
@@ -45,7 +46,6 @@ namespace CozyNestAPIHub.Controllers
                 string.IsNullOrEmpty(request.StatusDescription) ||
                 string.IsNullOrEmpty(request.TypeDescription) ||
                 string.IsNullOrEmpty(request.RoomNumber) ||
-                request.PricePerNight == null ||
                 request.Description == null)
             {
                 return BadRequest(new
@@ -107,7 +107,7 @@ namespace CozyNestAPIHub.Controllers
         [Role("Manager")]
         public async Task<IActionResult> Delete([FromBody] RoomDeleteRequest request) 
         {
-            if (request == null || request.RoomId == null)
+            if (request == null)
             {
                 return BadRequest(new 
                 { 
@@ -148,7 +148,7 @@ namespace CozyNestAPIHub.Controllers
         [Role("Manager")]
         public async Task<IActionResult> Modify([FromBody] RoomModifyRequest request)
         {
-            if (request == null || request.RoomId == null)
+            if (request == null)
             {
                 return BadRequest(new { message = "Invalid request." });
             }
@@ -171,7 +171,7 @@ namespace CozyNestAPIHub.Controllers
             }
 
             if (!string.IsNullOrWhiteSpace(request.RoomNumber)) room.RoomNumber = request.RoomNumber;
-            if (request.PricePerNight != null) room.PricePerNight = request.PricePerNight;
+            if (request.PricePerNight != room.PricePerNight) room.PricePerNight = request.PricePerNight;
             if (!string.IsNullOrWhiteSpace(request.Description)) room.Description = request.Description;
 
             Room? updateSuccess = await RoomHandler.ModifyRoom(room);
