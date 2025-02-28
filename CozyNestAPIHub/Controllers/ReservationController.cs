@@ -20,8 +20,11 @@ namespace CozyNestAPIHub.Controllers
             foreach (var item in reservations)
             {
                 Room? room = await RoomHandler.GetRoomById(item.RoomId);
+                if (room == null) continue;
                 RoomType? rType = await RoomHandler.GetRoomTypeById(room.Type);
+                if (rType == null) continue;
                 RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(room.Status);
+                if (rStatus == null) continue;
                 finalList.Add(new
                 {
                     id = item.Id,
