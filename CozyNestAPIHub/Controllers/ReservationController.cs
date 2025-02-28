@@ -14,7 +14,7 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> GetReservations()
         {
-            User user = GetItemFromContext<User>(HttpContext, "User");
+            User user = await GetItemFromContext<User>(HttpContext, "User");
             List<Reservation> reservations = await ReservationHandler.GetUserReservations(user);
             List<object> finalList = new List<object>();
             foreach (var item in reservations)

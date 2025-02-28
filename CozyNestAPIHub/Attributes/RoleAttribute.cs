@@ -19,7 +19,7 @@ namespace CozyNestAPIHub.Attributes
         [RequireAccessToken]
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            var (isValid, errorMessage, errorCode) = await CheckUserRole(GetItemFromContext<User>(context.HttpContext, "User"));
+            var (isValid, errorMessage, errorCode) = await CheckUserRole(await GetItemFromContext<User>(context.HttpContext, "User"));
             if (!isValid)
             {
                 context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = errorCode };

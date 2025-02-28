@@ -1,12 +1,17 @@
 ﻿global using static CozyNestAPIHub.ItemAcquisitionFromContext;
+using System.Collections.Concurrent;
 
 namespace CozyNestAPIHub
 {
     public class ItemAcquisitionFromContext
     {
-        public static T GetItemFromContext<T>(HttpContext context, string itemName) where T : class
+        public static async Task<T> GetItemFromContext<T>(HttpContext context, string itemName) where T : class
         {
-            return context.Items[itemName] as T;
+            if (!context.Items.TryGetValue(itemName, out var item))
+            {
+                throw new InvalidOperationException($"Item '{itemName}' not found in HttpContext.Items.");
+            }
+            return await Task.FromResult(item as T);
         }
     }
 }
