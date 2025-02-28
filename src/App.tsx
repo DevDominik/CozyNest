@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "../src/Pages/Home/Home";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import AuthPage from "./Pages/Auth/AuthPage";
 import Footer from "./components/Footer/Footer";
 import { Admin } from "./Pages/Admin/Admin";
@@ -14,17 +14,24 @@ import Reservations from "./Pages/Reservations/Reservations";
 function App() {
   const [darkmode, setDarkMode] = useState(false);
 
+  // Combined useEffect for dark mode initialization
   useEffect(() => {
-    if (!localStorage.getItem("darkmode")) {
-      localStorage.setItem("darkmode", JSON.stringify(true));
-    }
-    document.body.className = darkmode ? "dark" : "light";
+    const savedMode = localStorage.getItem("darkmode") === "true";
+    setDarkMode(savedMode);
+    document.body.className = savedMode ? "dark" : "light"; // Directly update the class
+  }, []);
+
+  // Update dark mode in localStorage on change
+  useEffect(() => {
+    localStorage.setItem("darkmode", JSON.stringify(darkmode));
+    document.body.className = darkmode ? "dark" : "light"; // Apply dark/light mode class
   }, [darkmode]);
 
   return (
-    <>
-      <BrowserRouter>
-        <Navbar darkmode={darkmode} setDarkMode={setDarkMode} ></Navbar>
+    <BrowserRouter>
+      <Navbar darkmode={darkmode} setDarkMode={setDarkMode} />
+      {/* Using Suspense here only for fallback loading UI, no lazy loading */}
+      <Suspense fallback={<div className="fallback">Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
@@ -34,9 +41,9 @@ function App() {
           <Route path="/CreateRoom" element={<CreateRoom />} />
           <Route path="/Reservations" element={<Reservations />} />
         </Routes>
-        <Footer></Footer>
-      </BrowserRouter>
-    </>
+      </Suspense>
+      <Footer />
+    </BrowserRouter>
   );
 }
 

@@ -123,7 +123,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
         <a href="/#info">Info</a>
         <a href="/#contact">Contact</a>
         <a href="/rooms">Rooms</a>
-        {role ? <a href="/reservations">Reserations</a> : <p></p>}
+        {role ? <a href="/reservations">Reservations</a> : <p></p>}
         {role == "Manager" ? <a href="/Admin">Admin Panel</a> : <p></p>}
         {role == "Manager" ? <a href="/CreateRoom">Create Room</a> : <p></p>}
         {username ? (

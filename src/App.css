@@ -127,3 +127,6 @@ h1 {
 
 }
 
+.fallback{
+  background-color:  var(--body-bg);
+}
