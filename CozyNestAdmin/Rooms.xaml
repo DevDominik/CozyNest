@@ -14,6 +14,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Sidebar for adding/editing room information -->
         <StackPanel Grid.Column="0" Margin="20" VerticalAlignment="Top" HorizontalAlignment="Left">
             <TextBlock Text="Room Information" FontWeight="Bold" FontSize="18" Margin="0,0,0,20"/>
             <TextBlock Text="Room Name:"/>
@@ -32,16 +33,20 @@
             <TextBlock Text="Capacity:"/>
             <TextBox Name="CapacityTextBox" Margin="0,0,0,20"/>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Name="ConfirmButton" Content="Confirm Edit" Width="100" Margin="5" Click="ConfirmButton_Click"/>
-                <Button Name="AddButton" Content="Add Room" Width="100" Margin="5" Click="AddButton_Click"/>
+            <!-- Buttons to confirm, add, or cancel -->
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Right">
+                <Button Name="ConfirmButton" Content="Confirm Edit" Width="100" Margin="5" IsEnabled="False"/>
+                <Button Name="AddButton" Content="Add Room" Width="100" Margin="5"/>
+                <Button Name="SaveButton" Content="Save Room" Width="100" Margin="5" IsEnabled="False"/>
+                <Button Name="CancelButton" Content="Cancel" Width="100" Margin="5" IsEnabled="False"/>
             </StackPanel>
         </StackPanel>
 
+        <!-- Display list of rooms -->
         <ScrollViewer Grid.Column="1" Margin="20">
-            <WrapPanel Name="RoomsWrapPanel" HorizontalAlignment="Left" VerticalAlignment="Top" ItemWidth="250" ItemHeight="150">
+            <WrapPanel Name="RoomsWrapPanel" HorizontalAlignment="Left" VerticalAlignment="Top" ItemWidth="450" ItemHeight="250">
+                <!-- Room cards will be dynamically added here -->
             </WrapPanel>
         </ScrollViewer>
-
     </Grid>
 </Page>
