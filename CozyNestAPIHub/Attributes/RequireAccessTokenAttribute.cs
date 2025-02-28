@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Mvc;
 using CozyNestAPIHub.Handlers;
+using CozyNestAPIHub.Models;
 
 namespace CozyNestAPIHub.Attributes
 {
@@ -29,14 +30,14 @@ namespace CozyNestAPIHub.Attributes
                 context.Result = new ObjectResult(new { message = "Missing or invalid Authorization header." }) { StatusCode = 401 };
                 return;
             }
-
-            if (!await UserHandler.ValidateAccessToken(token))
+            User? user = await UserHandler.GetUserByAccessToken(token);
+            if (user == null)
             {
                 context.Result = new ObjectResult(new { message = "Invalid access token." }) { StatusCode = 403 };
                 return;
             }
             context.HttpContext.Items["Token"] = token;
-
+            context.HttpContext.Items["User"] = user;
             await next();
         }
     }

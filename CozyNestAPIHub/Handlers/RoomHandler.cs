@@ -261,12 +261,12 @@ namespace CozyNestAPIHub.Handlers
                         Description = reader.GetString("description")
                     };
                 }
+                return null;
             }
             finally
             {
                 _roomTypeRead.Release();
             }
-            return null;
         }
 
         public static async Task<RoomStatus?> GetRoomStatusById(int id)
@@ -290,12 +290,12 @@ namespace CozyNestAPIHub.Handlers
                         Description = reader.GetString("description")
                     };
                 }
+                return null;
             }
             finally
             {
                 _roomStatusRead.Release();
             }
-            return null;
         }
 
         public static async Task<RoomType?> GetRoomTypeByDescription(string description)
@@ -319,12 +319,12 @@ namespace CozyNestAPIHub.Handlers
                         Description = reader.GetString("description")
                     };
                 }
+                return null;
             }
             finally
             {
                 _roomTypeRead.Release();
             }
-            return null;
         }
 
         public static async Task<RoomStatus?> GetRoomStatusByDescription(string description)
@@ -348,12 +348,12 @@ namespace CozyNestAPIHub.Handlers
                         Description = reader.GetString("description")
                     };
                 }
+                return null;
             }
             finally
             {
                 _roomStatusRead.Release();
             }
-            return null;
         }
         public static async Task<Room?> GetRoomByRoomNumber(string roomNumber) 
         { 

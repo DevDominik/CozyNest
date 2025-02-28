@@ -128,7 +128,7 @@ namespace CozyNestAPIHub.Controllers
         public async Task<IActionResult> Logout()
         {
 
-            string token = HttpContext.Items["Token"].ToString();
+            string token = GetItemFromContext<string>(HttpContext, "Token");
 
             bool revoked = await UserHandler.RevokeToken(token);
             if (!revoked)
@@ -150,8 +150,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> IntrospectToken()
         {
-            string token = HttpContext.Items["Token"].ToString();
-            User? user = await UserHandler.GetUserByAccessToken(token);
+            string token = GetItemFromContext<string>(HttpContext, "Token");
+            User user = GetItemFromContext<User>(HttpContext, "User"); 
             Role? role = UserHandler.GetRoleById(user.RoleId);
             return Ok(new 
             { 
@@ -175,15 +175,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireRefreshToken]
         public async Task<IActionResult> RenewToken() 
         {
-            string token = HttpContext.Items["Token"].ToString();
-            User? user = await UserHandler.GetUserByRefreshToken(token);
-            if (user == null)
-            {
-                return BadRequest(new 
-                { 
-                    message = "Token is invalid." 
-                });
-            }
+            string token = GetItemFromContext<string>(HttpContext, "Token");
+            User user = GetItemFromContext<User>(HttpContext, "User");
             bool revokeSuccess = await UserHandler.RevokeToken(token);
             if (!revokeSuccess)
             {
@@ -214,13 +207,9 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> UpdateData([FromBody] UserSelfUpdateRequest request)
         {
-            string token = HttpContext.Items["Token"].ToString();
-            User? user = await UserHandler.GetUserByAccessToken(token);
-            if (user == null)
-            {
-                return NotFound(new { message = "User not found." });
-            }
-
+            string token = GetItemFromContext<string>(HttpContext, "Token");
+            User user = GetItemFromContext<User>(HttpContext, "User");
+            
             bool passwordIsUpdated = false;
 
             if (!string.IsNullOrWhiteSpace(request.Email)) user.Email = request.Email;
@@ -295,12 +284,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> DeleteAccount()
         {
-            string token = HttpContext.Items["Token"].ToString();
-            User? user = await UserHandler.GetUserByAccessToken(token);
-            if (user == null)
-            {
-                return NotFound(new { message = "User not found." });
-            }
+            string token = GetItemFromContext<string>(HttpContext, "Token");
+            User user = GetItemFromContext<User>(HttpContext, "User");
             if (user.Closed)
             {
                 return Unauthorized(new { message = "Account already closed."});
@@ -324,12 +309,8 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> LogoutEverywhere()
         {
-            string token = HttpContext.Items["Token"].ToString();
-            User? user = await UserHandler.GetUserByAccessToken(token);
-            if (user == null)
-            {
-                return NotFound(new { message = "User not found." });
-            }
+            string token = GetItemFromContext<string>(HttpContext, "Token");
+            User user = GetItemFromContext<User>(HttpContext, "User");
             bool success = await UserHandler.RevokeAllTokensForUser(user);
             if (!success)
             {
