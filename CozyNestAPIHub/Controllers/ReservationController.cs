@@ -100,5 +100,49 @@ namespace CozyNestAPIHub.Controllers
             });
         }
 
+        [Route("cancel")]
+        [HttpPost]
+        [RequireAccessToken]
+        public async Task<IActionResult> Cancel([FromBody] ReservationCancelRequest request) 
+        { 
+            Reservation? reservation = await ReservationHandler.GetReservationById(request.ReservationId);
+            if (reservation == null)
+            {
+                return NotFound(new
+                {
+                    message = "Reservation not found."
+                });
+            }
+            ReservationStatus? rStatus = await ReservationHandler.GetReservationStatusByDescription("Cancelled");
+            if (reservation.Status == rStatus.Id)
+            {
+                return BadRequest(new
+                {
+                    message = "Reservation already cancelled."
+                });
+            }
+            reservation.Status = rStatus.Id;
+            Reservation? updatedReservation = await ReservationHandler.ModifyReservation(reservation);
+            if (updatedReservation == null)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Failed to cancel reservation."
+                });
+            }
+            return Ok(new
+            {
+                message = "Reservation successfully cancelled.",
+                reservationData = new
+                {
+                    id = updatedReservation.Id,
+                    roomId = updatedReservation.RoomId,
+                    checkInDate = updatedReservation.CheckInDate,
+                    checkOutDate = updatedReservation.CheckOutDate,
+                    status = rStatus.Description,
+                    notes = updatedReservation.Notes
+                }
+            });
+        }
     }
 }
