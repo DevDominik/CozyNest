@@ -399,7 +399,8 @@ namespace CozyNestAPIHub.Handlers
                         Id = reader.GetInt32("id"),
                         Name = name,
                         Description = reader.GetString("description"),
-                        Price = reader.GetDecimal("price")
+                        Price = reader.GetDecimal("price"),
+                        IsActive = reader.GetBoolean("is_active")
                     };
                     return service;
                 }
@@ -536,6 +537,34 @@ namespace CozyNestAPIHub.Handlers
             {
                 _reservationStatusesReadLock.Release();
             }
+        }
+        public static async Task<bool> IsReservationValid(Reservation newReservation)
+        {
+            if (newReservation.CheckInDate < DateTime.Now.AddDays(7))
+            {
+                return false;
+            }
+
+            using var connection = CreateConnection();
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT COUNT(*) 
+                FROM reservations 
+                WHERE room_id = @roomId 
+                AND (
+                    (@checkInDate < check_out_date AND @checkOutDate > check_in_date)
+                )
+                AND @checkInDate >= DATE_ADD(NOW(), INTERVAL 7 DAY)";
+
+            using var cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@roomId", newReservation.RoomId);
+            cmd.Parameters.AddWithValue("@checkInDate", newReservation.CheckInDate);
+            cmd.Parameters.AddWithValue("@checkOutDate", newReservation.CheckOutDate);
+
+            var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+
+            return count == 0;
         }
     }
 }

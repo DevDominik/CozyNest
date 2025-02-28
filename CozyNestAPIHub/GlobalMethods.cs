@@ -1,9 +1,9 @@
-﻿global using static CozyNestAPIHub.ItemAcquisitionFromContext;
+﻿global using static CozyNestAPIHub.GlobalMethods;
 using System.Collections.Concurrent;
 
 namespace CozyNestAPIHub
 {
-    public class ItemAcquisitionFromContext
+    public class GlobalMethods
     {
         public static async Task<T> GetItemFromContext<T>(HttpContext context, string itemName) where T : class
         {

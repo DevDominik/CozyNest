@@ -1,6 +1,7 @@
 ﻿using CozyNestAPIHub.Attributes;
 using CozyNestAPIHub.Handlers;
 using CozyNestAPIHub.Models;
+using CozyNestAPIHub.RequestTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CozyNestAPIHub.Controllers
@@ -42,6 +43,60 @@ namespace CozyNestAPIHub.Controllers
             {
                 message = "Successfully retrieved reservations.",
                 reservations = finalList
+            });
+        }
+
+        [Route("reserve")]
+        [HttpPost]
+        [RequireAccessToken]
+        public async Task<IActionResult> Reserve([FromBody] ReservationRequest request)
+        {
+            Room? room = await RoomHandler.GetRoomByRoomNumber(request.RoomNumber);
+            if (room == null)
+            {
+                return NotFound(new
+                {
+                    message = "Room not found."
+                });
+            }
+            User user = await GetItemFromContext<User>(HttpContext, "User");
+            ReservationStatus? rStatus = await ReservationHandler.GetReservationStatusByDescription("Incomplete");
+            Reservation reservation = new Reservation
+            {
+                GuestId = user.Id,
+                RoomId = room.Id,
+                CheckInDate = request.CheckInDate,
+                CheckOutDate = request.CheckOutDate,
+                Status = rStatus.Id,
+                Notes = request.Notes
+            };
+            if (!await ReservationHandler.IsReservationValid(reservation))
+            {
+                return BadRequest(new
+                {
+                    message = "Reservation times overlap into existing reservations."
+                });
+            }
+            Reservation? createdReservation = await ReservationHandler.CreateReservation(reservation);
+            if (createdReservation == null) 
+            {
+                return StatusCode(500, new
+                {
+                    message = "Failed to create reservation."
+                });
+            }
+            return Ok(new
+            {
+                message = "Reservation successfully created.",
+                reservationData = new { 
+                    id = createdReservation.Id,
+                    roomId = createdReservation.RoomId,
+                    roomNumber = room.RoomNumber,
+                    checkInDate = createdReservation.CheckInDate,
+                    checkOutDate = createdReservation.CheckOutDate,
+                    status = rStatus.Description,
+                    notes = createdReservation.Notes
+                }
             });
         }
 
