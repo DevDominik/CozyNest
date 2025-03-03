@@ -8,7 +8,7 @@ namespace CozyNestAPIHub.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Role("Manager", "Receptionist")]
+    [RequireAccessToken]
     public class AdminController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -20,6 +20,7 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("getusers")]
         [HttpGet]
+        [Role("Manager", "Receptionist")]
         public async Task<IActionResult> GetUsers() 
         {
             List<User> userList = await UserHandler.GetUsers();
@@ -42,6 +43,7 @@ namespace CozyNestAPIHub.Controllers
         }
         [Route("getroles")]
         [HttpGet]
+        [Role("Manager", "Receptionist")]
         public async Task<IActionResult> GetRoles()
         {
             List<Role> roleList = UserHandler.GetRoles();

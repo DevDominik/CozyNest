@@ -10,9 +10,9 @@ using CozyNestAPIHub.Models;
 namespace CozyNestAPIHub.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class RequireAccessTokenAttribute : Attribute, IAsyncActionFilter
+    public class RequireAccessTokenAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             HttpContext httpContext = context.HttpContext;
 
@@ -30,15 +30,16 @@ namespace CozyNestAPIHub.Attributes
                 context.Result = new ObjectResult(new { message = "Missing or invalid Authorization header." }) { StatusCode = 401 };
                 return;
             }
+
             User? user = await UserHandler.GetUserByAccessToken(token);
             if (user == null)
             {
                 context.Result = new ObjectResult(new { message = "Invalid access token." }) { StatusCode = 403 };
                 return;
             }
+
             context.HttpContext.Items["Token"] = token;
             context.HttpContext.Items["User"] = user;
-            await next();
         }
     }
 }

@@ -8,7 +8,7 @@ using CozyNestAPIHub.Models;
 namespace CozyNestAPIHub.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class RoleAttribute : Attribute, IAsyncAuthorizationFilter
+    public class RoleAttribute : Attribute, IAsyncActionFilter
     {
         private readonly string[] _roles;
 
@@ -16,14 +16,28 @@ namespace CozyNestAPIHub.Attributes
         {
             _roles = roles;
         }
-        [RequireAccessToken]
-        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var (isValid, errorMessage, errorCode) = await CheckUserRole(await GetItemFromContext<User>(context.HttpContext, "User"));
+            // Get the user from the context
+            User? user = await GetItemFromContext<User>(context.HttpContext, "User");
+
+            if (user == null)
+            {
+                context.Result = new ObjectResult(new { message = "User not found." }) { StatusCode = 401 };
+                return;
+            }
+
+            // Check the user's role
+            var (isValid, errorMessage, errorCode) = await CheckUserRole(user);
             if (!isValid)
             {
                 context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = errorCode };
+                return;
             }
+
+            // Proceed to the next action if the role is valid
+            await next();
         }
 
         private async Task<(bool, string?, int)> CheckUserRole(User user)

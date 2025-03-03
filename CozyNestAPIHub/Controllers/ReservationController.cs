@@ -113,15 +113,31 @@ namespace CozyNestAPIHub.Controllers
                     message = "Reservation not found."
                 });
             }
-            ReservationStatus? rStatus = await ReservationHandler.GetReservationStatusByDescription("Cancelled");
-            if (reservation.Status == rStatus.Id)
+            if (reservation.GuestId != (await GetItemFromContext<User>(HttpContext, "User")).Id)
+            {
+                return StatusCode(403, new
+                {
+                    message = "You are not the reserver."
+                });
+            }
+            List<ReservationStatus> reservationStatuses = await ReservationHandler.GetReservationStatuses();
+            string resDesc = reservationStatuses.First(x => x.Id == reservation.Id).Description;
+            if (resDesc == "Cancelled")
             {
                 return BadRequest(new
                 {
                     message = "Reservation already cancelled."
                 });
             }
-            reservation.Status = rStatus.Id;
+            if (resDesc == "Complete")
+            {
+                return BadRequest(new
+                {
+                    message = "Reservation already complete."
+                });
+            }
+            reservation.Status = reservationStatuses.First(x => x.Description == "Cancelled").Id;
+            Room? room = await RoomHandler.GetRoomById(reservation.RoomId);
             Reservation? updatedReservation = await ReservationHandler.ModifyReservation(reservation);
             if (updatedReservation == null)
             {
@@ -136,10 +152,10 @@ namespace CozyNestAPIHub.Controllers
                 reservationData = new
                 {
                     id = updatedReservation.Id,
-                    roomId = updatedReservation.RoomId,
+                    roomNumber = room.RoomNumber,
                     checkInDate = updatedReservation.CheckInDate,
                     checkOutDate = updatedReservation.CheckOutDate,
-                    status = rStatus.Description,
+                    status = "Cancelled",
                     notes = updatedReservation.Notes
                 }
             });
