@@ -152,14 +152,15 @@ namespace CozyNestAdmin
         {
             try
             {
-                var newRoom = new Room
+                var newRoom = new
                 {
-                    RoomNumber = RoomNameTextBox.Text,
-                    Type = RoomTypeComboBox.Text,
-                    PricePerNight = double.Parse(PriceTextBox.Text),
-                    Description = CapacityTextBox.Text,
-                    Status = "Available"
+                    RoomNumber = RoomNameTextBox.Text,  
+                    TypeDescription = RoomTypeComboBox.SelectedItem.ToString(),  
+                    PricePerNight = double.Parse(PriceTextBox.Text),  
+                    StatusDescription = "Available",  
+                    description = CapacityTextBox.Text  
                 };
+
 
                 using HttpClient client = new();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
@@ -167,11 +168,12 @@ namespace CozyNestAdmin
                 {
                     Content = new StringContent(JsonSerializer.Serialize(newRoom), Encoding.UTF8, "application/json")
                 };
+
                 var response = await client.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    LoadRooms();
+                    LoadRooms(); 
                 }
                 else
                 {
@@ -183,6 +185,7 @@ namespace CozyNestAdmin
                 MessageBox.Show($"Error: {ex.Message}");
             }
         }
+
 
         private async void DeleteRoom(int roomId)
         {
@@ -216,6 +219,11 @@ namespace CozyNestAdmin
             AddButton.IsEnabled = true;
             ConfirmButton.IsEnabled = false;
             CancelButton.IsEnabled = false;
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateRoom();
         }
     }
 }
