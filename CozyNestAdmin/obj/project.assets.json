@@ -255,11 +255,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpf\\CozyNestAdmin\\CozyNestAdmin.csproj",
+      "projectUniqueName": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpfff\\CozyNestAdmin\\CozyNestAdmin.csproj",
       "projectName": "CozyNestAdmin",
-      "projectPath": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpf\\CozyNestAdmin\\CozyNestAdmin.csproj",
+      "projectPath": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpfff\\CozyNestAdmin\\CozyNestAdmin.csproj",
       "packagesPath": "C:\\Users\\szabo.tamas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpf\\CozyNestAdmin\\obj\\",
+      "outputPath": "C:\\Users\\szabo.tamas\\Source\\Repos\\CozyNestwpfff\\CozyNestAdmin\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -274,6 +274,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
