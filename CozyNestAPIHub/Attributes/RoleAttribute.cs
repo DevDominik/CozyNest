@@ -19,24 +19,13 @@ namespace CozyNestAPIHub.Attributes
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            // Get the user from the context
-            User? user = await GetItemFromContext<User>(context.HttpContext, "User");
-
-            if (user == null)
-            {
-                context.Result = new ObjectResult(new { message = "User not found." }) { StatusCode = 401 };
-                return;
-            }
-
-            // Check the user's role
-            var (isValid, errorMessage, errorCode) = await CheckUserRole(user);
+            var (isValid, errorMessage, errorCode) = await CheckUserRole(await GetItemFromContext<User>(context.HttpContext, "User"));
             if (!isValid)
             {
                 context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = errorCode };
                 return;
             }
 
-            // Proceed to the next action if the role is valid
             await next();
         }
 
