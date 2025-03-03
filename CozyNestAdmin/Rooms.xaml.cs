@@ -13,7 +13,7 @@ namespace CozyNestAdmin
     public partial class Rooms : Page
     {
         private const string BaseUrl = "https://localhost:7290/api/room";
-        private string authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6IjY0OGVjMGUyLWQ2MWMtNGM3MS04Njk5LTllYjlhNDI0ZTdhZiIsInVzZXJJZCI6MSwiZXhwIjoxNzQxMDA4NzgwfQ.jr9vx7jD3tvLwoJ1jZCh6hjnrifYQjPhm2zXViGyuqs";
+        private string authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6IjY0OGVjMGUyLWQ2MWMtNGM3MS04Njk5LTllYjlhNDI0ZTdhZiIsInVzZXJJZCI6MSwiZXhwIjoxNzQxMDA4NzgwfQ.jr9vx7jD3tvLwoJ1jZCh6hjnrifYQjPhm2zXViGyuqs\t";
         private List<Room> roomList = new();
         private Room selectedRoom = null;
 
@@ -129,10 +129,53 @@ namespace CozyNestAdmin
                 if (response.IsSuccessStatusCode)
                 {
                     LoadRooms();
+                    RoomNameTextBox.Text = "";
+                    RoomTypeComboBox.Text = "";
+                    PriceTextBox.Text = RoomTypeComboBox.Text = "";
+                    CapacityTextBox.Text = RoomTypeComboBox.Text = "";
+                    AddButton.IsEnabled = true;
+                    ConfirmButton.IsEnabled = false;
+                    CancelButton.IsEnabled = false;
                 }
                 else
                 {
                     MessageBox.Show($"Error updating room: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
+
+        private async void CreateRoom()
+        {
+            try
+            {
+                var newRoom = new Room
+                {
+                    RoomNumber = RoomNameTextBox.Text,
+                    Type = RoomTypeComboBox.Text,
+                    PricePerNight = double.Parse(PriceTextBox.Text),
+                    Description = CapacityTextBox.Text,
+                    Status = "Available"
+                };
+
+                using HttpClient client = new();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/create")
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(newRoom), Encoding.UTF8, "application/json")
+                };
+                var response = await client.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    LoadRooms();
+                }
+                else
+                {
+                    MessageBox.Show($"Error creating room: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
@@ -163,9 +206,21 @@ namespace CozyNestAdmin
                 MessageBox.Show($"Error deleting room: {ex.Message}");
             }
         }
-    }
 
-    public class RoomResponse
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            RoomNameTextBox.Text = "";
+            RoomTypeComboBox.Text = "";
+            PriceTextBox.Text = RoomTypeComboBox.Text = "";
+            CapacityTextBox.Text = RoomTypeComboBox.Text = "";
+            AddButton.IsEnabled = true;
+            ConfirmButton.IsEnabled = false;
+            CancelButton.IsEnabled = false;
+        }
+    }
+}
+
+public class RoomResponse
     {
         public string Message { get; set; }
         public List<Room> Rooms { get; set; } = new();
@@ -181,4 +236,4 @@ namespace CozyNestAdmin
         public bool Deleted { get; set; }
         public string Status { get; set; }
     }
-}
+

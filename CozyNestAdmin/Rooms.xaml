@@ -38,7 +38,7 @@
                 <Button Name="ConfirmButton" Click="ConfirmEdit_Click" Content="Confirm Edit" Width="100" Margin="5" IsEnabled="False"/>
                 <Button Name="AddButton" Content="Add Room" Width="100" Margin="5"/>
                 <Button Name="SaveButton" Content="Save Room" Width="100" Margin="5" IsEnabled="False"/>
-                <Button Name="CancelButton" Content="Cancel" Width="100" Margin="5" IsEnabled="False"/>
+                <Button Name="CancelButton" Content="Cancel" Width="100" Margin="5" IsEnabled="False" Click="CancelButton_Click"/>
             </StackPanel>
         </StackPanel>
 
