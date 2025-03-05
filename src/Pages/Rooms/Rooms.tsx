@@ -33,27 +33,60 @@ export const Rooms = () => {
   const [roomTypeFilter, setRoomTypeFilter] = useState<string>("");
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
-  const [priceRange, setPriceRange] = useState<number>(50); // Default value for the slider
+  const [minPrice, setMinPrice] = useState<number>(0); // State for minimum price
+  const [maxPrice, setMaxPrice] = useState<number>(300000); // State for maximum price
 
   // Date pickers
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+
+  const today = new Date();
+  const minStartDate = new Date(today);
+  minStartDate.setDate(today.getDate() + 7); // Start date is 7 days from now
+  const minStartDateString = minStartDate.toISOString().split("T")[0]; // Current date + 7 days in YYYY-MM-DD format
+  
+  // Initializing endDate to be at least 1 day after startDate
+  const minEndDate = new Date(minStartDate);
+  minEndDate.setDate(minStartDate.getDate() + 1); // End date is 1 day after the start date
+  const minEndDateString = minEndDate.toISOString().split("T")[0]; // End date in YYYY-MM-DD format
+  
+  useEffect(() => {
+    if (!startDate) {
+      setStartDate(minStartDateString); // Set start date to 7 days from now
+    }
+    if (!endDate || new Date(endDate) <= new Date(startDate)) {
+      setEndDate(minEndDateString); // Set end date to be at least 1 day after start date
+    }
+  }, [startDate, endDate]);
+  
 
   const navigate = useNavigate(); // Create navigate function from useNavigate hook
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const response = await fetch("https://localhost:7290/api/reservation/getrooms", {
-          method: "POST",
+        let response;
+        const requestOptions: RequestInit = {
+          method: startDate && endDate ? "POST" : "GET", // POST if both dates are set, GET otherwise
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
+        };
+
+        // If it's a POST request, include the body with the dates
+        if (startDate && endDate) {
+          requestOptions.body = JSON.stringify({
             start: startDate,
             end: endDate,
-          }),
-        });
+          });
+        }
+
+        // Make the request based on the method (GET or POST)
+        response = await fetch(
+          "https://localhost:7290/api/reservation/getrooms",
+          requestOptions
+        );
+
         const data = await response.json();
         if (data.rooms) {
           // Ensure deleted rooms are excluded
@@ -81,9 +114,13 @@ export const Rooms = () => {
 
       // Filter by availability
       if (availabilityFilter === "Show Available") {
-        filtered = filtered.filter((room) => room.status === RoomType.AVAILABLE);
+        filtered = filtered.filter(
+          (room) => room.status === RoomType.AVAILABLE
+        );
       } else if (availabilityFilter === "Show Unavailable") {
-        filtered = filtered.filter((room) => room.status !== RoomType.AVAILABLE);
+        filtered = filtered.filter(
+          (room) => room.status !== RoomType.AVAILABLE
+        );
       }
 
       // Filter by search text (room number or description)
@@ -96,13 +133,25 @@ export const Rooms = () => {
       }
 
       // Filter by price range
-      filtered = filtered.filter((room) => room.pricePerNight <= priceRange);
+      filtered = filtered.filter(
+        (room) =>
+          room.pricePerNight >= minPrice && room.pricePerNight <= maxPrice
+      );
 
       setFilteredRooms(filtered);
     };
 
     applyFilters();
-  }, [roomTypeFilter, availabilityFilter, searchText, priceRange, rooms, startDate, endDate]);
+  }, [
+    roomTypeFilter,
+    availabilityFilter,
+    searchText,
+    minPrice,
+    maxPrice,
+    rooms,
+    startDate,
+    endDate,
+  ]);
 
   const handleReservationClick = (room: Room) => {
     // Navigate to the ReserveRoom page and pass the room data as state
@@ -144,15 +193,27 @@ export const Rooms = () => {
             placeholder="Search..."
             onChange={(e) => setSearchText(e.target.value)}
           />
-          <input
-            type="range"
-            className={styles.Slider}
-            min="0"
-            max="200"
-            defaultValue="200"
-            onChange={(e) => setPriceRange(Number(e.target.value))}
-          />
-          <p>MAX: {priceRange}HUF</p>
+
+          {/* Price Range Inputs */}
+          <div className={styles.PriceInputs}>
+            <input
+              type="number"
+              className={styles.PriceInput}
+              placeholder="Min Price"
+              value={minPrice}
+              onChange={(e) => setMinPrice(Number(e.target.value))}
+            />
+            <input
+              type="number"
+              className={styles.PriceInput}
+              placeholder="Max Price"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+            />
+          </div>
+          <p>
+            Price range: {minPrice} HUF - {maxPrice} HUF
+          </p>
 
           {/* Date Pickers */}
           <div className={styles.DatePickers}>
