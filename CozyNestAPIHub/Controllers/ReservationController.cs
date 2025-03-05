@@ -159,6 +159,33 @@ namespace CozyNestAPIHub.Controllers
             });
         }
         [Route("getrooms")]
+        [HttpGet]
+        public async Task<IActionResult> GetRooms()
+        {
+            List<Room> roomList = await RoomHandler.GetRooms();
+            List<object> final = new List<object>();
+            foreach (Room item in roomList)
+            {
+                RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(item.Status);
+                RoomType? rType = await RoomHandler.GetRoomTypeById(item.Type);
+                if (rType == null || rStatus == null) { continue; }
+                final.Add(new
+                {
+                    id = item.Id,
+                    roomNumber = item.RoomNumber,
+                    type = rType.Description,
+                    pricePerNight = item.PricePerNight,
+                    description = item.Description,
+                    status = rStatus.Description
+                });
+            }
+            return Ok(new
+            {
+                message = "Rooms acquired successfully.",
+                rooms = final.ToArray()
+            });
+        }
+        [Route("getrooms")]
         [HttpPost]
         public async Task<IActionResult> GetRooms([FromBody] ReservationTimesRequest request)
         {
@@ -172,10 +199,12 @@ namespace CozyNestAPIHub.Controllers
                 if (rStatus == null || rStatus.Description != "Available") continue;
                 finalList.Add(new
                 {
+                    id = item.Id,
                     roomNumber = item.RoomNumber,
                     roomType = rType.Description,
                     pricePerNight = item.PricePerNight,
-                    description = item.Description
+                    description = item.Description,
+                    status = rStatus.Description
                 });
             }
             return Ok(new
