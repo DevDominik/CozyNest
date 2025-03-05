@@ -173,7 +173,7 @@ namespace CozyNestAPIHub.Controllers
                 {
                     id = item.Id,
                     roomNumber = item.RoomNumber,
-                    type = rType.Description,
+                    roomType = rType.Description,
                     pricePerNight = item.PricePerNight,
                     description = item.Description,
                     status = rStatus.Description
@@ -201,7 +201,6 @@ namespace CozyNestAPIHub.Controllers
                 {
                     id = item.Id,
                     roomNumber = item.RoomNumber,
-                    type = rType.Description,
                     roomType = rType.Description,
                     pricePerNight = item.PricePerNight,
                     description = item.Description,
