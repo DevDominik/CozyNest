@@ -172,7 +172,6 @@ namespace CozyNestAPIHub.Controllers
                 if (rStatus == null || rStatus.Description != "Available") continue;
                 finalList.Add(new
                 {
-                    id = item.Id,
                     roomNumber = item.RoomNumber,
                     roomType = rType.Description,
                     pricePerNight = item.PricePerNight,

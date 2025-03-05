@@ -570,6 +570,11 @@ namespace CozyNestAPIHub.Handlers
         }
         public static async Task<List<Room>> GetAvailableRoomsBetweenTimes(DateTime start, DateTime end)
         {
+            if (start < DateTime.UtcNow.AddDays(7))
+            {
+                return new List<Room>();
+            }
+
             await _reservationReadLock.WaitAsync();
             try
             {
@@ -579,10 +584,10 @@ namespace CozyNestAPIHub.Handlers
                 var rooms = await RoomHandler.GetRooms();
 
                 var query = @"
-                SELECT room_id 
-                FROM reservations 
-                WHERE (check_in_date < @end AND check_out_date > @start)
-                   OR (check_out_date > DATE_SUB(@start, INTERVAL 7 DAY))";
+        SELECT room_id 
+        FROM reservations 
+        WHERE (check_in_date < @end AND check_out_date > @start)
+           OR (check_out_date > DATE_SUB(@start, INTERVAL 7 DAY))";
 
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@start", start);
@@ -591,7 +596,7 @@ namespace CozyNestAPIHub.Handlers
                 using var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    roomIds.Add(reader.GetInt32("id"));
+                    roomIds.Add(reader.GetInt32("room_id"));
                 }
 
                 return rooms.Where(x => roomIds.Contains(x.Id)).ToList();
