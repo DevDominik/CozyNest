@@ -9,6 +9,8 @@ namespace CozyNestAPIHub.Controllers
 {
     [Route("api/room")]
     [ApiController]
+    [RequireAccessToken]
+    [Role("Manager")]
     public class RoomController : ControllerBase
     {
         [Route("list")]
@@ -39,8 +41,6 @@ namespace CozyNestAPIHub.Controllers
         }
         [Route("create")]
         [HttpPost]
-        [RequireAccessToken]
-        [Role("Manager")]
         public async Task<IActionResult> Create([FromBody] RoomCreateRequest request)
         {
             if (request == null |
@@ -105,8 +105,6 @@ namespace CozyNestAPIHub.Controllers
 
         [Route("delete")]
         [HttpDelete]
-        [RequireAccessToken]
-        [Role("Manager")]
         public async Task<IActionResult> Delete([FromBody] RoomDeleteRequest request) 
         {
             if (request == null)
@@ -147,8 +145,6 @@ namespace CozyNestAPIHub.Controllers
         }
         [Route("modify")]
         [HttpPut]
-        [RequireAccessToken]
-        [Role("Manager")]
         public async Task<IActionResult> Modify([FromBody] RoomModifyRequest request)
         {
             if (request == null)

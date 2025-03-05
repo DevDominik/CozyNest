@@ -29,7 +29,6 @@ namespace CozyNestAPIHub.Controllers
                 finalList.Add(new
                 {
                     id = item.Id,
-                    roomId = item.RoomId,
                     roomNumber = room.RoomNumber,
                     roomDescription = room.Description,
                     roomType = rType.Description,
@@ -90,7 +89,6 @@ namespace CozyNestAPIHub.Controllers
                 message = "Reservation successfully created.",
                 reservationData = new { 
                     id = createdReservation.Id,
-                    roomId = createdReservation.RoomId,
                     roomNumber = room.RoomNumber,
                     checkInDate = createdReservation.CheckInDate,
                     checkOutDate = createdReservation.CheckOutDate,
@@ -158,6 +156,34 @@ namespace CozyNestAPIHub.Controllers
                     status = "Cancelled",
                     notes = updatedReservation.Notes
                 }
+            });
+        }
+        [Route("getrooms")]
+        [HttpPost]
+        public async Task<IActionResult> GetRooms([FromBody] ReservationTimesRequest request)
+        {
+            List<Room> reservableRooms = await ReservationHandler.GetAvailableRoomsBetweenTimes(request.Start, request.End);
+            List<object> finalList = new List<object>();
+            foreach (var item in reservableRooms)
+            {
+                RoomType? rType = await RoomHandler.GetRoomTypeById(item.Type);
+                if (rType == null) continue;
+                RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(item.Status);
+                if (rStatus == null || rStatus.Description != "Available") continue;
+                finalList.Add(new
+                {
+                    id = item.Id,
+                    roomNumber = item.RoomNumber,
+                    roomType = rType.Description,
+                    pricePerNight = item.PricePerNight,
+                    status = rStatus.Description,
+                    description = item.Description
+                });
+            }
+            return Ok(new
+            {
+                message = "Successfully retrieved rooms.",
+                rooms = finalList
             });
         }
     }

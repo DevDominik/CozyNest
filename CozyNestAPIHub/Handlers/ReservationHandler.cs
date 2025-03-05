@@ -481,9 +481,9 @@ namespace CozyNestAPIHub.Handlers
                     });
                 }
                 return reservationStatuses;
-            } 
-            finally 
-            { 
+            }
+            finally
+            {
                 _reservationStatusesReadLock.Release();
             }
         }
@@ -508,9 +508,9 @@ namespace CozyNestAPIHub.Handlers
                 }
                 return null;
             }
-            finally 
-            { 
-                _reservationStatusesReadLock.Release(); 
+            finally
+            {
+                _reservationStatusesReadLock.Release();
             }
         }
         public static async Task<ReservationStatus?> GetReservationStatusByDescription(string description)
@@ -524,16 +524,18 @@ namespace CozyNestAPIHub.Handlers
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@description", description);
                 using var reader = await cmd.ExecuteReaderAsync();
-                if (await reader.ReadAsync()) {
-                    return new ReservationStatus 
-                    { 
+                if (await reader.ReadAsync())
+                {
+                    return new ReservationStatus
+                    {
                         Id = reader.GetInt32("id"),
                         Description = description,
                     };
                 }
                 return null;
 
-            } finally
+            }
+            finally
             {
                 _reservationStatusesReadLock.Release();
             }
@@ -565,6 +567,39 @@ namespace CozyNestAPIHub.Handlers
             var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
 
             return count == 0;
+        }
+        public static async Task<List<Room>> GetAvailableRoomsBetweenTimes(DateTime start, DateTime end)
+        {
+            await _reservationReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                var roomIds = new List<int>();
+                var rooms = await RoomHandler.GetRooms();
+
+                var query = @"
+                SELECT room_id 
+                FROM reservations 
+                WHERE (check_in_date < @end AND check_out_date > @start)
+                   OR (check_out_date > DATE_SUB(@start, INTERVAL 7 DAY))";
+
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@start", start);
+                cmd.Parameters.AddWithValue("@end", end);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    roomIds.Add(reader.GetInt32("id"));
+                }
+
+                return rooms.Where(x => roomIds.Contains(x.Id)).ToList();
+            }
+            finally
+            {
+                _reservationReadLock.Release();
+            }
         }
     }
 }
