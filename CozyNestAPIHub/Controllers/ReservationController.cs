@@ -176,7 +176,6 @@ namespace CozyNestAPIHub.Controllers
                     roomNumber = item.RoomNumber,
                     roomType = rType.Description,
                     pricePerNight = item.PricePerNight,
-                    status = rStatus.Description,
                     description = item.Description
                 });
             }
