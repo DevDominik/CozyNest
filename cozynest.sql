@@ -11,17 +11,40 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
 --
+-- Create and use the database
+--
+CREATE DATABASE IF NOT EXISTS cozynest;
+USE cozynest;
+
+--
 -- Adatbázis: `cozynest`
 --
 
 -- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `reservations`
+--
+
+CREATE TABLE `reservations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `guest_id` int(11) NOT NULL,
+  `room_id` int(11) NOT NULL,
+  `check_in_date` datetime NOT NULL,
+  `check_out_date` datetime NOT NULL,
+  `status` int(11) NOT NULL,
+  `notes` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `status` (`status`),
+  CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`status`) REFERENCES `reservationstatuses` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 
 --
 -- Tábla szerkezet ehhez a táblához `reservations`
