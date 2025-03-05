@@ -542,7 +542,7 @@ namespace CozyNestAPIHub.Handlers
         }
         public static async Task<bool> IsReservationValid(Reservation newReservation)
         {
-            if (newReservation.CheckInDate < DateTime.Now.AddDays(7))
+            if (newReservation.CheckInDate <= DateTime.Now.AddDays(7))
             {
                 return false;
             }
