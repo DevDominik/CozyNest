@@ -10,6 +10,7 @@ import Profile from "./Pages/Profile/Profile";
 import { Rooms } from "./Pages/Rooms/Rooms";
 import CreateRoom from "./Pages/CreateRoom/CreateRoom";
 import Reservations from "./Pages/Reservations/Reservations";
+import ReserveRoom from "./Pages/ReserveRoom/ReserveRoom";
 
 function App() {
   const [darkmode, setDarkMode] = useState(false);
@@ -40,6 +41,7 @@ function App() {
           <Route path="/rooms" element={<Rooms />} />
           <Route path="/CreateRoom" element={<CreateRoom />} />
           <Route path="/Reservations" element={<Reservations />} />
+          <Route path="/reserve-room" element={<ReserveRoom />} />
         </Routes>
       </Suspense>
       <Footer />
