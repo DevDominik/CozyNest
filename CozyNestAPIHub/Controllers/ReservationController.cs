@@ -182,7 +182,7 @@ namespace CozyNestAPIHub.Controllers
             return Ok(new
             {
                 message = "Rooms acquired successfully.",
-                rooms = final.ToArray()
+                rooms = final
             });
         }
         [Route("getrooms")]
