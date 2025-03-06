@@ -107,6 +107,7 @@ h1 {
   --text-color-three: #8697c4; 
   --theme-toggle-hover-color: #3d52a0; 
   --box-shadow: 0px 16px 30px -10px rgba(70, 96, 187, 0.198567);
+  --btn-color:  #afc5fd;
 }
 
 
@@ -124,6 +125,7 @@ h1 {
   --text-color-three: #7091e6;
   --theme-toggle-hover-color: #ede8f5; 
   --box-shadow: none; 
+  --btn-color:  #7b74bd50;
 
 }
 

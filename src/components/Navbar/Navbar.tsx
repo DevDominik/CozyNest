@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../Navbar/Navbar.module.css";
+import logo from "/CozyNest.png?url";
+import userW from "/userW.svg?url";
+import userD from "/userD.svg?url";
+import logoutD from "/LogoutD.svg?url";
+import logoutW from "/LogoutW.svg?url";
+
 
 interface NavbarProps {
   darkmode: boolean;
@@ -110,7 +116,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
       className={`${styles.navbar} ${darkmode ? styles.dark : styles.light}`}
     >
       <div className={styles.logoContainer}>
-        <img src="./CozyNest.png" alt="Logo" className={styles.navLogo} />
+        <img src={logo} alt="Logo" className={styles.navLogo} />
       </div>
 
       <button onClick={toggleMenu} className={styles.menuToggle}>
@@ -123,17 +129,17 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
         <a href="/#info">Info</a>
         <a href="/#contact">Contact</a>
         <a href="/rooms">Rooms</a>
-        {role ? <a href="/reservations">Reservations</a> : <p></p>}
-        {role == "Manager" ? <a href="/Admin">Admin Panel</a> : <p></p>}
-        {role == "Manager" ? <a href="/CreateRoom">Create Room</a> : <p></p>}
+        {role ? <a href="/reservations">Reservations</a> : ""}
+        {role == "Manager" ? <a href="/Admin">Admin Panel</a> : ""}
+        {role == "Manager" ? <a href="/CreateRoom">Create Room</a> : ""}
         {username ? (
           <div className={styles.authSpace}>
-            <a href={`/profile/`}><img className={styles.pictogram} src={darkmode ? "userW.svg" : "userD.svg"} />{username.toUpperCase()}</a>
-            <a href={`/auth`} onClick={handleLogout}><img className={styles.pictogram} src={darkmode ? "LogoutW.svg" : "LogoutD.svg"} />Logout</a>
+            <a href={`/profile/`}><img className={styles.pictogram} src={darkmode ? userW : userD} />{username.toUpperCase()}</a>
+            <a href={`/auth`} onClick={handleLogout}><img className={styles.pictogram} src={darkmode ? logoutW : logoutD} />Logout</a>
           </div>
         ) : (
           <div className={styles.authSpace}>
-            <a href="/Auth"><img className={styles.pictogram} src={darkmode ? "userW.svg" : "userD.svg"} alt="" />Login/Register</a>
+            <a href="/Auth"><img className={styles.pictogram} src={darkmode ? userW : userD} alt="" />Login/Register</a>
           </div>
         )}
       </div>

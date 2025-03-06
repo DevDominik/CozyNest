@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
+import { useNavigate } from "react-router-dom";
 import styles from "./Rooms.module.css";
 
-// Define Room Type and Status
 const RoomType = {
-  NORMAL: "Standard", // Fix to match API response
+  NORMAL: "Standard",
   DELUXE: "Deluxe",
   SUITE: "Suite",
   MAINTENANCE: "Maintenance",
@@ -16,7 +15,7 @@ const RoomType = {
 type Room = {
   id: number;
   roomNumber: string;
-  type: string;
+  roomType: string;
   pricePerNight: number;
   description: string;
   deleted: boolean;
@@ -29,51 +28,46 @@ export const Rooms = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Track filter states
   const [roomTypeFilter, setRoomTypeFilter] = useState<string>("");
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
-  const [minPrice, setMinPrice] = useState<number>(0); // State for minimum price
-  const [maxPrice, setMaxPrice] = useState<number>(300000); // State for maximum price
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(300000);
 
-  // Date pickers
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
   const today = new Date();
   const minStartDate = new Date(today);
-  minStartDate.setDate(today.getDate() + 7); // Start date is 7 days from now
-  const minStartDateString = minStartDate.toISOString().split("T")[0]; // Current date + 7 days in YYYY-MM-DD format
-  
-  // Initializing endDate to be at least 1 day after startDate
+  minStartDate.setDate(today.getDate() + 8);
+  const minStartDateString = minStartDate.toISOString().split("T")[0];
+
   const minEndDate = new Date(minStartDate);
-  minEndDate.setDate(minStartDate.getDate() + 1); // End date is 1 day after the start date
-  const minEndDateString = minEndDate.toISOString().split("T")[0]; // End date in YYYY-MM-DD format
-  
+  minEndDate.setDate(minStartDate.getDate() + 1);
+  const minEndDateString = minEndDate.toISOString().split("T")[0];
+
   useEffect(() => {
     if (!startDate) {
-      setStartDate(minStartDateString); // Set start date to 7 days from now
+      setStartDate(minStartDateString);
     }
     if (!endDate || new Date(endDate) <= new Date(startDate)) {
-      setEndDate(minEndDateString); // Set end date to be at least 1 day after start date
+      setEndDate(minEndDateString);
     }
   }, [startDate, endDate]);
-  
 
-  const navigate = useNavigate(); // Create navigate function from useNavigate hook
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         let response;
         const requestOptions: RequestInit = {
-          method: startDate && endDate ? "POST" : "GET", // POST if both dates are set, GET otherwise
+          method: startDate && endDate ? "POST" : "GET",
           headers: {
             "Content-Type": "application/json",
           },
         };
 
-        // If it's a POST request, include the body with the dates
         if (startDate && endDate) {
           requestOptions.body = JSON.stringify({
             start: startDate,
@@ -81,7 +75,6 @@ export const Rooms = () => {
           });
         }
 
-        // Make the request based on the method (GET or POST)
         response = await fetch(
           "https://localhost:7290/api/reservation/getrooms",
           requestOptions
@@ -89,7 +82,6 @@ export const Rooms = () => {
 
         const data = await response.json();
         if (data.rooms) {
-          // Ensure deleted rooms are excluded
           const mappedRooms = data.rooms.filter((room: any) => !room.deleted);
           setRooms(mappedRooms);
         }
@@ -101,18 +93,16 @@ export const Rooms = () => {
     };
 
     fetchRooms();
-  }, [startDate, endDate]); // Fetch rooms when dates change
+  }, [startDate, endDate]);
 
   useEffect(() => {
     const applyFilters = () => {
       let filtered = rooms;
 
-      // Filter by room type
       if (roomTypeFilter) {
-        filtered = filtered.filter((room) => room.type === roomTypeFilter);
+        filtered = filtered.filter((room) => room.roomType === roomTypeFilter);
       }
 
-      // Filter by availability
       if (availabilityFilter === "Show Available") {
         filtered = filtered.filter(
           (room) => room.status === RoomType.AVAILABLE
@@ -169,7 +159,7 @@ export const Rooms = () => {
             className={styles.Select}
             onChange={(e) => setRoomTypeFilter(e.target.value)}
           >
-            <option value="">All</option>
+            <option value="">Összes</option>
             <option value={RoomType.NORMAL}>{RoomType.NORMAL}</option>
             <option value={RoomType.DELUXE}>{RoomType.DELUXE}</option>
             <option value={RoomType.SUITE}>{RoomType.SUITE}</option>
@@ -181,10 +171,9 @@ export const Rooms = () => {
             className={styles.Select}
             onChange={(e) => setAvailabilityFilter(e.target.value)}
           >
-            <option value="">Show All</option>
-            <option value="Show Available">Show Available</option>
-            <option value="Show Unavailable">Show Unavailable</option>
-            <option value="Show Both">Show Both</option>
+            <option value="">Összes</option>
+            <option value="Show Available">Elérhető</option>
+            <option value="Show Unavailable">Nem Elérhető</option>
           </select>
 
           <input
@@ -194,38 +183,38 @@ export const Rooms = () => {
             onChange={(e) => setSearchText(e.target.value)}
           />
 
-          {/* Price Range Inputs */}
+          {/* Price Range Inputs (Moved below the search bar) */}
           <div className={styles.PriceInputs}>
-            <input
-              type="number"
-              className={styles.PriceInput}
-              placeholder="Min Price"
-              value={minPrice}
-              onChange={(e) => setMinPrice(Number(e.target.value))}
-            />
-            <input
-              type="number"
-              className={styles.PriceInput}
-              placeholder="Max Price"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-            />
-          </div>
-          <p>
-            Price range: {minPrice} HUF - {maxPrice} HUF
-          </p>
+            <div className={styles.PriceInputsColumn}>
+              <p>Ártartomány</p>
 
-          {/* Date Pickers */}
+              <input
+                type="number"
+                className={styles.PriceInput}
+                placeholder="Min Price"
+                value={minPrice}
+                onChange={(e) => setMinPrice(Number(e.target.value))}
+              />
+              <input
+                type="number"
+                className={styles.PriceInput}
+                placeholder="Max Price"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+              />
+            </div>
+          </div>
+
+          {/* Date Pickers (Below price inputs now) */}
           <div className={styles.DatePickers}>
-            <label htmlFor="startDate">Start Date:</label>
+            <label htmlFor="startDate">Érkezés dátuma</label>
             <input
               type="date"
               id="startDate"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
-
-            <label htmlFor="endDate">End Date:</label>
+            <label htmlFor="endDate">Távozás dátuma</label>
             <input
               type="date"
               id="endDate"
@@ -236,18 +225,24 @@ export const Rooms = () => {
         </div>
 
         {loading ? (
-          <p>Loading rooms...</p>
+          <h1>Loading rooms...</h1>
         ) : error ? (
-          <p className={styles.Error}>{error}</p>
+          <h1 className={styles.Error}>{error}</h1>
+        ) : filteredRooms.length === 0 ? (
+          <h1 className={styles.Info}>
+            {new Date(endDate) <= new Date(startDate)
+              ? "A távozási dátumnak későbbinek kell lennie, mint az érkezési dátum. Kérjük, módosítsa a dátumokat."
+              : "Nincs elérhető szoba a megadott szűrők alapján. Próbálja meg módosítani a keresési feltételeket."}
+          </h1>
         ) : (
           <div className={styles.Wrapper}>
             {filteredRooms.map((room) => (
               <div key={room.id} className={styles.Card}>
                 <div
                   className={`${styles.cardImage} ${
-                    room.type === "Standard"
+                    room.roomType === "Standard"
                       ? styles.cardImageBasic
-                      : room.type === "Deluxe"
+                      : room.roomType === "Deluxe"
                       ? styles.cardImageDeluxe
                       : styles.cardImageSuite
                   }`}
@@ -255,7 +250,7 @@ export const Rooms = () => {
                 <div className={styles.CardPadding}>
                   <div className={styles.roomHeader}>
                     <h3 className={styles.RoomName}>#{room.roomNumber}</h3>
-                    <h3>{room.type}</h3>
+                    <h3>{room.roomType}</h3>
                   </div>
                   <div className={styles.RoomInfo}>
                     <p>{room.description}</p>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Styles from "./Profile.module.css";
-import { style } from "motion/react-client";
 
 const BASEURL = "https://localhost:7290";
 

@@ -5,6 +5,7 @@ import styles from "./ReserveRoom.module.css";
 const ReserveRoom = () => {
   const location = useLocation();
   const room = location.state?.room;
+  console.log(room)
 
   const [checkInDate, setCheckInDate] = useState<string>(new Date().toISOString().split("T")[0]); // Default to today's date
   const [checkOutDate, setCheckOutDate] = useState<string>(new Date().toISOString().split("T")[0]); // Default to today's date
@@ -40,7 +41,7 @@ const ReserveRoom = () => {
       if (data.success) {
         alert("Room reserved successfully!");
       } else {
-        alert("Reservation failed.");
+        alert(data.message);
       }
     } catch (error) {
       console.error(error);

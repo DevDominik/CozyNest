@@ -7,7 +7,7 @@
     width: 40%;
     height: 100%;
     margin: auto;
-    padding: 20px;
+    padding: 10px;
     background-color: var(--app-bg);
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -50,22 +50,27 @@
   .submitButton {
     width: 100%;
     padding: 10px;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--btn-color);
+    color: inherit;
     border: none;
     border-radius: 5px;
     cursor: pointer;
   }
   
   .submitButton:hover {
-    background-color: #0056b3;
+    background-color: var(--body-bg);
   }
 
   /* Responsive Design */
   @media (max-width: 600px) {
+    .Container{
+      flex-direction: column;
+      padding: 10px;
+    }
     .profileContainer {
       width: 90%;
       padding: 15px;
+      flex-direction: column;
     }
   
     .input {
