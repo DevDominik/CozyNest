@@ -9,7 +9,7 @@ namespace CozyNestAPIHub
         {
             if (!context.Items.TryGetValue(itemName, out var item))
             {
-                throw new InvalidOperationException($"Item '{itemName}' not found in HttpContext.Items.");
+                throw new InvalidOperationException($"Item '{itemName}' not found in the context of this request.");
             }
             return await Task.FromResult(item as T);
         }

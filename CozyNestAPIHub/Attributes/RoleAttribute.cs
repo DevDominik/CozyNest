@@ -31,9 +31,7 @@ namespace CozyNestAPIHub.Attributes
 
         private async Task<(bool, string?, int)> CheckUserRole(HttpContext context)
         {
-            User user = await GetItemFromContext<User>(context, "User");
             Role role = await GetItemFromContext<Role>(context, "Role");
-            if (role == null) return (false, "Role not found.", 404);
 
             if (!_roles.Contains(role.Name)) return (false, "Access denied.", 403);
 
