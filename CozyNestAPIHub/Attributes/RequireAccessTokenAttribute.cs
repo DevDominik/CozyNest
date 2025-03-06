@@ -37,9 +37,15 @@ namespace CozyNestAPIHub.Attributes
                 context.Result = new ObjectResult(new { message = "Invalid access token." }) { StatusCode = 403 };
                 return;
             }
-
+            Role? role = await UserHandler.GetRoleById(user.RoleId);
+            if (role == null)
+            {
+                context.Result = new ObjectResult(new { message = "Invalid role." }) { StatusCode = 403 };
+                return;
+            }
             context.HttpContext.Items["Token"] = token;
             context.HttpContext.Items["User"] = user;
+            context.HttpContext.Items["Role"] = role;
         }
     }
 }

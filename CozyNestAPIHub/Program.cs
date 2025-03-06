@@ -16,7 +16,6 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 UserHandler.SetSecretKey("asdasd");
 UserHandler.Initialize("root", "");
-await UserHandler.BuildRoles();
 RoomHandler.Initialize("root", "");
 ReservationHandler.Initialize("root", "");
 

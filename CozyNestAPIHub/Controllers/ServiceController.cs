@@ -4,7 +4,6 @@ using CozyNestAPIHub.Models;
 using CozyNestAPIHub.RequestTypes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.IsisMtt.X509;
 
 namespace CozyNestAPIHub.Controllers
 {
@@ -31,12 +30,13 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Successfully retrieved services",
+                message = "Successfully retrieved services.",
                 services = final
             });
         }
         [Route("services")]
         [HttpPost]
+        [RequireAccessToken]
         public async Task<IActionResult> Services([FromBody] ReservationServicesRequest request)
         {
             Reservation? reservation = await ReservationHandler.GetReservationById(request.ReservationId);
@@ -44,7 +44,16 @@ namespace CozyNestAPIHub.Controllers
             {
                 return NotFound(new
                 {
-                    message = "Reservation not found"
+                    message = "Reservation not found."
+                });
+            }
+            User user = await GetItemFromContext<User>(HttpContext, "User");
+            Role role = await GetItemFromContext<Role>(HttpContext, "Role");
+            if (reservation.GuestId != user.Id && role.Name == "Guest")
+            {
+                return Unauthorized(new
+                {
+                    message = "Unauthorized."
                 });
             }
             var services = await ReservationHandler.GetServices();
@@ -71,7 +80,7 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Successfully retrieved services",
+                message = "Successfully retrieved services.",
                 services = finalServices,
                 reservationServices = finalReservationServices
             });

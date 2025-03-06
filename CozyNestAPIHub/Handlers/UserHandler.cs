@@ -21,8 +21,6 @@ namespace CozyNestAPIHub.Handlers
         private static readonly SemaphoreSlim _tokenWriteLock = new(1, 1);
         private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
         private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
-        private static readonly ConcurrentDictionary<int, Role> _roleCacheById = new();
-        private static readonly ConcurrentDictionary<string, Role> _roleCacheByName = new();
         public static void SetSecretKey(string secret)
         {
             secretKey = secret;
@@ -557,63 +555,83 @@ namespace CozyNestAPIHub.Handlers
             }
         }
 
-        public static Role? GetRoleById(int id) 
+        public static async Task<Role?> GetRoleById(int id) 
         { 
-            if (_roleCacheById.TryGetValue(id, out Role role))
-            {
-                return role;
-            }
-            return null;
-        }
-        public static Role? GetRoleByName(string name)
-        {
-            if (_roleCacheByName.TryGetValue(name, out Role role))
-            {
-                return role;
-            }
-            return null;
-        }
-        public static async Task<bool> SetRole(User user, string roleName)
-        {
-            if (!_roleCacheByName.TryGetValue(roleName, out var role))
-                return false;
-
-            user.RoleId = role.Id;
-            return await ModifyUser(user) != null;
-        }
-        public static async Task<bool> BuildRoles()
-        {
             await _roleReadLock.WaitAsync();
-            
             try
             {
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
-
-                string query = "SELECT id, name FROM roles;";
+                string query = "SELECT id, name FROM roles WHERE id = @id;";
                 using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@id", id);
                 using var reader = await command.ExecuteReaderAsync();
-
-                while (await reader.ReadAsync())
+                if (await reader.ReadAsync())
                 {
-                    var role = new Role
+                    return new Role()
                     {
-                        Id = reader.GetInt32("id"),
-                        Name = reader.GetString("name"),
+                        Id = id,
+                        Name = reader.GetString("name")
                     };
-                    _roleCacheById[role.Id] = role;
-                    _roleCacheByName[role.Name] = role;
                 }
-                return true;
+                return null;
             }
             finally
             {
                 _roleReadLock.Release();
             }
         }
-        public static List<Role> GetRoles() 
+        public static async Task<Role?> GetRoleByName(string name)
         {
-            return _roleCacheByName.Values.ToList();
+            await _roleReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                string query = "SELECT id, name FROM roles WHERE name = @name;";
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@name", name);
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new Role()
+                    {
+                        Id = reader.GetInt32("id"),
+                        Name = name
+                    };
+                }
+                return null;
+            }
+            finally
+            {
+                _roleReadLock.Release();
+            }
+        }
+        public static async Task<List<Role>> GetRoles() 
+        {
+            await _roleReadLock.WaitAsync();
+            try
+            {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
+                string query = "SELECT id, name FROM roles;";
+                using var command = new MySqlCommand(query, connection);
+                using var reader = await command.ExecuteReaderAsync();
+                var roles = new List<Role>();
+                while (await reader.ReadAsync())
+                {
+                    roles.Add(new Role
+                    {
+                        Id = reader.GetInt32("id"),
+                        Name = reader.GetString("name")
+                    });
+                }
+                return roles;
+            }
+            finally
+            {
+                _roleReadLock.Release();
+            }
         }
     }
 }

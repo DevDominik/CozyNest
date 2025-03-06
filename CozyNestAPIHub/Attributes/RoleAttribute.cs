@@ -19,7 +19,7 @@ namespace CozyNestAPIHub.Attributes
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var (isValid, errorMessage, errorCode) = await CheckUserRole(await GetItemFromContext<User>(context.HttpContext, "User"));
+            var (isValid, errorMessage, errorCode) = await CheckUserRole(context.HttpContext);
             if (!isValid)
             {
                 context.Result = new ObjectResult(new { message = errorMessage }) { StatusCode = errorCode };
@@ -29,9 +29,10 @@ namespace CozyNestAPIHub.Attributes
             await next();
         }
 
-        private async Task<(bool, string?, int)> CheckUserRole(User user)
+        private async Task<(bool, string?, int)> CheckUserRole(HttpContext context)
         {
-            var role = UserHandler.GetRoleById(user.RoleId);
+            User user = await GetItemFromContext<User>(context, "User");
+            Role role = await GetItemFromContext<Role>(context, "Role");
             if (role == null) return (false, "Role not found.", 404);
 
             if (!_roles.Contains(role.Name)) return (false, "Access denied.", 403);
