@@ -606,5 +606,6 @@ namespace CozyNestAPIHub.Handlers
                 _reservationReadLock.Release();
             }
         }
+        
     }
 }

@@ -12,7 +12,6 @@ namespace CozyNestAPIHub.Handlers
         private static readonly SemaphoreSlim _roomWriteLock = new(1, 1);
         private static readonly SemaphoreSlim _roomTypeRead = new(1, 1);
         private static readonly SemaphoreSlim _roomStatusRead = new(1, 1);
-        private static readonly ConcurrentDictionary<int, Room> _roomCacheById = new();
 
         public static void Initialize(string username, string password)
         {
@@ -54,8 +53,6 @@ namespace CozyNestAPIHub.Handlers
                         Description = reader.GetString("description"),
                         Deleted = reader.GetBoolean("deleted")
                     };
-
-                    _roomCacheById[room.Id] = room;
                     rooms.Add(room);
                 }
             }
@@ -68,10 +65,6 @@ namespace CozyNestAPIHub.Handlers
 
         public static async Task<Room?> GetRoomById(int id)
         {
-            if (_roomCacheById.TryGetValue(id, out Room cachedRoom))
-            {
-                return cachedRoom;
-            }
 
             await _roomReadLock.WaitAsync();
             try
@@ -98,7 +91,6 @@ namespace CozyNestAPIHub.Handlers
                         Deleted = reader.GetBoolean("deleted")
                     };
 
-                    _roomCacheById[id] = room;
                     return room;
                 }
             }
@@ -132,7 +124,6 @@ namespace CozyNestAPIHub.Handlers
                 {
                     room.Id = (int)command.LastInsertedId;
                     room.Deleted = false;
-                    _roomCacheById[room.Id] = room;
                     return room;
                 }
             }
@@ -172,7 +163,6 @@ namespace CozyNestAPIHub.Handlers
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
                 {
-                    _roomCacheById[room.Id] = room;
                     return room;
                 }
             }
@@ -360,7 +350,30 @@ namespace CozyNestAPIHub.Handlers
             await _roomReadLock.WaitAsync();
             try
             {
+                using var connection = CreateConnection();
+                await connection.OpenAsync();
 
+                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM room WHERE room_number = @roomNumber";
+
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@roomNumber", roomNumber);
+                using var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    Room room = new Room
+                    {
+                        Id = reader.GetInt32("id"),
+                        RoomNumber = roomNumber,
+                        Type = reader.GetInt32("type"),
+                        PricePerNight = reader.GetDecimal("price_per_night"),
+                        Status = reader.GetInt32("status"),
+                        Description = reader.GetString("description"),
+                        Deleted = reader.GetBoolean("deleted")
+                    };
+
+                    return room;
+                }
             }
             finally
             {
