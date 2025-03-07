@@ -19,8 +19,6 @@ namespace CozyNestAPIHub.Handlers
         private static readonly SemaphoreSlim _roleReadLock = new(1, 1);
         private static readonly SemaphoreSlim _tokenReadLock = new(1, 1);
         private static readonly SemaphoreSlim _tokenWriteLock = new(1, 1);
-        private static readonly ConcurrentDictionary<int, User> _userCacheById = new();
-        private static readonly ConcurrentDictionary<string, User> _userCacheByUsername = new();
         public static void SetSecretKey(string secret)
         {
             secretKey = secret;
@@ -63,8 +61,6 @@ namespace CozyNestAPIHub.Handlers
                 while (await reader.ReadAsync())
                 {
                     var user = MapUser(reader);
-                    _userCacheById[user.Id] = user;
-                    _userCacheByUsername[user.Username] = user;
                     users.Add(user);
                 }
             }
@@ -77,10 +73,6 @@ namespace CozyNestAPIHub.Handlers
 
         public static async Task<User?> GetUserById(int id)
         {
-            if (_userCacheById.TryGetValue(id, out User cachedUser))
-            {
-                return cachedUser;
-            }
 
             await _userReadLock.WaitAsync();
             try
@@ -94,8 +86,6 @@ namespace CozyNestAPIHub.Handlers
                 if (await reader.ReadAsync())
                 {
                     var user = MapUser(reader);
-                    _userCacheById[id] = user;
-                    _userCacheByUsername[user.Username] = user;
                     return user;
                 }
             }
@@ -108,10 +98,6 @@ namespace CozyNestAPIHub.Handlers
 
         public static async Task<User?> GetUserByUsername(string username)
         {
-            if (_userCacheByUsername.TryGetValue(username, out User cachedUser))
-            {
-                return cachedUser;
-            }
 
             await _userReadLock.WaitAsync();
             try
@@ -125,8 +111,6 @@ namespace CozyNestAPIHub.Handlers
                 if (await reader.ReadAsync())
                 {
                     var user = MapUser(reader);
-                    _userCacheById[user.Id] = user;
-                    _userCacheByUsername[username] = user;
                     return user;
                 }
             }
@@ -169,8 +153,6 @@ namespace CozyNestAPIHub.Handlers
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
                 {
-                    _userCacheById[user.Id] = user;
-                    _userCacheByUsername[user.Username] = user;
                     return user;
                 }
             }
