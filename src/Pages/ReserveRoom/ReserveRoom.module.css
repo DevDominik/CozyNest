@@ -1,0 +1,92 @@
+.reservePage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 10vh;
+}
+.roomDetails {
+}
+.datePicker {
+}
+.notes {
+  display: flex;
+  flex-direction: column;
+}
+.roomServices {
+  width: 100%;
+}
+.roomInfo {
+  width: 100%;
+  align-items: center;
+}
+.datePicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  input{
+    background-color: var(--body-bg);
+  }
+}
+
+.notes textarea {
+  outline: none;
+  width: 50%;
+  height: 130px;
+  resize: none;
+  background-color: var(--body-bg);
+  border: none;
+  border-radius: var(--border-radius);
+  text-align: center;
+  justify-content: center;
+  font-size: large;
+  color: inherit;
+  margin-top: 2vh;
+}
+.notes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reserveBtn{
+    background-color: var(--body-bg);
+    border: none;
+    border-radius: var(--border-radius);
+    color: inherit;
+    font-size: large;
+    padding: 10px;
+    margin-top: 3vh;
+    width: 160px;
+}
+
+.infoBorder{
+    background-color: var(--app-bg);
+    margin: 4vw;
+    padding: 2vw;
+    border-radius: var(--border-radius);
+}
+.vertical {
+    width: 2px;
+    height: 100vh;
+    background-color: var(--text-color-one);
+  }
+
+@media (min-width: 920px) {
+  .reservePage {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10vh;
+  }
+  .roomServices {
+    width: 50%;
+  }
+  .roomInfo {
+    width: 50%;
+    align-items: center;
+  }
+  .notes textarea {
+    width: 80%;
+    
+  }
+}
