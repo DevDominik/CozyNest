@@ -36,7 +36,7 @@ namespace CozyNestAPIHub.Controllers
                     lastName = loopedUser.LastName,
                     closed = loopedUser.Closed,
                     joinDate = loopedUser.JoinDate,
-                    roleName = UserHandler.GetRoleById(loopedUser.RoleId).Name
+                    roleName = (await UserHandler.GetRoleById(loopedUser.RoleId)).Name
                 });
             }
             return Ok(new { message = "Request successful.", users = usersFinal });
@@ -46,7 +46,7 @@ namespace CozyNestAPIHub.Controllers
         [Role("Manager", "Receptionist")]
         public async Task<IActionResult> GetRoles()
         {
-            List<Role> roleList = UserHandler.GetRoles();
+            List<Role> roleList = await UserHandler.GetRoles();
             List<object> rolesFinal = new List<object>();
             foreach (Role loopedRole in roleList)
             {

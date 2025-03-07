@@ -55,7 +55,7 @@ namespace CozyNestAPIHub.Controllers
                     message = "Token generation failed." 
                 });
             }
-            Role? role = UserHandler.GetRoleById(user.RoleId);
+            Role? role = await UserHandler.GetRoleById(user.RoleId);
             return Ok(new
             {
                 message = "Login successful.",
@@ -95,7 +95,7 @@ namespace CozyNestAPIHub.Controllers
                     message = "Username or email already exists." 
                 });
             }
-            Role? guestRole = UserHandler.GetRoleByName("Guest");
+            Role? guestRole = await UserHandler.GetRoleByName("Guest");
             var user = new User
             {
                 Username = registerRequest.Username,
@@ -151,8 +151,8 @@ namespace CozyNestAPIHub.Controllers
         public async Task<IActionResult> IntrospectToken()
         {
             string token = await GetItemFromContext<string>(HttpContext, "Token");
-            User user = await GetItemFromContext<User>(HttpContext, "User"); 
-            Role? role = UserHandler.GetRoleById(user.RoleId);
+            User user = await GetItemFromContext<User>(HttpContext, "User");
+            Role role = await GetItemFromContext<Role>(HttpContext, "Role");
             return Ok(new 
             { 
                 active = true, 
@@ -255,7 +255,7 @@ namespace CozyNestAPIHub.Controllers
                 return StatusCode(500, new { message = "Failed to update user data." });
             }
 
-            string roleName = UserHandler.GetRoleById(user.RoleId)?.Name;
+            Role role = await GetItemFromContext<Role>(HttpContext, "Role");
 
             return Ok(new
             {
@@ -269,7 +269,7 @@ namespace CozyNestAPIHub.Controllers
                     lastName = user.LastName,
                     closed = user.Closed,
                     joinDate = user.JoinDate,
-                    roleName = roleName
+                    roleName = role.Name
                 },
                 newTokens = passwordIsUpdated ? new
                 {
