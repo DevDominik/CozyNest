@@ -5,6 +5,7 @@
         public string RoomNumber { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
+        public List<AddServiceToReservationRequest> Services { get; set; }
         public string Notes { get; set; }
     }
 }

@@ -1,10 +1,8 @@
-﻿using CozyNestAPIHub.Models;
-
-namespace CozyNestAPIHub.RequestTypes
+﻿namespace CozyNestAPIHub.RequestTypes
 {
     public class UserBulkUpdateRequest
     {
-        public List<UserUpdateByAdmin> UpdatedUsers { get; set; }
+        public List<UserUpdateRequest> UpdatedUsers { get; set; }
 
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace CozyNestAPIHub.Models
+﻿namespace CozyNestAPIHub.RequestTypes
 {
-    public class UserUpdateByAdmin
+    public class UserUpdateRequest
     {
         public int Id { get; set; }
         public string Username { get; set; }
