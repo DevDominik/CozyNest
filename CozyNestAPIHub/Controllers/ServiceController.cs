@@ -85,12 +85,5 @@ namespace CozyNestAPIHub.Controllers
                 reservationServices = finalReservationServices
             });
         }
-        [Route("addservice")]
-        [HttpPost]
-        [RequireAccessToken]
-        public async Task<IActionResult> AddService([FromBody] AddServiceToReservationRequest request)
-        {
-            return Ok();
-        }
     }
 }

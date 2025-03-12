@@ -84,6 +84,10 @@ namespace CozyNestAPIHub.Controllers
                     message = "Failed to create reservation."
                 });
             }
+            foreach (var item in request.Services)
+            {
+                await ReservationHandler.CreateReservationService(new ReservationService() { Quantity = item.Quantity, ReservationId = createdReservation.Id, ServiceId = item.ServiceId });
+            }
             return Ok(new
             {
                 message = "Reservation successfully created.",
@@ -94,7 +98,7 @@ namespace CozyNestAPIHub.Controllers
                     checkOutDate = createdReservation.CheckOutDate,
                     status = rStatus.Description,
                     notes = createdReservation.Notes
-                }
+                },
             });
         }
 
