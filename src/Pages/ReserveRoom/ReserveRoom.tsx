@@ -1,28 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styles from "./ReserveRoom.module.css";
+
+const BASEURL = "https://localhost:7290";
 
 const ReserveRoom = () => {
   const location = useLocation();
   const room = location.state?.room;
-  console.log(room);
 
-  const [checkInDate, setCheckInDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
-  const [checkOutDate, setCheckOutDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
+  const [checkInDate, setCheckInDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [checkOutDate, setCheckOutDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [notes, setNotes] = useState<string>("");
+  const [services, setServices] = useState<{ serviceId: number; quantity: number }[]>([]);
+  const [serviceOptions, setServiceOptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch(`${BASEURL}/api/service/services`);
+        const data = await response.json();
+        if (data.services) {
+          setServiceOptions(data.services);
+        }
+      } catch (error) {
+        console.error("Failed to fetch services:", error);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  const handleServiceChange = (serviceId: number, quantity: number) => {
+    setServices((prev) => {
+      const existingService = prev.find((s) => s.serviceId === serviceId);
+      if (existingService) {
+        return prev.map((s) => (s.serviceId === serviceId ? { ...s, quantity } : s));
+      } else {
+        return [...prev, { serviceId, quantity }];
+      }
+    });
+  };
 
   const handleReservation = async () => {
     if (!room || !checkInDate || !checkOutDate) return;
 
     const reservationData = {
       roomNumber: room.roomNumber,
-      checkInDate: checkInDate,
-      checkOutDate: checkOutDate,
-      notes: notes,
+      checkInDate,
+      checkOutDate,
+      services,
+      notes,
     };
 
     try {
@@ -32,17 +58,14 @@ const ReserveRoom = () => {
         return;
       }
 
-      const response = await fetch(
-        "https://localhost:7290/api/reservation/reserve",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(reservationData),
-        }
-      );
+      const response = await fetch(`${BASEURL}/api/reservation/reserve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(reservationData),
+      });
 
       const data = await response.json();
       if (data.success) {
@@ -68,35 +91,33 @@ const ReserveRoom = () => {
           </div>
           <div className={styles.datePicker}>
             <label>Check-in Date</label>
-            <input
-              type="date"
-              value={checkInDate}
-              onChange={(e) => setCheckInDate(e.target.value)}
-            />
+            <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} />
             <label>Check-out Date</label>
-            <input
-              type="date"
-              value={checkOutDate}
-              onChange={(e) => setCheckOutDate(e.target.value)}
-            />
+            <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />
+          </div>
+
+          <div className={styles.services}>
+            <h3>Services</h3>
+            {serviceOptions.map((service) => (
+              <div key={service.id} className={styles.serviceItem}>
+                <label>{service.name} ({service.price} HUF)</label>
+                <input
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                  onChange={(e) => handleServiceChange(service.id, parseInt(e.target.value) || 0)}
+                />
+              </div>
+            ))}
           </div>
 
           <div className={styles.notes}>
             <label>Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
 
-          <button className={styles.reserveBtn} onClick={handleReservation}>
-            Reserve
-          </button>
+          <button className={styles.reserveBtn} onClick={handleReservation}>Reserve</button>
         </div>
-      </div>
-      <div className={styles.vertical}></div>
-      <div className={styles.roomServices}>
-        <h1>Szolgáltatások</h1>
       </div>
     </div>
   );
