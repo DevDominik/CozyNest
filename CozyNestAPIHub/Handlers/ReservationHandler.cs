@@ -329,7 +329,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
                 var services = new List<Service>();
-                var query = "SELECT id, name, description, price FROM services";
+                var query = "SELECT id, name, description, price, is_active FROM services";
                 using var cmd = new MySqlCommand(query, connection);
                 using var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
