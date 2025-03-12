@@ -24,7 +24,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  input{
+  input {
     background-color: var(--body-bg);
   }
 }
@@ -48,28 +48,48 @@
   align-items: center;
   justify-content: center;
 }
-.reserveBtn{
-    background-color: var(--body-bg);
-    border: none;
-    border-radius: var(--border-radius);
-    color: inherit;
-    font-size: large;
-    padding: 10px;
-    margin-top: 3vh;
-    width: 160px;
+.reserveBtn {
+  background-color: var(--body-bg);
+  border: none;
+  border-radius: var(--border-radius);
+  color: inherit;
+  font-size: large;
+  padding: 10px;
+  margin-top: 3vh;
+  width: 160px;
 }
 
-.infoBorder{
-    background-color: var(--app-bg);
-    margin: 4vw;
-    padding: 2vw;
-    border-radius: var(--border-radius);
+.infoBorder {
+  background-color: var(--app-bg);
+  margin: 4vw;
+  padding: 2vw;
+  border-radius: var(--border-radius);
 }
 .vertical {
-    width: 2px;
-    height: 100vh;
-    background-color: var(--text-color-one);
-  }
+  width: 2px;
+  height: 100vh;
+  background-color: var(--text-color-one);
+}
+
+.serviceGrid {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.serviceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 300px;
+}
+.serviceItem input{
+  background-color: var(--body-bg);
+}
 
 @media (min-width: 920px) {
   .reservePage {
@@ -87,6 +107,5 @@
   }
   .notes textarea {
     width: 80%;
-    
   }
 }

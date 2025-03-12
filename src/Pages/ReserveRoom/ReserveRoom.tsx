@@ -13,6 +13,7 @@ const ReserveRoom = () => {
   const [notes, setNotes] = useState<string>("");
   const [services, setServices] = useState<{ serviceId: number; quantity: number }[]>([]);
   const [serviceOptions, setServiceOptions] = useState<any[]>([]);
+  const [guests, setGuests] = useState<number>(1);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -29,13 +30,25 @@ const ReserveRoom = () => {
     fetchServices();
   }, []);
 
+  const calculateTotalPrice = () => {
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    const nights = Math.max((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24), 1);
+    const roomPrice = room?.pricePerNight * nights;
+    const servicePrice = services.reduce((total, service) => {
+      const option = serviceOptions.find((s) => s.id === service.serviceId);
+      return total + (option ? option.price * service.quantity * guests : 0);
+    }, 0);
+    return roomPrice + servicePrice;
+  };
+
   const handleServiceChange = (serviceId: number, quantity: number) => {
     setServices((prev) => {
       const existingService = prev.find((s) => s.serviceId === serviceId);
       if (existingService) {
-        return prev.map((s) => (s.serviceId === serviceId ? { ...s, quantity } : s));
+        return prev.map((s) => (s.serviceId === serviceId ? { ...s, quantity: Math.max(0, quantity) } : s));
       } else {
-        return [...prev, { serviceId, quantity }];
+        return [...prev, { serviceId, quantity: Math.max(0, quantity) }];
       }
     });
   };
@@ -49,6 +62,7 @@ const ReserveRoom = () => {
       checkOutDate,
       services,
       notes,
+      guests,
     };
 
     try {
@@ -89,31 +103,40 @@ const ReserveRoom = () => {
             <p>{room?.description}</p>
             <p>Price: {room?.pricePerNight} HUF per night</p>
           </div>
+
           <div className={styles.datePicker}>
             <label>Check-in Date</label>
             <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} />
             <label>Check-out Date</label>
             <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />
+            <label>Number of Guests</label>
+            <input type="number" min="1" value={guests} onChange={(e) => setGuests(parseInt(e.target.value) || 1)} />
           </div>
 
           <div className={styles.services}>
-            <h3>Services</h3>
-            {serviceOptions.map((service) => (
-              <div key={service.id} className={styles.serviceItem}>
-                <label>{service.name} ({service.price} HUF)</label>
-                <input
-                  type="number"
-                  min="0"
-                  defaultValue="0"
-                  onChange={(e) => handleServiceChange(service.id, parseInt(e.target.value) || 0)}
-                />
-              </div>
-            ))}
+            <h3>Services (per person)</h3>
+            <div className={styles.serviceGrid}>
+              {serviceOptions.map((service) => (
+                <div key={service.id} className={styles.serviceItem}>
+                  <label>{service.name} ({service.price} HUF)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={services.find(s => s.serviceId === service.id)?.quantity || 0}
+                    onChange={(e) => handleServiceChange(service.id, parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className={styles.notes}>
             <label>Notes</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </div>
+
+          <div className={styles.totalPrice}>
+            <h3>Total Price: {calculateTotalPrice()} HUF</h3>
           </div>
 
           <button className={styles.reserveBtn} onClick={handleReservation}>Reserve</button>
