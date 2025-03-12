@@ -150,7 +150,6 @@ namespace CozyNestAPIHub.Controllers
         [RequireAccessToken]
         public async Task<IActionResult> IntrospectToken()
         {
-            string token = await GetItemFromContext<string>(HttpContext, "Token");
             User user = await GetItemFromContext<User>(HttpContext, "User");
             Role role = await GetItemFromContext<Role>(HttpContext, "Role");
             return Ok(new 
