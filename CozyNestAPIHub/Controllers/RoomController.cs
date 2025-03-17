@@ -31,12 +31,13 @@ namespace CozyNestAPIHub.Controllers
                     pricePerNight = item.PricePerNight,
                     description = item.Description,
                     deleted = item.Deleted,
-                    status = roomstatus.Description
+                    status = roomstatus.Description,
+                    capacity = item.Capacity
                 });
             }
             return Ok(new {
                 message = "Rooms acquired successfully.",
-                rooms = final.ToArray()
+                rooms = final
             });
         }
         [Route("create")]
@@ -78,6 +79,7 @@ namespace CozyNestAPIHub.Controllers
                 Status = roomStatus.Id,
                 Type = roomType.Id,
                 PricePerNight = request.PricePerNight,
+                Capacity = request.Capacity
             };
 
             Room? createdRoom = await RoomHandler.CreateRoom(room);
@@ -99,6 +101,7 @@ namespace CozyNestAPIHub.Controllers
                     pricePerNight = createdRoom.PricePerNight,
                     deleted = createdRoom.Deleted,
                     roomNumber = createdRoom.RoomNumber,
+                    capacity = createdRoom.Capacity
                 }
             });
         }
@@ -190,7 +193,8 @@ namespace CozyNestAPIHub.Controllers
                     pricePerNight = room.PricePerNight,
                     description = room.Description,
                     deleted = room.Deleted,
-                    status = roomStatusDesc
+                    status = roomStatusDesc,
+                    capacity = room.Capacity
                 }
             });
         }

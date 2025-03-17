@@ -32,7 +32,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM room";
+                string query = "SELECT id, room_number, type, capacity, price_per_night, status, description, deleted FROM room";
                 if (!includeDeleted)
                 {
                     query += " WHERE deleted = 0";
@@ -51,7 +51,8 @@ namespace CozyNestAPIHub.Handlers
                         PricePerNight = reader.GetDecimal("price_per_night"),
                         Status = reader.GetInt32("status"),
                         Description = reader.GetString("description"),
-                        Deleted = reader.GetBoolean("deleted")
+                        Deleted = reader.GetBoolean("deleted"),
+                        Capacity = reader.GetInt32("capacity")
                     };
                     rooms.Add(room);
                 }
@@ -72,7 +73,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM room WHERE id = @id";
+                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted, capacity FROM room WHERE id = @id";
 
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@id", id);
@@ -88,7 +89,8 @@ namespace CozyNestAPIHub.Handlers
                         PricePerNight = reader.GetDecimal("price_per_night"),
                         Status = reader.GetInt32("status"),
                         Description = reader.GetString("description"),
-                        Deleted = reader.GetBoolean("deleted")
+                        Deleted = reader.GetBoolean("deleted"),
+                        Capacity = reader.GetInt32("capacity")
                     };
 
                     return room;
@@ -106,8 +108,8 @@ namespace CozyNestAPIHub.Handlers
             await _roomWriteLock.WaitAsync();
             try
             {
-                string insertQuery = @"INSERT INTO room (room_number, type, price_per_night, status, description, deleted) 
-                                       VALUES (@roomNumber, @type, @pricePerNight, @status, @description, 0);";
+                string insertQuery = @"INSERT INTO room (room_number, type, price_per_night, status, description, deleted, capacity) 
+                                       VALUES (@roomNumber, @type, @pricePerNight, @status, @description, 0, @capacity);";
 
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
@@ -118,6 +120,7 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@pricePerNight", room.PricePerNight);
                 command.Parameters.AddWithValue("@status", room.Status);
                 command.Parameters.AddWithValue("@description", room.Description);
+                command.Parameters.AddWithValue("@capacity", room.Capacity);
 
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
@@ -145,7 +148,8 @@ namespace CozyNestAPIHub.Handlers
                                         price_per_night = @pricePerNight, 
                                         status = @status, 
                                         description = @description,
-                                        deleted = @deleted
+                                        deleted = @deleted,
+                                        capacity = @capacity
                                        WHERE id = @id;";
 
                 using var connection = CreateConnection();
@@ -159,6 +163,7 @@ namespace CozyNestAPIHub.Handlers
                 command.Parameters.AddWithValue("@status", room.Status);
                 command.Parameters.AddWithValue("@description", room.Description);
                 command.Parameters.AddWithValue("@deleted", room.Deleted);
+                command.Parameters.AddWithValue("@capacity", room.Capacity);
 
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
