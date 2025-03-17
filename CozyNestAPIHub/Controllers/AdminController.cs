@@ -54,10 +54,45 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new { message = "Request successful.", roles = rolesFinal });
         }
-        [Route("editusers")]
+        [Route("edituser")]
         [HttpPut]
         [Role("Manager")]
-        public async Task<IActionResult> EditUsers([FromBody] UserBulkUpdateRequest request) 
+        public async Task<IActionResult> EditUsers([FromBody] UserUpdateRequest request) 
+        {
+            return Ok();
+        }
+        [Route("adduser")]
+        [HttpPost]
+        [Role("Manager")]
+        public async Task<IActionResult> AddUser([FromBody] RegisterRequest request)
+        {
+            return Ok();
+        }
+        [Route("deleteuser")]
+        [HttpDelete]
+        [Role("Manager")]
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest request)
+        {
+            return Ok();
+        }
+        [Route("addreservation")]
+        [HttpPost]
+        [Role("Manager", "Receptionist")]
+        public async Task<IActionResult> AddReservation([FromBody] ReservationRequest request)
+        {
+            return Ok();
+        }
+        [Route("deletereservation")]
+        [HttpDelete]
+        [Role("Manager", "Receptionist")]
+        public async Task<IActionResult> DeleteReservation([FromBody] ReservationCancelRequest request)
+        {
+            return Ok();
+        }
+        [Route("modifyreservation")]
+        [HttpPut]
+        [Role("Manager", "Receptionist")]
+        public async Task<IActionResult> ModifyReservation([FromBody] ReservationRequest request)
         {
             return Ok();
         }

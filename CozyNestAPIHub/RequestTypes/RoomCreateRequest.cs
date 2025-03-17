@@ -3,7 +3,7 @@ namespace CozyNestAPIHub.RequestTypes
     public class RoomCreateRequest
     {
         public string RoomNumber { get; set; }
-
+        public int Capacity { get; set; }
         public string TypeDescription { get; set; }
         public decimal PricePerNight { get; set; }
         public string StatusDescription { get; set; }
