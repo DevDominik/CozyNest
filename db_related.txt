@@ -58,6 +58,7 @@ CREATE TABLE room (
     status INT NOT NULL,
     description TEXT,
     deleted BOOLEAN DEFAULT FALSE,
+    capacity INT NOT NULL,
     FOREIGN KEY (type) REFERENCES roomtype(id),
     FOREIGN KEY (status) REFERENCES roomstatus(id)
 );
