@@ -107,8 +107,8 @@ INSERT INTO roomstatus (description) VALUES ('Available'), ('Maintenance'), ('Oc
 INSERT INTO reservationstatuses (description) VALUES ('Incomplete'), ('Complete'), ('Cancelled');
 
 INSERT INTO `users` (`id`, `username`, `hashed_password`, `email`, `first_name`, `last_name`, `address`, `join_date`, `closed`, `role_id`) VALUES
-(1, 'admin', 'bIk2uLKRCVByfck9ZgcqmA==$dntJjU4VovPdeZLMfvMKPF63DCLiqWTk2wepKnmew+I=', 'admin@admin.admin', '', '', '', '2025-03-05 07:38:52', 0, 1),
-(2, 'rec', '6+gKnWNIw2uiInsg7OtHmQ==$ooSFSJuS4NxlmBT3h3pUhUmeEPbLvgEwnZwcR7TyF6U=', 'rec@rec.rec', '', '', '', '2025-03-05 07:39:02', 0, 1),
+(1, 'admin', 'bIk2uLKRCVByfck9ZgcqmA==$dntJjU4VovPdeZLMfvMKPF63DCLiqWTk2wepKnmew+I=', 'admin@admin.admin', '', '', '', '2025-03-05 07:38:52', 0, 3),
+(2, 'rec', '6+gKnWNIw2uiInsg7OtHmQ==$ooSFSJuS4NxlmBT3h3pUhUmeEPbLvgEwnZwcR7TyF6U=', 'rec@rec.rec', '', '', '', '2025-03-05 07:39:02', 0, 2),
 (3, 'user', 'nWOUC17uEydlAb1oeNt8Sw==$xYl0RoM7OnEmevfsmb6gP2ieU8ByHvpK1LnMAdq8Z2o=', 'user@user.user', '', '', '', '2025-03-05 07:39:17', 0, 1);
 
 -- Inserting test rooms
