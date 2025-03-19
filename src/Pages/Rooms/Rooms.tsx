@@ -15,6 +15,7 @@ const RoomType = {
 type Room = {
   id: number;
   roomNumber: string;
+  capacity: number;
   roomType: string;
   pricePerNight: number;
   description: string;
@@ -255,6 +256,7 @@ export const Rooms = () => {
                   <div className={styles.RoomInfo}>
                     <p>{room.description}</p>
                     <p>{room.pricePerNight} HUF</p>
+                    <p>{room.capacity} Ágy</p>
                     <p>Availability: {room.status}</p>
                   </div>
                   <button

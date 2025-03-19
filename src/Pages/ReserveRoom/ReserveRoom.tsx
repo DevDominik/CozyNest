@@ -43,6 +43,11 @@ const ReserveRoom = () => {
   };
 
   const handleServiceChange = (serviceId: number, quantity: number) => {
+    if (quantity > room.capacity) {
+      alert(`Maximum capacity for services is ${room.capacity}`);
+      return;
+    }
+
     setServices((prev) => {
       const existingService = prev.find((s) => s.serviceId === serviceId);
       if (existingService) {
@@ -102,6 +107,7 @@ const ReserveRoom = () => {
             <h3>Room #{room?.roomNumber}</h3>
             <p>{room?.description}</p>
             <p>Price: {room?.pricePerNight} HUF per night</p>
+            <p>Capacity: {room?.capacity} guests</p>
           </div>
 
           <div className={styles.datePicker}>
@@ -110,7 +116,7 @@ const ReserveRoom = () => {
             <label>Check-out Date</label>
             <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />
             <label>Number of Guests</label>
-            <input type="number" min="1" value={guests} onChange={(e) => setGuests(parseInt(e.target.value) || 1)} />
+            <input type="number" min="1" max={room?.capacity} value={guests} onChange={(e) => setGuests(parseInt(e.target.value) || 1)} />
           </div>
 
           <div className={styles.services}>
@@ -122,6 +128,7 @@ const ReserveRoom = () => {
                   <input
                     type="number"
                     min="0"
+                    max={room?.capacity}
                     value={services.find(s => s.serviceId === service.id)?.quantity || 0}
                     onChange={(e) => handleServiceChange(service.id, parseInt(e.target.value) || 0)}
                   />

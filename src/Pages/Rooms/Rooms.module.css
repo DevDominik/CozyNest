@@ -30,7 +30,7 @@
   background-color: var(--app-bg);
   border-radius: var(--border-radius);
   max-width: 300px;
-  height: 500px;
+  height: auto;
   justify-content: center;
   align-items: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
