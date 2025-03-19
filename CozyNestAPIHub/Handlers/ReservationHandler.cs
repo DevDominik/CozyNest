@@ -36,7 +36,7 @@ namespace CozyNestAPIHub.Handlers
                 await connection.OpenAsync();
 
                 var reservations = new List<Reservation>();
-                var query = "SELECT id, guest_id, room_id, check_in_date, check_out_date, status, notes FROM reservations";
+                var query = "SELECT id, guest_id, room_id, check_in_date, check_out_date, status, notes, capacity FROM reservations";
                 using var cmd = new MySqlCommand(query, connection);
                 using var reader = await cmd.ExecuteReaderAsync();
 
@@ -50,7 +50,8 @@ namespace CozyNestAPIHub.Handlers
                         CheckInDate = reader.GetDateTime("check_in_date"),
                         CheckOutDate = reader.GetDateTime("check_out_date"),
                         Status = reader.GetInt32("status"),
-                        Notes = reader.GetString("notes")
+                        Notes = reader.GetString("notes"),
+                        Capacity = reader.GetInt32("capacity")
                     };
 
                     reservations.Add(reservation);
@@ -73,7 +74,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                var query = "SELECT guest_id, room_id, check_in_date, check_out_date, status, notes FROM reservations WHERE id = @id";
+                var query = "SELECT guest_id, room_id, check_in_date, check_out_date, status, notes, capacity FROM reservations WHERE id = @id";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@id", id);
 
@@ -88,7 +89,8 @@ namespace CozyNestAPIHub.Handlers
                         CheckInDate = reader.GetDateTime("check_in_date"),
                         CheckOutDate = reader.GetDateTime("check_out_date"),
                         Status = reader.GetInt32("status"),
-                        Notes = reader.GetString("notes")
+                        Notes = reader.GetString("notes"),
+                        Capacity = reader.GetInt32("capacity")
                     };
                     return reservation;
                 }
@@ -109,8 +111,8 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                var query = @"INSERT INTO reservations (guest_id, room_id, check_in_date, check_out_date, status, notes) 
-                              VALUES (@guestId, @roomId, @checkInDate, @checkOutDate, @status, @notes); 
+                var query = @"INSERT INTO reservations (guest_id, room_id, check_in_date, check_out_date, status, notes, capacity) 
+                              VALUES (@guestId, @roomId, @checkInDate, @checkOutDate, @status, @notes, @capacity); 
                               SELECT LAST_INSERT_ID();";
 
                 using var cmd = new MySqlCommand(query, connection);
@@ -120,7 +122,7 @@ namespace CozyNestAPIHub.Handlers
                 cmd.Parameters.AddWithValue("@checkOutDate", reservation.CheckOutDate);
                 cmd.Parameters.AddWithValue("@status", reservation.Status);
                 cmd.Parameters.AddWithValue("@notes", reservation.Notes);
-
+                cmd.Parameters.AddWithValue("@capacity", reservation.Capacity);
                 var newId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 reservation.Id = newId;
 
@@ -142,7 +144,7 @@ namespace CozyNestAPIHub.Handlers
 
                 var query = @"UPDATE reservations 
                               SET guest_id = @guestId, room_id = @roomId, check_in_date = @checkInDate, 
-                                  check_out_date = @checkOutDate, status = @status, notes = @notes 
+                                  check_out_date = @checkOutDate, status = @status, notes = @notes, capacity = @capacity 
                               WHERE id = @id";
 
                 using var cmd = new MySqlCommand(query, connection);
@@ -153,6 +155,7 @@ namespace CozyNestAPIHub.Handlers
                 cmd.Parameters.AddWithValue("@checkOutDate", reservation.CheckOutDate);
                 cmd.Parameters.AddWithValue("@status", reservation.Status);
                 cmd.Parameters.AddWithValue("@notes", reservation.Notes);
+                cmd.Parameters.AddWithValue("@capacity", reservation.Capacity);
 
                 var rowsAffected = await cmd.ExecuteNonQueryAsync();
                 if (rowsAffected > 0)
@@ -174,7 +177,7 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
                 var reservations = new List<Reservation>();
-                var query = "SELECT id, room_id, check_in_date, check_out_date, status, notes FROM reservations WHERE guest_id = @guestId";
+                var query = "SELECT id, room_id, check_in_date, check_out_date, status, notes, capacity FROM reservations WHERE guest_id = @guestId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@guestId", user.Id);
                 using var reader = await cmd.ExecuteReaderAsync();
@@ -188,7 +191,8 @@ namespace CozyNestAPIHub.Handlers
                         CheckInDate = reader.GetDateTime("check_in_date"),
                         CheckOutDate = reader.GetDateTime("check_out_date"),
                         Status = reader.GetInt32("status"),
-                        Notes = reader.GetString("notes")
+                        Notes = reader.GetString("notes"),
+                        Capacity = reader.GetInt32("capacity")
                     };
                     reservations.Add(reservation);
                 }
@@ -271,8 +275,8 @@ namespace CozyNestAPIHub.Handlers
                 cmd.Parameters.AddWithValue("@reservationId", reservationService.ReservationId);
                 cmd.Parameters.AddWithValue("@serviceId", reservationService.ServiceId);
                 cmd.Parameters.AddWithValue("@quantity", reservationService.Quantity);
-                await cmd.ExecuteScalarAsync();
-                return await GetReservationServiceById(reservationService.ServiceId);
+                var lastId = await cmd.ExecuteScalarAsync();
+                return await GetReservationServiceById(Convert.ToInt32(lastId));
             }
             finally
             {
@@ -540,7 +544,7 @@ namespace CozyNestAPIHub.Handlers
                 _reservationStatusesReadLock.Release();
             }
         }
-        public static async Task<bool> IsReservationValid(Reservation newReservation)
+        public static async Task<bool> IsReservationTimeValid(Reservation newReservation)
         {
             if (newReservation.CheckInDate <= DateTime.Now.AddDays(7))
             {
@@ -605,6 +609,10 @@ namespace CozyNestAPIHub.Handlers
             {
                 _reservationReadLock.Release();
             }
+        }
+        public static async Task<bool> IsReservationCapacityValid(Reservation newReservation)
+        {
+
         }
         
     }

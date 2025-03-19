@@ -35,12 +35,13 @@ namespace CozyNestAPIHub.Controllers
                     checkInDate = item.CheckInDate,
                     checkOutDate = item.CheckOutDate,
                     status = rStatus.Description,
+                    capacity = item.Capacity,
                     notes = item.Notes
                 });
             }
             return Ok(new
             {
-                message = "Successfully retrieved reservations.",
+                message = "Foglalások sikeresen lekérve.",
                 reservations = finalList
             });
         }
@@ -55,7 +56,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return NotFound(new
                 {
-                    message = "Room not found."
+                    message = "Nincs ilyen szoba."
                 });
             }
             User user = await GetItemFromContext<User>(HttpContext, "User");
@@ -67,13 +68,21 @@ namespace CozyNestAPIHub.Controllers
                 CheckInDate = request.CheckInDate,
                 CheckOutDate = request.CheckOutDate,
                 Status = rStatus.Id,
-                Notes = request.Notes
+                Notes = request.Notes,
+                Capacity = request.Capacity
             };
-            if (!await ReservationHandler.IsReservationValid(reservation))
+            if (!await ReservationHandler.IsReservationTimeValid(reservation))
             {
                 return BadRequest(new
                 {
-                    message = "Reservation times overlap into existing reservations."
+                    message = "Ennek a foglalásnak az időpontja más foglalással ütközik."
+                });
+            }
+            if (!await ReservationHandler.IsReservationCapacityValid(reservation))
+            {
+                return BadRequest(new
+                {
+                    message = "A kapacitás a megengedett értékeken kívülre esett."
                 });
             }
             Reservation? createdReservation = await ReservationHandler.CreateReservation(reservation);
@@ -81,7 +90,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = "Failed to create reservation."
+                    message = "Nem sikerült lefoglalni a szobát."
                 });
             }
             foreach (var item in request.Services)
@@ -90,14 +99,15 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Reservation successfully created.",
+                message = "Sikeres foglalás.",
                 reservationData = new { 
                     id = createdReservation.Id,
                     roomNumber = room.RoomNumber,
                     checkInDate = createdReservation.CheckInDate,
                     checkOutDate = createdReservation.CheckOutDate,
                     status = rStatus.Description,
-                    notes = createdReservation.Notes
+                    notes = createdReservation.Notes,
+                    capacity = createdReservation.Capacity
                 },
             });
         }
@@ -112,14 +122,14 @@ namespace CozyNestAPIHub.Controllers
             {
                 return NotFound(new
                 {
-                    message = "Reservation not found."
+                    message = "Nincs ilyen foglalás."
                 });
             }
             if (reservation.GuestId != (await GetItemFromContext<User>(HttpContext, "User")).Id)
             {
                 return StatusCode(403, new
                 {
-                    message = "You are not the reserver."
+                    message = "Nem te vagy a foglaló."
                 });
             }
             List<ReservationStatus> reservationStatuses = await ReservationHandler.GetReservationStatuses();
@@ -128,14 +138,14 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Reservation already cancelled."
+                    message = "A foglalás már lemondottnak számít."
                 });
             }
             if (resDesc == "Complete")
             {
                 return BadRequest(new
                 {
-                    message = "Reservation already complete."
+                    message = "Nem lehet befejezett foglalást lemondani."
                 });
             }
             reservation.Status = reservationStatuses.First(x => x.Description == "Cancelled").Id;
@@ -145,12 +155,12 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = "Failed to cancel reservation."
+                    message = "Nem sikerült a foglalást lemondani."
                 });
             }
             return Ok(new
             {
-                message = "Reservation successfully cancelled.",
+                message = "Foglalás sikeresen lemondva.",
                 reservationData = new
                 {
                     id = updatedReservation.Id,
@@ -158,7 +168,8 @@ namespace CozyNestAPIHub.Controllers
                     checkInDate = updatedReservation.CheckInDate,
                     checkOutDate = updatedReservation.CheckOutDate,
                     status = "Cancelled",
-                    notes = updatedReservation.Notes
+                    notes = updatedReservation.Notes,
+                    capacity = updatedReservation.Capacity
                 }
             });
         }
@@ -186,7 +197,7 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Rooms acquired successfully.",
+                message = "Szobák sikeresen lekérve.",
                 rooms = final
             });
         }
@@ -215,7 +226,7 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Successfully retrieved rooms.",
+                message = "Szobák sikeresen lekérve.",
                 rooms = finalList
             });
         }

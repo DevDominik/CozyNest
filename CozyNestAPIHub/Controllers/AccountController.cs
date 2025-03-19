@@ -25,16 +25,28 @@ namespace CozyNestAPIHub.Controllers
         {
             _configuration = configuration;
         }
-
+        /// <summary>
+        /// Bejelentkezési végpont.
+        /// </summary>
+        /// <param name="loginRequest">A megszabott kérés formázása.</param>
+        /// <returns>Felhasználási adatokat, tokeneket.</returns>
+        /// <response code="200">Minden rendben.</response>
+        /// <response code="400">Nem megfelelő formázás.</response>
+        /// <response code="401">Már van ilyen felhasználó.</response>
+        /// <response code="500">Token generációs hiba.</response>
         [Route("login")]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username) || string.IsNullOrEmpty(loginRequest.Password))
             {
                 return BadRequest(new 
                 { 
-                    message = "Invalid username or password." 
+                    message = "Üres adatot a rendszer nem enged." 
                 });
             }
 
@@ -43,7 +55,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return Unauthorized(new 
                 { 
-                    message = "Invalid credentials." 
+                    message = "Érvénytelen felhasználónév vagy jelszó." 
                 });
             }
 
@@ -52,13 +64,13 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new 
                 { 
-                    message = "Token generation failed." 
+                    message = "Token létrehozási hiba." 
                 });
             }
             Role? role = await UserHandler.GetRoleById(user.RoleId);
             return Ok(new
             {
-                message = "Login successful.",
+                message = "Sikeres bejelentkezés.",
                 accessToken = token.AccessToken,
                 refreshToken = token.RefreshToken,
                 userData = new
@@ -84,7 +96,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new 
                 { 
-                    message = "Invalid registration details." 
+                    message = "Érvénytelen regisztrációs adatok." 
                 });
             }
 
@@ -92,7 +104,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new 
                 { 
-                    message = "Username or email already exists." 
+                    message = "Ez a felhasználónév vagy email már foglalt." 
                 });
             }
             Role? guestRole = await UserHandler.GetRoleByName("Guest");
@@ -112,7 +124,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new 
                 { 
-                    message = "User registration failed." 
+                    message = "Sikertelen regisztráció." 
                 });
             }
 
