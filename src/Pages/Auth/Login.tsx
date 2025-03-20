@@ -40,11 +40,9 @@ const LoginForm = () => {
       }
 
 
-      // Store tokens correctly
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
 
-      // Redirect to dashboard
       navigate("/profile");
     } catch (err: any) {
       setError(err.message);

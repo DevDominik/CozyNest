@@ -37,7 +37,7 @@ const ReserveRoom = () => {
     const roomPrice = room?.pricePerNight * nights;
     const servicePrice = services.reduce((total, serviceId) => {
       const option = serviceOptions.find((s) => s.id === serviceId);
-      return total + (option ? option.price * guests : 0);
+      return total + (option ? option.price * nights * guests : 0);
     }, 0);
     return roomPrice + servicePrice;
   };
@@ -92,25 +92,25 @@ const ReserveRoom = () => {
     <div className={styles.reservePage}>
       <div className={styles.roomInfo}>
         <div className={styles.infoBorder}>
-          <h1>Reserve Room</h1>
+          <h1>Szoba foglalás</h1>
           <div className={styles.roomDetails}>
             <h3>Room #{room?.roomNumber}</h3>
             <p>{room?.description}</p>
-            <p>Price: {room?.pricePerNight} HUF per night</p>
-            <p>Capacity: {room?.capacity} guests</p>
+            <p>Ár: {room?.pricePerNight} HUF per night</p>
+            <p>Max-Férőhely: {room?.capacity} Ágy</p>
           </div>
 
           <div className={styles.datePicker}>
-            <label>Check-in Date</label>
+            <label>Érkezés</label>
             <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} />
-            <label>Check-out Date</label>
+            <label>Távozás</label>
             <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />
-            <label>Number of Guests</label>
+            <label>Vendégek</label>
             <input type="number" min="1" max={room?.capacity} value={guests} onChange={(e) => setGuests(parseInt(e.target.value) || 1)} />
           </div>
 
           <div className={styles.services}>
-            <h3>Services (per person)</h3>
+            <h3>Szolgáltatások (Naponta)</h3>
             <div className={styles.serviceGrid}>
               {serviceOptions.map((service) => (
                 <div key={service.id} className={styles.serviceItem}>
