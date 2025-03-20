@@ -49,12 +49,20 @@
   
   .submitButton {
     width: 100%;
+    font-size: 1rem;
     padding: 10px;
     background-color: var(--btn-color);
     color: inherit;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+  }
+  .setpwbutton{
+    background-color: var(--body-bg);
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   
   .submitButton:hover {

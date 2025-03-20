@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Styles from "./Profile.module.css";
+import { style } from "motion/react-client";
 
 const BASEURL = "http://localhost:5232";
 
@@ -16,6 +17,7 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [pw, setPw] = useState(false);
   const [counter, setCounter] = useState(1);
 
   useEffect(() => {
@@ -75,7 +77,6 @@ const Profile = () => {
       address: userData.address,
     };
   
-    // Only add password if it's valid and matches the confirmation
     if (password && password === confirmPassword) {
       updatedData.password = password;
     } else if (password || confirmPassword) {
@@ -103,7 +104,6 @@ const Profile = () => {
   
       setMessage(`Profile updated successfully. (${counter})`);
   
-      // Trigger the introspect API call again to fetch the latest data
       const fetchProfileData = async () => {
         const token = localStorage.getItem("accessToken");
         if (!token) return;
@@ -131,7 +131,6 @@ const Profile = () => {
   
       fetchProfileData();  // Re-fetch profile data after update
   
-      // If the password was updated, update tokens as well
       if (password && password === confirmPassword) {
         if (data.newTokens?.accessToken && data.newTokens?.refreshToken) {
           localStorage.setItem("accessToken", data.newTokens.accessToken);
@@ -165,7 +164,7 @@ const Profile = () => {
         <h2 className={Styles.profileTitle}>Profile</h2>
         <form onSubmit={handleSubmit} className={Styles.profileForm}>
           <label className={Styles.label}>
-            Email
+            E-mail
             <input
               type="email"
               name="email"
@@ -175,7 +174,7 @@ const Profile = () => {
             />
           </label>
           <label className={Styles.label}>
-            First Name
+            Családnév
             <input
               type="text"
               name="firstName"
@@ -185,7 +184,7 @@ const Profile = () => {
             />
           </label>
           <label className={Styles.label}>
-            Last Name
+          Vezetéknév
             <input
               type="text"
               name="lastName"
@@ -195,7 +194,7 @@ const Profile = () => {
             />
           </label>
           <label className={Styles.label}>
-            Address
+            Lakcím
             <input
               type="text"
               name="address"
@@ -204,28 +203,29 @@ const Profile = () => {
               className={Styles.input}
             />
           </label>
-          <label className={Styles.label}>
-            New Password
+          {!pw ? (<div className={Styles.setpwbutton} onClick={()=> setPw(!pw)}>Új jelszó megadása</div>) : ("")}
+          
+         {pw ? ( <><label className={Styles.label}>
+            Új Jelszó
             <input
               type="password"
               name="password"
               value={password}
               onChange={handleChange}
-              className={Styles.input}
-            />
-          </label>
-          <label className={Styles.label}>
-            Confirm Password
-            <input
-              type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={handleChange}
-              className={Styles.input}
-            />
-          </label>
+              className={Styles.input} />
+          </label><label className={Styles.label}>
+              Jelszó mégegyszer
+              <input
+                type="password"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={handleChange}
+                className={Styles.input} />
+            </label>
+            {pw ? (<div className={Styles.setpwbutton} onClick={()=>{setPw(!pw); setConfirmPassword(""); setPassword("")}}>Mégsem</div>): ("")}
+            </>) : ("")}
           <button type="submit" className={Styles.submitButton}>
-            Update Profile
+            Felhasználó Módosítása
           </button>
           {message && <p className={Styles.message}>{message}</p>}
         </form>
