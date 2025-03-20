@@ -39,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
     }
   }, []);
 
-  const API_URL = "https://localhost:7290";
+  const API_URL = "http://localhost:5232";
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("accessToken");

@@ -37,7 +37,7 @@ const Reservations = () => {
         }
 
         const response = await fetch(
-          "https://localhost:7290/api/reservation/getreservations",
+          "http://localhost:5232/api/reservation/getreservations",
           {
             method: "GET",
             headers: {

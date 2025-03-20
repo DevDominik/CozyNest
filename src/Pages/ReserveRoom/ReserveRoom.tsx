@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styles from "./ReserveRoom.module.css";
 
-const BASEURL = "https://localhost:7290";
+const BASEURL = "http://localhost:5232";
 
 const ReserveRoom = () => {
   const location = useLocation();

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./CreateRoom.module.css";
 
-const API_URL = "https://localhost:7290";
+const API_URL = "http://localhost:5232";
 
 const CreateRoom = () => {
   const [roomNumber, setRoomNumber] = useState("");

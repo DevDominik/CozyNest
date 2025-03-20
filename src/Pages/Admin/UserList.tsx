@@ -7,7 +7,7 @@ const UserList = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [userInfo, setUserInfo] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const API_URL = "https://localhost:7290";
+  const API_URL = "http://localhost:5232";
 
   useEffect(() => {
     const fetchUserData = async () => {

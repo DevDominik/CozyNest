@@ -9,7 +9,7 @@ interface RegisterFormState {
   confirmPassword: string;
 }
 
-const API_URL = "https://localhost:7290";
+const API_URL = "http://localhost:5232";
 
 const Register = () => {
   const [formData, setFormData] = useState<RegisterFormState>({

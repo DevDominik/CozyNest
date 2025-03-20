@@ -77,7 +77,7 @@ export const Rooms = () => {
         }
 
         response = await fetch(
-          "https://localhost:7290/api/reservation/getrooms",
+          "http://localhost:5232/api/reservation/getrooms",
           requestOptions
         );
 

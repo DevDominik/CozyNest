@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Styles from "./Profile.module.css";
 
-const BASEURL = "https://localhost:7290";
+const BASEURL = "http://localhost:5232";
 
 const Profile = () => {
   const [userData, setUserData] = useState({

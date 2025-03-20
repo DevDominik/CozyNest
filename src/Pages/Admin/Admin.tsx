@@ -5,7 +5,7 @@ import UserList from "./UserList";
 
 export const Admin = () => {
   const navigate = useNavigate();
-  const API_URL = "https://localhost:7290";
+  const API_URL = "http://localhost:5232";
 
   useEffect(() => {
     const fetchUserData = async () => {
