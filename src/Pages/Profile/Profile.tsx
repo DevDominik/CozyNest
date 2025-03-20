@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Styles from "./Profile.module.css";
-import { style } from "motion/react-client";
 
 const BASEURL = "http://localhost:5232";
 
@@ -129,7 +128,7 @@ const Profile = () => {
         }
       };
   
-      fetchProfileData();  // Re-fetch profile data after update
+      fetchProfileData();  
   
       if (password && password === confirmPassword) {
         if (data.newTokens?.accessToken && data.newTokens?.refreshToken) {

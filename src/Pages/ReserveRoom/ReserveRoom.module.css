@@ -83,12 +83,45 @@
 
 .serviceItem {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   max-width: 300px;
+  gap: 0.5rem;
 }
-.serviceItem input{
+.serviceItem input {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--text-color-one);
+  border-radius: 4px;
   background-color: var(--body-bg);
+  cursor: pointer;
+  position: relative;
+}
+.serviceItem input:checked {
+  background-color: var(--text-color-one);
+  border-color: var(--text-color-one);
+}
+.serviceItem input:checked::after {
+  content: '\2713';
+  color: var(--app-bg);
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+}
+.serviceItem label {
+  color: var(--text-color-one);
+  cursor: pointer;
+}
+.checkboxS{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 @media (min-width: 920px) {

@@ -11,7 +11,7 @@ const ReserveRoom = () => {
   const [checkInDate, setCheckInDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [checkOutDate, setCheckOutDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [notes, setNotes] = useState<string>("");
-  const [services, setServices] = useState<{ serviceId: number; quantity: number }[]>([]);
+  const [services, setServices] = useState<number[]>([]);
   const [serviceOptions, setServiceOptions] = useState<any[]>([]);
   const [guests, setGuests] = useState<number>(1);
 
@@ -35,27 +35,17 @@ const ReserveRoom = () => {
     const checkOut = new Date(checkOutDate);
     const nights = Math.max((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24), 1);
     const roomPrice = room?.pricePerNight * nights;
-    const servicePrice = services.reduce((total, service) => {
-      const option = serviceOptions.find((s) => s.id === service.serviceId);
-      return total + (option ? option.price * service.quantity * guests : 0);
+    const servicePrice = services.reduce((total, serviceId) => {
+      const option = serviceOptions.find((s) => s.id === serviceId);
+      return total + (option ? option.price * guests : 0);
     }, 0);
     return roomPrice + servicePrice;
   };
 
-  const handleServiceChange = (serviceId: number, quantity: number) => {
-    if (quantity > room.capacity) {
-      alert(`Maximum capacity for services is ${room.capacity}`);
-      return;
-    }
-
-    setServices((prev) => {
-      const existingService = prev.find((s) => s.serviceId === serviceId);
-      if (existingService) {
-        return prev.map((s) => (s.serviceId === serviceId ? { ...s, quantity: Math.max(0, quantity) } : s));
-      } else {
-        return [...prev, { serviceId, quantity: Math.max(0, quantity) }];
-      }
-    });
+  const handleServiceChange = (serviceId: number) => {
+    setServices((prev) =>
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
+    );
   };
 
   const handleReservation = async () => {
@@ -124,14 +114,15 @@ const ReserveRoom = () => {
             <div className={styles.serviceGrid}>
               {serviceOptions.map((service) => (
                 <div key={service.id} className={styles.serviceItem}>
-                  <label>{service.name} ({service.price} HUF)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max={room?.capacity}
-                    value={services.find(s => s.serviceId === service.id)?.quantity || 0}
-                    onChange={(e) => handleServiceChange(service.id, parseInt(e.target.value) || 0)}
-                  />
+                  <label className={styles.checkboxS}>
+                    <input
+                      type="checkbox"
+                      checked={services.includes(service.id)}
+                      onChange={() => handleServiceChange(service.id)}
+                    />
+                    <p>{service.name} ({service.price} HUF)</p>
+                    
+                  </label>
                 </div>
               ))}
             </div>
