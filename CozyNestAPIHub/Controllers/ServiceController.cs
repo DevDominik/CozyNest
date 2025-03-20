@@ -7,12 +7,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CozyNestAPIHub.Controllers
 {
+    /// <summary>
+    /// API végpont gyűjtő a szolgáltatásokhoz.
+    /// </summary>
     [Route("api/service")]
     [ApiController]
     public class ServiceController : ControllerBase
     {
+        /// <summary>
+        /// Minden szolgáltatás lekérése lekérdezése.
+        /// </summary>
+        /// <returns>Szolgáltatások listája.</returns>
+        /// <response code="200">Sikeres lekérdezés.</response>
         [Route("services")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Services() 
         {
             var services = await ReservationHandler.GetServices();
@@ -34,9 +43,20 @@ namespace CozyNestAPIHub.Controllers
                 services = final
             });
         }
+        /// <summary>
+        /// Szolgáltatások lekérdezése egy foglaláshoz.
+        /// </summary>
+        /// <param name="request">Foglalás formázása</param>
+        /// <returns>Szolgáltatások listája</returns>
+        /// <response code="200">Sikeres lekérdezés.</response>
+        /// <response code="401">Nem a foglaló személy.</response>
+        /// <response code="404">Foglalás nem található.</response>
         [Route("services")]
         [HttpPost]
         [RequireAccessToken]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Services([FromBody] ReservationServicesRequest request)
         {
             Reservation? reservation = await ReservationHandler.GetReservationById(request.ReservationId);
@@ -44,16 +64,16 @@ namespace CozyNestAPIHub.Controllers
             {
                 return NotFound(new
                 {
-                    message = "Reservation not found."
+                    message = "Foglalás nem található."
                 });
             }
             User user = await GetItemFromContext<User>(HttpContext, "User");
             Role role = await GetItemFromContext<Role>(HttpContext, "Role");
-            if (reservation.GuestId != user.Id && role.Name == "Guest")
+            if (reservation.GuestId != user.Id)
             {
                 return Unauthorized(new
                 {
-                    message = "Unauthorized."
+                    message = "Nem a te foglalásod."
                 });
             }
             var services = await ReservationHandler.GetServices();
@@ -80,7 +100,7 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Successfully retrieved services.",
+                message = "Sikeres lekérdezés.",
                 services = finalServices,
                 reservationServices = finalReservationServices
             });

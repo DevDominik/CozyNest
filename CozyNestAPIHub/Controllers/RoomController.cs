@@ -7,14 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CozyNestAPIHub.Controllers
 {
+    /// <summary>
+    /// API végpont gyűjtő a szobákkal kapcsolatos funkciókhoz.
+    /// </summary>
     [Route("api/room")]
     [ApiController]
     [RequireAccessToken]
     [Role("Manager")]
     public class RoomController : ControllerBase
     {
+        /// <summary>
+        /// Szobák lekérdezése.
+        /// </summary>
+        /// <returns>Szobák listája.</returns>
+        /// <response code="200">Sikeres lekérdezés.</response>
         [Route("list")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> List() 
         {
             List<Room> roomList = await RoomHandler.GetRooms();
@@ -36,12 +45,23 @@ namespace CozyNestAPIHub.Controllers
                 });
             }
             return Ok(new {
-                message = "Rooms acquired successfully.",
+                message = "Szobák sikeresen lekérve.",
                 rooms = final
             });
         }
+        /// <summary>
+        /// Új szoba létrehozása.
+        /// </summary>
+        /// <param name="request">Szoba paramétereinek formázása.</param>
+        /// <returns>Szoba adatok.</returns>
+        /// <response code="200">Sikeres szoba létrehozás.</response>
+        /// <response code="400">Hibás kérés.</response>
+        /// <response code="500">Sikertelen létrehozás.</response>
         [Route("create")]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromBody] RoomCreateRequest request)
         {
             if (request == null |
@@ -52,7 +72,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid request."
+                    message = "Érvénytelen kérés."
                 });
             }
             RoomStatus? roomStatus = await RoomHandler.GetRoomStatusByDescription(request.StatusDescription);
@@ -60,7 +80,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid room status."
+                    message = "Érvénytelen szoba állapot."
                 });
             }
             RoomType? roomType = await RoomHandler.GetRoomTypeByDescription(request.TypeDescription);
@@ -68,7 +88,7 @@ namespace CozyNestAPIHub.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid room type."
+                    message = "Érvénytelen szoba típus."
                 });
             }
             Room room = new Room()
@@ -87,12 +107,12 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new
                 {
-                    message = "Error arose when creating room."
+                    message = "Nem sikerült szobát létrehozni."
                 });
             }
             return Ok(new
             {
-                message = "New room created.",
+                message = "Új szoba létrehozva.",
                 roomData = new {
                     id = createdRoom.Id,
                     description = createdRoom.Description,
@@ -105,16 +125,30 @@ namespace CozyNestAPIHub.Controllers
                 }
             });
         }
-
+        /// <summary>
+        /// Szoba törlése.
+        /// </summary>
+        /// <param name="request">Szoba törlési paramétereinek formázása.</param>
+        /// <returns>Szoba id, rendszerüzenet, státuskód.</returns>
+        /// <response code="200">Sikeres törlés.</response>
+        /// <response code="400">Hibás kérés.</response>
+        /// <response code="401">Szoba törlés meghiúsult.</response>
+        /// <response code="404">Szoba nem található.</response>
+        /// <response code="500">Sikertelen törlés.</response>
         [Route("delete")]
         [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete([FromBody] RoomDeleteRequest request) 
         {
             if (request == null)
             {
                 return BadRequest(new 
                 { 
-                    message = "Invalid request."    
+                    message = "Érvénytelen kérés."    
                 });
             }
             Room? room = await RoomHandler.GetRoomById(request.RoomId);
@@ -122,14 +156,14 @@ namespace CozyNestAPIHub.Controllers
             { 
                 return NotFound(new 
                 {
-                    message = "Room not found."
+                    message = "Ez a szoba nem létezik."
                 });
             }
             if (room.Deleted)
             {
                 return Unauthorized(new
                 {
-                    message = "Room is already deleted."
+                    message = "Ez a szoba már ki van törölve."
                 });
             }
             room.Deleted = true;
@@ -137,38 +171,51 @@ namespace CozyNestAPIHub.Controllers
             {
                 return StatusCode(500, new 
                 {
-                    message = "Error arose when deleting room."
+                    message = "Nem sikerült törölni a szobát."
                 });
             }
             return Ok(new
             {
-                message = "Successfully deleted room.",
+                message = "Szoba eltörölve.",
                 roomId = room.Id,
             });
         }
+        /// <summary>
+        /// Szoba módosítása.
+        /// </summary>
+        /// <param name="request">Szoba módosításának formázása.</param>
+        /// <returns>Szoba adatok.</returns>
+        /// <response code="200">Sikeres módosítás.</response>
+        /// <response code="400">Hibás kérés.</response>
+        /// <response code="404">Szoba nem található.</response>
+        /// <response code="500">Sikertelen módosítás.</response>
         [Route("modify")]
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Modify([FromBody] RoomModifyRequest request)
         {
             if (request == null)
             {
-                return BadRequest(new { message = "Invalid request." });
+                return BadRequest(new { message = "Érvénytelen kérés." });
             }
 
             Room? room = await RoomHandler.GetRoomById(request.RoomId);
-            if (room == null) { return NotFound(new { message = "Room not found." }); }
+            if (room == null) { return NotFound(new { message = "Ez a szoba nem létezik." }); }
 
             if (!string.IsNullOrWhiteSpace(request.StatusDescription))
             {
                 RoomStatus? roomStatus = await RoomHandler.GetRoomStatusByDescription(request.StatusDescription);
-                if (roomStatus == null) { return BadRequest(new { message = "Invalid room status." }); }
+                if (roomStatus == null) { return BadRequest(new { message = "Érvénytelen állapot típus." }); }
                 room.Status = roomStatus.Id;
             }
 
             if (!string.IsNullOrWhiteSpace(request.TypeDescription))
             {
                 RoomType? roomType = await RoomHandler.GetRoomTypeByDescription(request.TypeDescription);
-                if (roomType == null) { return BadRequest(new { message = "Invalid room type." }); }
+                if (roomType == null) { return BadRequest(new { message = "Érvénytelen szoba típus." }); }
                 room.Type = roomType.Id;
             }
 
@@ -177,14 +224,14 @@ namespace CozyNestAPIHub.Controllers
             if (!string.IsNullOrWhiteSpace(request.Description)) room.Description = request.Description;
 
             Room? updateSuccess = await RoomHandler.ModifyRoom(room);
-            if (updateSuccess == null) { return StatusCode(500, new { message = "Error arose when updating room." }); }
+            if (updateSuccess == null) { return StatusCode(500, new { message = "Nem sikerült frissíteni a szobát." }); }
 
             string roomStatusDesc = (await RoomHandler.GetRoomStatusById(room.Status))?.Description ?? "Unknown";
             string roomTypeDesc = (await RoomHandler.GetRoomTypeById(room.Type))?.Description ?? "Unknown";
 
             return Ok(new
             {
-                message = "Room data updated successfully.",
+                message = "Szoba frissítve.",
                 roomData = new
                 {
                     id = room.Id,

@@ -6,6 +6,9 @@ using CozyNestAPIHub.Attributes;
 
 namespace CozyNestAPIHub.Controllers
 {
+    /// <summary>
+    /// API végpont gyűjtő adminisztrációs funkciókhoz.
+    /// </summary>
     [Route("api/admin")]
     [ApiController]
     [RequireAccessToken]

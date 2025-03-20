@@ -7,6 +7,9 @@ using CozyNestAPIHub.Models;
 
 namespace CozyNestAPIHub.Attributes
 {
+    /// <summary>
+    /// Egy attribútum, amely biztosítja, hogy a hozzáféréshez szükséges legyen megfelelő szerepkör.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class RoleAttribute : Attribute, IAsyncActionFilter
     {
@@ -33,7 +36,7 @@ namespace CozyNestAPIHub.Attributes
         {
             Role role = await GetItemFromContext<Role>(context, "Role");
 
-            if (!_roles.Contains(role.Name)) return (false, "Access denied.", 403);
+            if (!_roles.Contains(role.Name)) return (false, "Hozzáférés elutasítva.", 403);
 
             return (true, null, 200);
         }

@@ -6,13 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CozyNestAPIHub.Controllers
 {
+    /// <summary>
+    /// API végpont gyűjtő a foglalási funkciókhoz.
+    /// </summary>
     [Route("api/reservation")]
     [ApiController]
     public class ReservationController : ControllerBase
     {
+        /// <summary>
+        /// Lekéri a felhasználóhoz tartozó foglalásokat.
+        /// </summary>
+        /// <returns>Szobák listája.</returns>
+        /// <response code="200">Sikeres lekérés.</response>
         [Route("getreservations")]
         [HttpGet]
         [RequireAccessToken]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetReservations()
         {
             User user = await GetItemFromContext<User>(HttpContext, "User");
@@ -45,10 +54,22 @@ namespace CozyNestAPIHub.Controllers
                 reservations = finalList
             });
         }
-
+        /// <summary>
+        /// Foglalás leadása.
+        /// </summary>
+        /// <param name="request">Foglalási adatok szerkezete.</param>
+        /// <returns>Foglalási adatok, rendszerüzenetek, státuszkód.</returns>
+        /// <response code="200">Sikeres foglalás.</response>
+        /// <response code="400">Hibás kérés.</response>
+        /// <response code="404">Nem található a szoba.</response>
+        /// <response code="500">Sikertelen foglalás.</response>
         [Route("reserve")]
         [HttpPost]
         [RequireAccessToken]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Reserve([FromBody] ReservationRequest request)
         {
             Room? room = await RoomHandler.GetRoomByRoomNumber(request.RoomNumber);
@@ -111,10 +132,24 @@ namespace CozyNestAPIHub.Controllers
                 },
             });
         }
-
+        /// <summary>
+        /// Foglalás lemondása.
+        /// </summary>
+        /// <param name="request">Foglalás lemondási kérés szerkezet.</param>
+        /// <returns>Foglalás adatai, rendszerüzenet, státuszkód.</returns>
+        /// <response code="200">Sikeres lemondás.</response>
+        /// <response code="400">Hibás kérés.</response>
+        /// <response code="403">Nem ugyaz az a felhasználó.</response>
+        /// <response code="404">Nem található a foglalás.</response>
+        /// <response code="500">Sikertelen lemondás.</response>
         [Route("cancel")]
         [HttpPost]
         [RequireAccessToken]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Cancel([FromBody] ReservationCancelRequest request) 
         { 
             Reservation? reservation = await ReservationHandler.GetReservationById(request.ReservationId);
@@ -173,8 +208,14 @@ namespace CozyNestAPIHub.Controllers
                 }
             });
         }
+        /// <summary>
+        /// Szobák lekérdezése.
+        /// </summary>
+        /// <returns>Szobák listája.</returns>
+        /// <response code="200">Sikeres lekérés.</response>
         [Route("getrooms")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetRooms()
         {
             List<Room> roomList = await RoomHandler.GetRooms();
@@ -201,8 +242,15 @@ namespace CozyNestAPIHub.Controllers
                 rooms = final
             });
         }
+        /// <summary>
+        /// Szobák lekérdezése időintervallum alapján.
+        /// </summary>
+        /// <param name="request">Szoba időparamétereinek formázása.</param>
+        /// <returns>Szobák listája.</returns>
+        /// <response code="200">Sikeres lekérés.</response>
         [Route("getrooms")]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetRooms([FromBody] ReservationTimesRequest request)
         {
             List<Room> reservableRooms = await ReservationHandler.GetAvailableRoomsBetweenTimes(request.Start, request.End);
