@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Reservations.module.css";
 
-// Define the Reservation type with additional fields
 type Reservation = {
   id: number;
   roomId: number;
@@ -14,7 +13,6 @@ type Reservation = {
   notes?: string;
 };
 
-// Define the shape of the API response
 type ReservationsResponse = {
   message: string;
   reservations: Reservation[];
@@ -27,11 +25,8 @@ const Reservations = () => {
 
   useEffect(() => {
     const fetchReservations = async () => {
-      console.log("Fetching reservations...");
       try {
         const token = localStorage.getItem("accessToken");
-        console.log("Token retrieved:", token);
-
         if (!token) {
           throw new Error("No access token found");
         }
@@ -47,8 +42,6 @@ const Reservations = () => {
           }
         );
 
-        console.log("Response status:", response.status);
-
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -56,42 +49,66 @@ const Reservations = () => {
         const data: ReservationsResponse = await response.json();
         setReservations(data.reservations || []);
       } catch (err) {
-        console.error("Error fetching reservations:", err);
         setError((err as Error).message);
       } finally {
         setLoading(false);
-        console.log("Loading state set to false");
       }
     };
 
     fetchReservations();
   }, []);
 
+  const cancelReservation = async (reservationId: number) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      const response = await fetch(
+        "http://localhost:5232/api/reservation/cancel",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reservationId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // Remove canceled reservation from state
+      setReservations((prev) => prev.filter((res) => res.id !== reservationId));
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
   if (loading) {
-    console.log("Loading...");
-    return <p className={styles.loading}>Loading reservations...</p>;
+    return <p className={styles.loading}>Foglalások betöltése...</p>;
   }
   if (error) {
-    console.error("Error:", error);
     return <p className={styles.error}>Error: {error}</p>;
   }
 
-  console.log("Rendering reservations:", reservations);
-
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>Your Reservations</h2>
+      <h2 className={styles.heading}>Foglalásaid</h2>
       {reservations.length === 0 ? (
-        <p className={styles.noReservations}>No reservations found.</p>
+        <p className={styles.noReservations}>Nem található foglalás.</p>
       ) : (
         <div className={styles.cardWrapper}>
           {reservations.map((reservation) => (
             <div key={reservation.id} className={styles.card}>
               <div
                 className={`${styles.cardImage} ${
-                  reservation.roomType == "Standard"
+                  reservation.roomType === "Standard"
                     ? styles.cardImageBasic
-                    : reservation.roomType == "Deluxe"
+                    : reservation.roomType === "Deluxe"
                     ? styles.cardImageDeluxe
                     : styles.cardImageSuite
                 }`}
@@ -99,9 +116,7 @@ const Reservations = () => {
               <div className={styles.cardBody}>
                 <div className={styles.cardHeader}>
                   <span className={styles.roomId}>Room Number</span>
-                  <span className={styles.roomNumber}>
-                    {reservation.roomNumber}
-                  </span>
+                  <span className={styles.roomNumber}>{reservation.roomNumber}</span>
                 </div>
                 <div className={styles.cardBody}>
                   <div className={styles.roomDescription}>
@@ -109,20 +124,22 @@ const Reservations = () => {
                   </div>
                   <div className={styles.dates}>
                     <span>
-                      Check-In:{" "}
-                      {new Date(reservation.checkInDate).toLocaleString()}
+                      Check-In: {new Date(reservation.checkInDate).toLocaleString()}
                     </span>
                     <span>
-                      Check-Out:{" "}
-                      {new Date(reservation.checkOutDate).toLocaleString()}
+                      Check-Out: {new Date(reservation.checkOutDate).toLocaleString()}
                     </span>
                   </div>
-                  <div className={styles.status}>
-                    Status: {reservation.status}
-                  </div>
+                  <div className={styles.status}>Status: {reservation.status}</div>
                   {reservation.notes && (
                     <p className={styles.notes}>Notes: {reservation.notes}</p>
                   )}
+                  <button
+                    className={styles.cancelButton}
+                    onClick={() => cancelReservation(reservation.id)}
+                  >
+                    Foglalás lemondása
+                  </button>
                 </div>
               </div>
             </div>

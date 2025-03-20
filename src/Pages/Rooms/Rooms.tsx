@@ -114,7 +114,6 @@ export const Rooms = () => {
         );
       }
 
-      // Filter by search text (room number or description)
       if (searchText) {
         filtered = filtered.filter(
           (room) =>
@@ -123,7 +122,6 @@ export const Rooms = () => {
         );
       }
 
-      // Filter by price range
       filtered = filtered.filter(
         (room) =>
           room.pricePerNight >= minPrice && room.pricePerNight <= maxPrice
@@ -145,7 +143,6 @@ export const Rooms = () => {
   ]);
 
   const handleReservationClick = (room: Room) => {
-    // Navigate to the ReserveRoom page and pass the room data as state
     navigate("/reserve-room", { state: { room } });
   };
 
@@ -184,7 +181,6 @@ export const Rooms = () => {
             onChange={(e) => setSearchText(e.target.value)}
           />
 
-          {/* Price Range Inputs (Moved below the search bar) */}
           <div className={styles.PriceInputs}>
             <div className={styles.PriceInputsColumn}>
               <p>Ártartomány</p>
@@ -266,7 +262,7 @@ export const Rooms = () => {
                   >
                     {room.status === RoomType.AVAILABLE
                       ? "Foglalás"
-                      : "Not Available"}
+                      : "Nem elérhető"}
                   </button>
                 </div>
               </div>
