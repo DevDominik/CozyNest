@@ -1,0 +1,56 @@
+futtatási követelmények
+telepítés
+  - backend
+  - frontend
+  - wpf
+adatbázis ismertetése
+  - táblák
+  - kapcsolatok
+fejlesztői eszközök
+  - asp.net
+  - mysql.data
+  - react
+  - argon2
+fejlesztési környezet
+  - visual studio code (frontend)
+  - visual studio 2022 (backend)
+fejlesztés menete
+kezelők (handlers)
+  - userhandler
+    - szerepe
+    - metódusok
+  - reservationhandler
+    - szerepe
+    - metódusok
+  - roomhandler
+    - szerepe
+    - metódusok
+attribútumok
+  - requireaccesstoken
+    - szerepe
+    - használata
+  - requrerefreshtoken
+    - szerepe
+    - használata
+  - role
+    - szerepe
+    - használata
+kontrollerek
+  - accountcontroller
+    - szerepe
+    - végpontok bemutatása
+  - admincontroller
+    - szerepe
+    - végpontok bemutatása
+  - roomcontroller
+    - szerepe
+    - végpontok bemutatása
+  - servicecontroller
+    - szerepe
+    - végpontok bemutatása
+  - reservationcontroller
+    - szerepe
+    - végpontok bemutatása
+osztályok
+globális metódusok
+tesztelési esetek leírás
