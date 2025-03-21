@@ -54,3 +54,4 @@ kontrollerek
 osztályok
 globális metódusok
 tesztelési esetek leírás
+jövőbeli fejlesztési rész
