@@ -7,8 +7,6 @@ A rendszer lehetővé teszi a foglalások, vendégadatok, szobakiosztás és fiz
 - **Foglaláskezelés**: Szobák foglalása, módosítása és törlése.
 - **Vendégnyilvántartás**: Vendégek adatainak kezelése.
 - **Szobakezelés**: Szobák elérhetőségének és állapotának nyomon követése.
-- **Számlázás és Fizetés**: Automatikus számlázás, online fizetés támogatás.
-- **Riportok és Statisztikák**: Foglalási adatok és pénzügyi jelentések generálása.
 - **Többfelhasználós Támogatás**: Különböző jogosultsági szintek beállítása.
 
 ## Telepítés
