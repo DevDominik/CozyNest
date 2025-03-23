@@ -11,6 +11,7 @@ import { Rooms } from "./Pages/Rooms/Rooms";
 import CreateRoom from "./Pages/CreateRoom/CreateRoom";
 import Reservations from "./Pages/Reservations/Reservations";
 import ReserveRoom from "./Pages/ReserveRoom/ReserveRoom";
+import Documentation from "./Pages/Documentation/Documentation";
 
 function App() {
   const [darkmode, setDarkMode] = useState(false);
@@ -42,6 +43,7 @@ function App() {
           <Route path="/CreateRoom" element={<CreateRoom />} />
           <Route path="/Reservations" element={<Reservations />} />
           <Route path="/reserve-room" element={<ReserveRoom />} />
+          <Route path="/docs" element={<Documentation />} />
         </Routes>
       </Suspense>
       <Footer />
