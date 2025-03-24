@@ -34,7 +34,7 @@ namespace CozyNestAPIHub.Controllers
                 RoomType? rType = await RoomHandler.GetRoomTypeById(room.Type);
                 if (rType == null) continue;
                 RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(room.Status);
-                if (rStatus == null) continue;
+                if (rStatus == null || rStatus.Description == "Cancelled") continue;
                 finalList.Add(new
                 {
                     id = item.Id,
