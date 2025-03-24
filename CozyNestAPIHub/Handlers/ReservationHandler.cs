@@ -142,10 +142,12 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
+                Console.WriteLine("Connection opened.");
+
                 var query = @"UPDATE reservations 
-                              SET guest_id = @guestId, room_id = @roomId, check_in_date = @checkInDate, 
-                                  check_out_date = @checkOutDate, status = @status, notes = @notes, capacity = @capacity 
-                              WHERE id = @id";
+                      SET guest_id = @guestId, room_id = @roomId, check_in_date = @checkInDate, 
+                          check_out_date = @checkOutDate, status = @status, notes = @notes, capacity = @capacity 
+                      WHERE id = @id";
 
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@id", reservation.Id);
@@ -154,14 +156,19 @@ namespace CozyNestAPIHub.Handlers
                 cmd.Parameters.AddWithValue("@checkInDate", reservation.CheckInDate);
                 cmd.Parameters.AddWithValue("@checkOutDate", reservation.CheckOutDate);
                 cmd.Parameters.AddWithValue("@status", reservation.Status);
-                cmd.Parameters.AddWithValue("@notes", reservation.Notes);
+                cmd.Parameters.AddWithValue("@notes", reservation.Notes ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@capacity", reservation.Capacity);
 
                 var rowsAffected = await cmd.ExecuteNonQueryAsync();
+                Console.WriteLine($"Rows Affected: {rowsAffected}");
+
                 if (rowsAffected > 0)
                 {
+                    Console.WriteLine("Rows were updated.");
                     return await GetReservationById(reservation.Id);
                 }
+
+                Console.WriteLine("No rows were updated.");
                 return null;
             }
             finally
@@ -169,6 +176,7 @@ namespace CozyNestAPIHub.Handlers
                 _reservationWriteLock.Release();
             }
         }
+
         public static async Task<List<Reservation>> GetUserReservations(User user)
         {
             await _reservationReadLock.WaitAsync();
@@ -609,10 +617,6 @@ namespace CozyNestAPIHub.Handlers
             {
                 _reservationReadLock.Release();
             }
-        }
-        public static async Task<bool> IsReservationCapacityValid(Reservation newReservation)
-        {
-
         }
         
     }

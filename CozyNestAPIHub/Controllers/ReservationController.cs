@@ -34,7 +34,9 @@ namespace CozyNestAPIHub.Controllers
                 RoomType? rType = await RoomHandler.GetRoomTypeById(room.Type);
                 if (rType == null) continue;
                 RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(room.Status);
-                if (rStatus == null || rStatus.Description == "Cancelled" || rStatus.Description == "Complete") continue;
+                if (rStatus == null) continue;
+                ReservationStatus? resStatus = await ReservationHandler.GetReservationStatusById(item.Status);
+                if (resStatus == null || resStatus.Description == "Complete" || resStatus.Description == "Cancelled") continue;
                 finalList.Add(new
                 {
                     id = item.Id,
@@ -99,13 +101,6 @@ namespace CozyNestAPIHub.Controllers
                     message = "Ennek a foglalásnak az időpontja más foglalással ütközik."
                 });
             }
-            if (!await ReservationHandler.IsReservationCapacityValid(reservation))
-            {
-                return BadRequest(new
-                {
-                    message = "A kapacitás a megengedett értékeken kívülre esett."
-                });
-            }
             Reservation? createdReservation = await ReservationHandler.CreateReservation(reservation);
             if (createdReservation == null) 
             {
@@ -151,7 +146,7 @@ namespace CozyNestAPIHub.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Cancel([FromBody] ReservationCancelRequest request) 
-        { 
+        {
             Reservation? reservation = await ReservationHandler.GetReservationById(request.ReservationId);
             if (reservation == null)
             {
@@ -168,7 +163,7 @@ namespace CozyNestAPIHub.Controllers
                 });
             }
             List<ReservationStatus> reservationStatuses = await ReservationHandler.GetReservationStatuses();
-            string resDesc = reservationStatuses.First(x => x.Id == reservation.Id).Description;
+            string resDesc = reservationStatuses.First(x => x.Id == reservation.Status).Description;
             if (resDesc == "Cancelled")
             {
                 return BadRequest(new
