@@ -14,6 +14,7 @@ namespace CozyNestAdmin
         private readonly HttpClient _httpClient;
         private string _accessToken;
         private string _refreshToken;
+        const string BASE_URL = "http://localhost:5232";
 
         public Auth()
         {
@@ -72,7 +73,7 @@ namespace CozyNestAdmin
                 var json = JsonConvert.SerializeObject(loginData);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync("https://localhost:7290/api/account/login", content);
+                var response = await _httpClient.PostAsync(BASE_URL + "/api/account/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -104,7 +105,7 @@ namespace CozyNestAdmin
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-                var response = await _httpClient.GetAsync("https://localhost:7290/api/account/introspect");
+                var response = await _httpClient.GetAsync(BASE_URL + "/api/account/introspect");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -216,7 +217,7 @@ namespace CozyNestAdmin
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-                var response = await _httpClient.GetAsync("https://localhost:7290/api/account/introspect");
+                var response = await _httpClient.GetAsync(BASE_URL + "/api/account/introspect");
 
                 if (response.IsSuccessStatusCode)
                 {

@@ -12,8 +12,8 @@ namespace CozyNestAdmin
 {
     public partial class Rooms : Page
     {
-        private const string BaseUrl = "https://localhost:7290/api/room";
-        private string authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6IjY0OGVjMGUyLWQ2MWMtNGM3MS04Njk5LTllYjlhNDI0ZTdhZiIsInVzZXJJZCI6MSwiZXhwIjoxNzQxMDA4NzgwfQ.jr9vx7jD3tvLwoJ1jZCh6hjnrifYQjPhm2zXViGyuqs\t";
+        private const string BaseUrl = "http://localhost:5232/api/room";
+        private string authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6ImI5M2RlZmVhLTgxYmUtNDU2OC1iZDA0LWMzMzhlMmE5MjZiZCIsInVzZXJJZCI6MSwiZXhwIjoxNzQyODAyNzcwfQ.Z_5ZrIw3oeLpyBbx32w1CBUrupm4-Nf6ZkuD3WqkmVM";
         private List<Room> roomList = new();
         private Room selectedRoom = null;
 
@@ -34,7 +34,7 @@ namespace CozyNestAdmin
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Response: {responseBody}"); // Debugging output
+                    MessageBox.Show($"Response: {responseBody}");
 
                     var roomData = JsonSerializer.Deserialize<RoomResponse>(responseBody, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (roomData == null || roomData.Rooms == null)
@@ -152,37 +152,68 @@ namespace CozyNestAdmin
         {
             try
             {
+                // Ellenőrizzük, hogy minden szükséges mező ki van-e töltve
+                if (string.IsNullOrWhiteSpace(RoomNameTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(PriceTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(CapacityTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(DescriptionTextBox.Text) ||
+                    RoomTypeComboBox.SelectedItem == null)
+                {
+                    MessageBox.Show("Minden mező kitöltése kötelező!");
+                    return;
+                }
+
+                // Biztosítjuk, hogy a konverziók helyesek
+                if (!double.TryParse(PriceTextBox.Text, out double pricePerNight))
+                {
+                    MessageBox.Show("Érvénytelen ár! Kérlek, számot adj meg.");
+                    return;
+                }
+
+                if (!int.TryParse(CapacityTextBox.Text, out int capacity))
+                {
+                    MessageBox.Show("Érvénytelen kapacitás! Kérlek, egész számot adj meg.");
+                    return;
+                }
+
                 var newRoom = new
                 {
-                    RoomNumber = RoomNameTextBox.Text,  
-                    TypeDescription = RoomTypeComboBox.SelectedItem.ToString(),  
-                    PricePerNight = double.Parse(PriceTextBox.Text),  
-                    StatusDescription = "Available",  
-                    description = CapacityTextBox.Text  
+                    RoomNumber = RoomNameTextBox.Text.Trim(),
+                    TypeDescription = (RoomTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                    PricePerNight = pricePerNight,
+                    StatusDescription = "Available",
+                    Capacity = capacity,
+                    Description = DescriptionTextBox.Text.Trim()
                 };
 
+                // JSON konvertálás és megjelenítés debug céljából
+                string jsonContent = JsonSerializer.Serialize(newRoom, new JsonSerializerOptions { WriteIndented = true });
+                MessageBox.Show($"Küldött JSON adatok:\n{jsonContent}", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 using HttpClient client = new();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/create")
                 {
-                    Content = new StringContent(JsonSerializer.Serialize(newRoom), Encoding.UTF8, "application/json")
+                    Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
                 };
 
                 var response = await client.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    LoadRooms(); 
+                    MessageBox.Show("Szoba sikeresen létrehozva!");
+                    LoadRooms();
                 }
                 else
                 {
-                    MessageBox.Show($"Error creating room: {response.StatusCode}");
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Hiba a szoba létrehozásakor: {response.StatusCode}\n{errorMessage}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}");
+                MessageBox.Show($"Hiba: {ex.Message}");
             }
         }
 

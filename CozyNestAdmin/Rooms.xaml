@@ -22,7 +22,7 @@
 
             <TextBlock Text="Room Type:"/>
             <ComboBox Name="RoomTypeComboBox" Margin="0,0,0,10">
-                <ComboBoxItem Content="Basic"/>
+                <ComboBoxItem Content="Standard"/>
                 <ComboBoxItem Content="Deluxe"/>
                 <ComboBoxItem Content="Suite"/>
             </ComboBox>
@@ -30,7 +30,10 @@
             <TextBlock Text="Price per Night:"/>
             <TextBox Name="PriceTextBox" Margin="0,0,0,10"/>
 
-            <TextBlock Text="Capacity (Description):"/>
+            <TextBlock Text="Description"/>
+            <TextBox Name="DescriptionTextBox" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Capacity"/>
             <TextBox Name="CapacityTextBox" Margin="0,0,0,20"/>
 
             <!-- Buttons to confirm, add, or cancel -->
