@@ -35,7 +35,8 @@ namespace CozyNestAPIHub.Controllers
         /// <returns>Felhasználási adatokat, tokeneket.</returns>
         /// <response code="200">Sikeres bejelentkezés.</response>
         /// <response code="400">Nem megfelelő formázás.</response>
-        /// <response code="401">Nincs ilyen felhasználó.</response>
+        /// <response code="401">Hibás felhasználónév vagy jelszó.</response>
+        /// <response code="403">Felhasználói fiók zárolva.</response>
         /// <response code="500">Token generációs hiba.</response>
         [Route("login")]
         [HttpPost]
@@ -61,7 +62,14 @@ namespace CozyNestAPIHub.Controllers
                     message = "Érvénytelen felhasználónév vagy jelszó." 
                 });
             }
-
+            if (user.Closed)
+            {
+                return new ObjectResult(new
+                {
+                    message = "Felhasználói fiók zárolva."
+                })
+                { StatusCode = 403 };
+            }
             var token = await UserHandler.CreateToken(user);
             if (token == null)
             {

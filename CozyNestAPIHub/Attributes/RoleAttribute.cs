@@ -11,6 +11,7 @@ namespace CozyNestAPIHub.Attributes
     /// Egy attribútum, amely biztosítja, hogy a hozzáféréshez szükséges legyen megfelelő szerepkör.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class RoleAttribute : Attribute, IAsyncActionFilter
     {
         private readonly string[] _roles;

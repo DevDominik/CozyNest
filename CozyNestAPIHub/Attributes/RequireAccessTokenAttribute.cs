@@ -13,6 +13,8 @@ namespace CozyNestAPIHub.Attributes
     /// Egy attribútum, amely biztosítja, hogy a hozzáféréshez szükséges legyen token, amit a rendszer AccessTokenként kezel.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class RequireAccessTokenAttribute : Attribute, IAsyncAuthorizationFilter
     {
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
