@@ -50,11 +50,8 @@ function Content() {
               animate={{ x: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 50, damping: 20 }}
             >
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Esse
-              labore libero perspiciatis cum facere minus exercitationem
-              asperiores laboriosam! Eum repellendus nesciunt cumque
-              exercitationem perspiciatis maxime ullam porro consequatur eius
-              molestiae?
+              Foglalj álmaid szállodájába a CozyNest segítségével!
+              Fedezd fel a tökéletes szálláshelyet a CozyNest szállodamenedzsment rendszerével. Egyszerű, gyors és biztonságos foglalás néhány kattintással. Exkluzív ajánlatok, valós vendégértékelések és gondtalan pihenés vár rád!
             </motion.p>
           </div>
         </div>

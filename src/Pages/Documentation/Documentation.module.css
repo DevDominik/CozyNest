@@ -26,6 +26,9 @@
   overflow-y: auto;
   box-shadow: var(--box-shadow);
 }
+.sidebar li {
+  margin: 5px;
+}
 
 .sidebar h2 {
   font-size: 1.2rem;
@@ -38,9 +41,10 @@
 .sidebar ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0px;
 }
 .sidebar li button {
+  border-radius: 0px 5px 5px 0px;
   text-align: left;
 }
 
@@ -76,6 +80,7 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  text-align: start;
 }
 
 .content h2 {
@@ -109,7 +114,7 @@
   border-top: 1px solid var(--text-color-three);
 }
 .content li {
-  list-style: none;
+  list-style: "» ";
 }
 
 /* Responsive */
