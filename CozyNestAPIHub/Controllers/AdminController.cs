@@ -20,10 +20,15 @@ namespace CozyNestAPIHub.Controllers
         {
             _configuration = configuration;
         }
-
+        /// <summary>
+        /// Lekéri az összes felhasználót.
+        /// </summary>
+        /// <returns>Felhasználók listája.</returns>
+        /// <response code="200">Sikeres kérés.</response>
         [Route("getusers")]
         [HttpGet]
         [Role("Manager", "Receptionist")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers() 
         {
             List<User> userList = await UserHandler.GetUsers();
@@ -42,7 +47,7 @@ namespace CozyNestAPIHub.Controllers
                     roleName = (await UserHandler.GetRoleById(loopedUser.RoleId)).Name
                 });
             }
-            return Ok(new { message = "Request successful.", users = usersFinal });
+            return Ok(new { message = "Sikeres lekérés.", users = usersFinal });
         }
         [Route("getroles")]
         [HttpGet]
@@ -96,6 +101,13 @@ namespace CozyNestAPIHub.Controllers
         [HttpPut]
         [Role("Manager", "Receptionist")]
         public async Task<IActionResult> ModifyReservation([FromBody] ReservationRequest request)
+        {
+            return Ok();
+        }
+        [Route("getreservations")]
+        [HttpGet]
+        [Role("Manager", "Receptionist")]
+        public async Task<IActionResult> GetReservations()
         {
             return Ok();
         }

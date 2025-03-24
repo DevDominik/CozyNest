@@ -40,6 +40,10 @@ namespace CozyNestAPIHub.Attributes
                 context.Result = new ObjectResult(new { message = "Érvénytelen access token." }) { StatusCode = 403 };
                 return;
             }
+            if (user.Closed)
+            {
+                context.Result = new ObjectResult(new { message = "Felhasználói fiók zárolt." }) { StatusCode = 403 };
+            }
             Role? role = await UserHandler.GetRoleById(user.RoleId);
             if (role == null)
             {
