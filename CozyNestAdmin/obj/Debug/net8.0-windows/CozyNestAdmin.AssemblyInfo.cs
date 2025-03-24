@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CozyNestAdmin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a100a867891c85ecad5fcb73aa41c93c01979563")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f97545924fb970f0e810aebb951ca874fa867262")]
 [assembly: System.Reflection.AssemblyProductAttribute("CozyNestAdmin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CozyNestAdmin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

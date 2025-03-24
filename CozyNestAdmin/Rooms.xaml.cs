@@ -13,7 +13,7 @@ namespace CozyNestAdmin
     public partial class Rooms : Page
     {
         private const string BaseUrl = "http://localhost:5232/api/room";
-        private string authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6ImI5M2RlZmVhLTgxYmUtNDU2OC1iZDA0LWMzMzhlMmE5MjZiZCIsInVzZXJJZCI6MSwiZXhwIjoxNzQyODAyNzcwfQ.Z_5ZrIw3oeLpyBbx32w1CBUrupm4-Nf6ZkuD3WqkmVM";
+        private string authToken = Auth._accessToken;
         private List<Room> roomList = new();
         private Room selectedRoom = null;
 

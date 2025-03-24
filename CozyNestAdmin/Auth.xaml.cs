@@ -12,7 +12,7 @@ namespace CozyNestAdmin
     public partial class Auth : Window
     {
         private readonly HttpClient _httpClient;
-        private string _accessToken;
+        public static string _accessToken;
         private string _refreshToken;
         const string BASE_URL = "http://localhost:5232";
 
@@ -81,7 +81,11 @@ namespace CozyNestAdmin
                     // Assume the response body contains the tokens in a JSON format like:
                     // { "accessToken": "abc", "refreshToken": "xyz" }
                     var tokenData = JsonConvert.DeserializeObject<TokenResponse>(responseBody);
+
+                    // Set the static _accessToken
                     _accessToken = tokenData.AccessToken;
+
+                    // If needed, also set the refresh token
                     _refreshToken = tokenData.RefreshToken;
 
                     return "Login successful!";
