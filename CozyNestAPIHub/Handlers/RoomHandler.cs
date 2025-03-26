@@ -358,10 +358,11 @@ namespace CozyNestAPIHub.Handlers
                 using var connection = CreateConnection();
                 await connection.OpenAsync();
 
-                string query = "SELECT id, room_number, type, price_per_night, status, description, deleted FROM room WHERE room_number = @roomNumber";
+                string query = "SELECT id, room_number, type, price_per_night, status, description FROM room WHERE room_number = @roomNumber and deleted = @deleted";
 
                 using var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@roomNumber", roomNumber);
+                command.Parameters.AddWithValue("@deleted", false);
                 using var reader = await command.ExecuteReaderAsync();
 
                 if (await reader.ReadAsync())
