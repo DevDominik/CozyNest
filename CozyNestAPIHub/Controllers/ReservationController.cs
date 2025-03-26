@@ -3,6 +3,7 @@ using CozyNestAPIHub.Handlers;
 using CozyNestAPIHub.Models;
 using CozyNestAPIHub.RequestTypes;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CozyNestAPIHub.Controllers
 {
@@ -80,6 +81,20 @@ namespace CozyNestAPIHub.Controllers
                 return NotFound(new
                 {
                     message = "Nincs ilyen szoba."
+                });
+            }
+            if (request.Capacity < 1)
+            {
+                return BadRequest(new
+                {
+                    message = "Nem lehet a foglaláshoz tartozó személyek mennyisége kisebb, mint 1."
+                });
+            }
+            if (room.Capacity < request.Capacity)
+            {
+                return BadRequest(new
+                {
+                    message = "Nem lehet nagyobb a foglaláshoz tartozó személyek száma, mint amit a szoba képes támogatni."
                 });
             }
             User user = await GetItemFromContext<User>(HttpContext, "User");

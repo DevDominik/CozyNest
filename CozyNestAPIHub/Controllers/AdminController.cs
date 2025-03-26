@@ -225,6 +225,20 @@ namespace CozyNestAPIHub.Controllers
                     message = "Nincs ilyen szoba."
                 });
             }
+            if (request.Capacity < 1)
+            {
+                return BadRequest(new
+                {
+                    message = "Nem lehet a foglaláshoz tartozó személyek mennyisége kisebb, mint 1."
+                });
+            }
+            if (room.Capacity < request.Capacity)
+            {
+                return BadRequest(new
+                {
+                    message = "Nem lehet nagyobb a foglaláshoz tartozó személyek száma, mint amit a szoba képes támogatni."
+                });
+            }
             ReservationStatus? rStatus = await ReservationHandler.GetReservationStatusByDescription("Incomplete");
             Reservation reservation = new Reservation
             {
