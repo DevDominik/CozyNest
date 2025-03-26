@@ -56,11 +56,13 @@ namespace CozyNestAPIHub.Controllers
         /// <returns>Szoba adatok.</returns>
         /// <response code="200">Sikeres szoba létrehozás.</response>
         /// <response code="400">Hibás kérés.</response>
+        /// <response code="401">Már van ilyen szoba.</response>
         /// <response code="500">Sikertelen létrehozás.</response>
         [Route("create")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromBody] RoomCreateRequest request)
         {
@@ -91,6 +93,13 @@ namespace CozyNestAPIHub.Controllers
                     message = "Érvénytelen szoba típus."
                 });
             }
+            if (await RoomHandler.GetRoomByRoomNumber(request.RoomNumber) == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Már van ilyen számmal rendelkező szoba."
+                });
+            } 
             Room room = new Room()
             {
                 Deleted = false,
