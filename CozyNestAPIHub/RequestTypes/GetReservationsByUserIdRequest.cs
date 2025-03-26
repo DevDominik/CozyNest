@@ -1,6 +1,6 @@
 ﻿namespace CozyNestAPIHub.RequestTypes
 {
-    public class DeleteUserRequest
+    public class GetReservationsByUserIdRequest
     {
         public int Id { get; set; }
     }
