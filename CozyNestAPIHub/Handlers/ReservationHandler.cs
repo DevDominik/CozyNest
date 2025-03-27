@@ -351,7 +351,7 @@ namespace CozyNestAPIHub.Handlers
                         Id = reader.GetInt32("id"),
                         Name = reader.GetString("name"),
                         Description = reader.GetString("description"),
-                        Price = reader.GetDecimal("price"),
+                        Price = reader.GetDouble("price"),
                         IsActive = reader.GetBoolean("is_active")
                     };
                     services.Add(service);
@@ -381,7 +381,7 @@ namespace CozyNestAPIHub.Handlers
                         Id = id,
                         Name = reader.GetString("name"),
                         Description = reader.GetString("description"),
-                        Price = reader.GetDecimal("price"),
+                        Price = reader.GetDouble("price"),
                         IsActive = reader.GetBoolean("is_active")
                     };
                     return service;
@@ -411,7 +411,7 @@ namespace CozyNestAPIHub.Handlers
                         Id = reader.GetInt32("id"),
                         Name = name,
                         Description = reader.GetString("description"),
-                        Price = reader.GetDecimal("price"),
+                        Price = reader.GetDouble("price"),
                         IsActive = reader.GetBoolean("is_active")
                     };
                     return service;
