@@ -4,7 +4,7 @@ import {
   validateUsername,
   validatePassword,
   validateEmail,
-} from "../../utils/validation";
+} from "../../Utils/validation";
 
 const BASEURL = "http://localhost:5232";
 
