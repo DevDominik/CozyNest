@@ -41,19 +41,19 @@ namespace CozyNestAdmin
 
             if (textBlock.Text == "Main")
             {
-                MainContentFrame.Navigate(new Uri("Main.xaml", UriKind.Relative));
+                MainContentFrame.Navigate(new Uri("Pages/Main.xaml", UriKind.Relative));
             }
             if (textBlock.Text == "Rooms")
             {
-                MainContentFrame.Navigate(new Uri("Rooms.xaml", UriKind.Relative));
+                MainContentFrame.Navigate(new Uri("Pages/Rooms.xaml", UriKind.Relative));
             }
             if (textBlock.Text == "Users")
             {
-                MainContentFrame.Navigate(new Uri("Users.xaml", UriKind.Relative));
+                MainContentFrame.Navigate(new Uri("Pages/Users.xaml", UriKind.Relative));
             }
             if (textBlock.Text == "Misc")
             {
-                MainContentFrame.Navigate(new Uri("Misc.xaml", UriKind.Relative));
+                MainContentFrame.Navigate(new Uri("Pages/Misc.xaml", UriKind.Relative));
             }
         }
 

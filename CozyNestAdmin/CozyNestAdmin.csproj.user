@@ -7,39 +7,39 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Auth.xaml.cs">
+    <Compile Update="Pages\Auth.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Main.xaml.cs">
+    <Compile Update="Pages\Main.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Misc.xaml.cs">
+    <Compile Update="Pages\Misc.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Rooms.xaml.cs">
+    <Compile Update="Pages\Rooms.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Users.xaml.cs">
+    <Compile Update="Pages\Users.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Auth.xaml">
+    <Page Update="Pages\Auth.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Main.xaml">
+    <Page Update="Pages\Main.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Misc.xaml">
+    <Page Update="Pages\Misc.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Rooms.xaml">
+    <Page Update="Pages\Rooms.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Users.xaml">
+    <Page Update="Pages\Users.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
