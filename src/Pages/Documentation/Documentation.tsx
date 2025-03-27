@@ -3,16 +3,16 @@ import ReactMarkdown from "react-markdown";
 import style from "./Documentation.module.css";
 
 const sections = [
-  { id: "home", label: "Home (Főoldal)" },
   { id: "auth", label: "Auth (Bejelentkezés / Regisztráció)" },
-  { id: "contact", label: "Contact (Kapcsolatfelvétel)" },
+  { id: "home", label: "Home (Főoldal)" },
   { id: "reserve", label: "ReserveRoom (Szoba foglalása)" },
   { id: "reservations", label: "Reservations (Foglalásaim)" },
   { id: "profile", label: "Profil" },
+  { id: "contact", label: "Contact (Kapcsolatfelvétel)" },
+  { id: "support", label: "Technikai támogatás" },
   { id: "faq", label: "GYIK (Gyakori kérdések)" },
   { id: "terms", label: "Felhasználási feltételek" },
   { id: "privacy", label: "Adatvédelem" },
-  { id: "support", label: "Technikai támogatás" },
 ];
 
 const markdownContent = {
@@ -31,7 +31,7 @@ A nyitóoldal, ahol rövid bemutatkozás és áttekintés található a CozyNest
   **Hibaüzenet:** „Az adatok betöltése sikertelen. Kérjük, frissítse az oldalt.”
   <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
 `,
-  auth: `
+auth: `
 ## 🔐 Auth (Bejelentkezés / Regisztráció)
 
 ### 📋 Leírás:
@@ -42,6 +42,24 @@ A bejelentkezés és regisztráció képernyő lehetővé teszi a felhasználók
 - Regisztráció új fiók létrehozásához.
 - Jelszó mezőben biztonsági ellenőrzések (min. 8 karakter, nagybetű, szám stb.).
 - „Elfelejtett jelszó” funkció.
+
+### 📑 Regisztrációs követelmények
+
+#### ✅ Felhasználónév követelmények
+- Nem kezdődhet számmal vagy speciális karakterrel
+- Csak betűket (\`a–z\`, \`A–Z\`), számokat (\`0–9\`) és aláhúzásjeleket (\`_\`) tartalmazhat
+- Legalább **3 karakter** hosszú legyen
+- Legfeljebb **20 karakter** hosszú lehet
+
+#### ✅ Jelszó követelmények
+- Legalább **8 karakter** hosszú legyen
+- Tartalmazzon legalább:
+  - **1 nagybetűt** (pl. \`A\`)
+  - **1 kisbetűt** (pl. \`a\`)
+  - **1 számot** (pl. \`1\`)
+  - **1 speciális karaktert** (pl. \`!@#$%^&*\`)
+- **Ne tartalmazzon szóközt**
+- **Ne tartalmazza a felhasználónevet vagy az e-mail címet**
 
 ### 🧭 Navigáció:
 - Automatikus átirányítás a főoldalra sikeres belépés után.
@@ -60,7 +78,39 @@ A bejelentkezés és regisztráció képernyő lehetővé teszi a felhasználók
 #### 3. Hiányzó mezők  
 **Hibaüzenet:** „Kérjük, töltse ki az összes mezőt.”  
 <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
-`,
+
+#### 4. Érvénytelen e-mail formátum  
+**Hibaüzenet:** „Érvénytelen e-mail cím.”  
+<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+
+#### 5. Érvénytelen felhasználónév  
+**Hibaüzenetek:**
+- „A felhasználónév nem kezdődhet számmal vagy speciális karakterrel.”
+- „A felhasználónév csak betűket, számokat és aláhúzásjeleket tartalmazhat.”
+- „A felhasználónév túl rövid. Minimum 3 karakter szükséges.”
+- „A felhasználónév túl hosszú. Maximum 20 karakter engedélyezett.”  
+<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+
+#### 6. Érvénytelen jelszó  
+**Hibaüzenetek:**
+- „A jelszónak legalább 8 karakter hosszúnak kell lennie.”
+- „A jelszónak tartalmaznia kell legalább egy nagybetűt.”
+- „A jelszónak tartalmaznia kell legalább egy kisbetűt.”
+- „A jelszónak tartalmaznia kell legalább egy számot.”
+- „A jelszónak tartalmaznia kell legalább egy speciális karaktert (!@#$%^&*).”
+- „A jelszó nem tartalmazhat szóközt.”
+- „A jelszó nem tartalmazhatja a felhasználónevet vagy az e-mail címet.”  
+<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+
+#### 7. Jelszavak nem egyeznek  
+**Hibaüzenet:** „A megadott jelszavak nem egyeznek.”  
+<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+
+#### 8. Ismeretlen hiba / szerverhiba  
+**Hibaüzenet:** „Ismeretlen hiba történt. Kérjük, próbálja újra később.”  
+<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+`
+,
   contact: `
 ## ✉️ Contact (Kapcsolatfelvétel)
 
@@ -138,10 +188,10 @@ Felhasználói adatok megtekintése és szerkesztése.
 ### ⚠️ Lehetséges hibák:
 - Üres kötelező mező:  
   **Hibaüzenet:** „Minden mező kitöltése kötelező.”  
-  ![Hiba képernyőképe](/CozyNest.png)
+  ![Hiba képernyőképe](/loginError.png)
 - Jelszó túl rövid vagy gyenge:  
   **Hibaüzenet:** „A jelszónak minimum 8 karakter hosszúnak kell lennie.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+  ![Hiba képernyőképe](/loginError.png)
 - Sikertelen mentés:  
   **Hibaüzenet:** „A változtatások mentése nem sikerült.”  
   <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
@@ -184,7 +234,7 @@ A teljes feltételek elérhetők a hivatalos weboldalon.
 - Nem adjuk tovább harmadik félnek.
 - Kérésre bármikor törölhetők az adatok.
 
-Részletek: [Adatkezelési szabályzat](https://cozynest.hu/adatvedelem)
+Részletek: [Adatkezelési szabályzat](https://localhost/adatvedelem)
 `,
   support: `
 ## 🛠️ Technikai támogatás

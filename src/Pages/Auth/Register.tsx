@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Auth.module.css";
+import { validateUsername, validatePassword } from "../../Utils/validation"; // Adjust path as needed
 
 interface RegisterFormState {
   username: string;
@@ -30,7 +31,23 @@ const Register = () => {
     setError(null);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("A jelszavak nem egyeznek.");
+      return;
+    }
+
+    const usernameError = validateUsername(formData.username);
+    if (usernameError) {
+      setError(usernameError);
+      return;
+    }
+
+    const passwordError = validatePassword(
+      formData.password,
+      formData.username,
+      formData.email
+    );
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -46,18 +63,15 @@ const Register = () => {
           password: formData.password,
         }),
       });
+
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message);
       }
 
-
-      // Store tokens properly
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
-
-      // Redirect to dashboard
       navigate("/profile");
     } catch (err: any) {
       setError(err.message);

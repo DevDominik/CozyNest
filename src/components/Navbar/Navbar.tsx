@@ -44,24 +44,24 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
     const fetchUserData = async () => {
       const accessToken = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
-
-      if (!accessToken || !refreshToken) {
-        navigate("/auth");
+  
+      if (!accessToken && !refreshToken) {
         return;
       }
-
+  
       const introspect = async (token: string) => {
-        const response = await fetch(`${API_URL}/api/account/introspect`, {
+        return await fetch(`${API_URL}/api/account/introspect`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
-        return response;
       };
-
+  
       const tryRenewToken = async () => {
+        if (!refreshToken) throw new Error("Nincs refresh token");
+  
         const response = await fetch(`${API_URL}/api/account/renewtoken`, {
           method: "GET",
           headers: {
@@ -69,33 +69,34 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
             Authorization: `Bearer ${refreshToken}`,
           },
         });
-
-        if (!response.ok) {
-          throw new Error("Token megújítás sikertelen");
-        }
-
+  
+        if (!response.ok) throw new Error("Token megújítás sikertelen");
+  
         const data = await response.json();
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
         return data.accessToken;
       };
-
+  
       try {
-        // Először próbáljuk az aktuális accessToken-nel
         let response = await introspect(accessToken);
-
+  
         if (!response.ok) {
-          // Ha nem 200-as, próbáljuk a megújítást
-          const newAccessToken = await tryRenewToken();
-          response = await introspect(newAccessToken);
+          // Only try to renew if refresh token exists
+          if (refreshToken) {
+            const newAccessToken = await tryRenewToken();
+            response = await introspect(newAccessToken);
+          } else {
+            throw new Error("Nincs refresh token a megújításhoz");
+          }
         }
-
+  
         const data = await response.json();
-
+  
         if (!response.ok || !data.active) {
           throw new Error("Token érvénytelen vagy lejárt");
         }
-
+  
         setUsername(data.userData.username);
         setRole(data.userData.roleName);
       } catch (error) {
@@ -105,9 +106,10 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
         navigate("/auth");
       }
     };
-
+  
     fetchUserData();
   }, [navigate]);
+  
 
   const handleLogout = async () => {
     const token = localStorage.getItem("refreshToken");
