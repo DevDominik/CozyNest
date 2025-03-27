@@ -154,15 +154,15 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
       </button>
 
       <div className={`${styles.menu} ${menuOpen ? styles.menuOpen : ""}`}>
-        <a href="/#home">🏠Főoldal</a>
-        <a href="/#story">📜Történet</a>
-        <a href="/#info">ℹ️ Informacio</a>
-        <a href="/#contact">📧Kontakt</a>
-        <a href="/rooms">🛏️Szobák</a>
+        <a href="/#home">Főoldal</a>
+        <a href="/#story">Történet</a>
+        <a href="/#info">Informacio</a>
+        <a href="/#contact">Kontakt</a>
+        <a href="/rooms">Szobák</a>
+        {role ? <a href="/reservations">Foglalásaim</a> : ""}
         <a href="/docs" className={styles.docsLink} title="Dokumentáció">
         📚Dokumentáció
         </a>
-        {role ? <a href="/reservations">🔑Foglalásaim</a> : ""}
         {username ? (
           <div className={styles.authSpace}>
             <a href={`/profile/`}>
