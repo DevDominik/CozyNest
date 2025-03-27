@@ -6,7 +6,7 @@ import userW from "/userW.svg?url";
 import userD from "/userD.svg?url";
 import logoutD from "/LogoutD.svg?url";
 import logoutW from "/LogoutW.svg?url";
-
+import { Book, Moon, Sun } from "lucide-react";
 
 interface NavbarProps {
   darkmode: boolean;
@@ -42,35 +42,66 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
   const API_URL = "http://localhost:5232";
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!accessToken || !refreshToken) {
+        navigate("/auth");
         return;
       }
 
-      try {
+      const introspect = async (token: string) => {
         const response = await fetch(`${API_URL}/api/account/introspect`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` // <-- Send token in header
-          }
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response;
+      };
+
+      const tryRenewToken = async () => {
+        const response = await fetch(`${API_URL}/api/account/renewtoken`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${refreshToken}`,
+          },
         });
 
-        const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.message);
+          throw new Error("Token megújítás sikertelen");
         }
 
-        if (data.active) {
-          setUsername(data.userData.username);
-          setRole(data.userData.roleName);
-        } else {
-          localStorage.removeItem("accessToken");
-          navigate("/auth");
+        const data = await response.json();
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        return data.accessToken;
+      };
+
+      try {
+        // Először próbáljuk az aktuális accessToken-nel
+        let response = await introspect(accessToken);
+
+        if (!response.ok) {
+          // Ha nem 200-as, próbáljuk a megújítást
+          const newAccessToken = await tryRenewToken();
+          response = await introspect(newAccessToken);
         }
+
+        const data = await response.json();
+
+        if (!response.ok || !data.active) {
+          throw new Error("Token érvénytelen vagy lejárt");
+        }
+
+        setUsername(data.userData.username);
+        setRole(data.userData.roleName);
       } catch (error) {
-        console.error("Failed to fetch user data:", error);
+        console.error("Hiba a felhasználói adatok lekérésénél:", error);
         localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         navigate("/auth");
       }
     };
@@ -80,14 +111,14 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
 
   const handleLogout = async () => {
     const token = localStorage.getItem("refreshToken");
-  
+
     if (!token) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       navigate("/auth");
       return;
     }
-  
+
     try {
       const response = await fetch(`${API_URL}/api/account/logout`, {
         method: "GET",
@@ -96,20 +127,19 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
           Authorization: `Bearer ${token}`, // Sending refresh token in header
         },
       });
-  
+
       if (!response.ok) {
         console.error("Logout failed:", await response.text());
       }
     } catch (error) {
       console.error("Error during logout:", error);
     } finally {
-      console.log("logout done")
+      console.log("logout done");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       navigate("/auth");
     }
   };
-  
 
   return (
     <nav
@@ -124,27 +154,52 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
       </button>
 
       <div className={`${styles.menu} ${menuOpen ? styles.menuOpen : ""}`}>
-        <a href="/#home">Főoldal</a>
-        <a href="/#story">Történet</a>
-        <a href="/#info">Info</a>
-        <a href="/#contact">Kontakt</a>
-        <a href="/rooms">Szobák</a>
-        {role ? <a href="/reservations">Foglalásaim</a> : ""}
+        <a href="/#home">🏠Főoldal</a>
+        <a href="/#story">📜Történet</a>
+        <a href="/#info">ℹ️ Informacio</a>
+        <a href="/#contact">📧Kontakt</a>
+        <a href="/rooms">🛏️Szobák</a>
+        <a href="/docs" className={styles.docsLink} title="Dokumentáció">
+        📚Dokumentáció
+        </a>
+        {role ? <a href="/reservations">🔑Foglalásaim</a> : ""}
         {username ? (
           <div className={styles.authSpace}>
-            <a href={`/profile/`}><img className={styles.pictogram} src={darkmode ? userW : userD} />{username.toUpperCase()}</a>
-            <a href={`/auth`} onClick={handleLogout}><img className={styles.pictogram} src={darkmode ? logoutW : logoutD} />Kijelentkezés</a>
+            <a href={`/profile/`}>
+              <img
+                className={styles.pictogram}
+                src={darkmode ? userW : userD}
+              />
+              {username.toUpperCase()}
+            </a>
+            <a href={`/auth`} onClick={handleLogout}>
+              <img
+                className={styles.pictogram}
+                src={darkmode ? logoutW : logoutD}
+              />
+              Kijelentkezés
+            </a>
           </div>
         ) : (
           <div className={styles.authSpace}>
-            <a href="/Auth"><img className={styles.pictogram} src={darkmode ? userW : userD} alt="" />Bejelentkezés/Regisztráció</a>
+            <a href="/Auth">
+              <img
+                className={styles.pictogram}
+                src={darkmode ? userW : userD}
+                alt=""
+              />
+              Bejelentkezés/Regisztráció
+            </a>
           </div>
         )}
       </div>
 
-      <button onClick={toggleDarkMode} className={styles.darkModeToggle}>
-        {darkmode ? "☀️" : "🌙"}
-      </button>
+      <div className={styles.topRightControls}>
+        
+        <button onClick={toggleDarkMode} className={styles.darkModeToggle}>
+          {darkmode ? "☀️" : "🌙"}
+        </button>
+      </div>
     </nav>
   );
 };

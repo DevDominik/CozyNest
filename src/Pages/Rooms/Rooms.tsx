@@ -149,7 +149,7 @@ export const Rooms = () => {
   return (
     <div className={styles.roomPage}>
       <div className={styles.Container}>
-        <h1>AVAILABLE ROOMS</h1>
+        <h1>ELÉRHETŐ SZÁLLÁSOK</h1>
         <div className={styles.SearchDiv}>
           <select
             name="roomType"
@@ -222,7 +222,7 @@ export const Rooms = () => {
         </div>
 
         {loading ? (
-          <h1>Loading rooms...</h1>
+          <h1>Szobák betöltése...</h1>
         ) : error ? (
           <h1 className={styles.Error}>{error}</h1>
         ) : filteredRooms.length === 0 ? (

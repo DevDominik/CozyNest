@@ -96,12 +96,12 @@ const Profile = () => {
       const data = await response.json();
   
       if (!response.ok) {
-        console.error("Failed to update profile:", data);
-        setMessage(data.message || "Failed to update profile.");
+        console.error("Hiba a profil frissítése közben:", data);
+        setMessage(data.message || "Hiba a profil frissítése közben.");
         return;
       }
   
-      setMessage(`Profile updated successfully. (${counter})`);
+      setMessage(`Sikeresen frissítetted az adataid. (${counter})`);
   
       const fetchProfileData = async () => {
         const token = localStorage.getItem("accessToken");
@@ -122,7 +122,7 @@ const Profile = () => {
           setUserData(data.userData);
           setCounter(counter+1);
         } catch (error) {
-          console.error("Failed to fetch profile data:", error);
+          console.error("Hiba a profil adat fetch közben:", error);
         } finally {
           setLoading(false);
         }
@@ -170,7 +170,7 @@ const Profile = () => {
               value={userData?.email}
               onChange={handleChange}
               className={Styles.input}
-            />
+              required/>
           </label>
           <label className={Styles.label}>
             Családnév
@@ -180,7 +180,7 @@ const Profile = () => {
               value={userData?.firstName}
               onChange={handleChange}
               className={Styles.input}
-            />
+              required/>
           </label>
           <label className={Styles.label}>
           Vezetéknév
@@ -190,7 +190,7 @@ const Profile = () => {
               value={userData?.lastName}
               onChange={handleChange}
               className={Styles.input}
-            />
+              required/>
           </label>
           <label className={Styles.label}>
             Lakcím
@@ -200,7 +200,7 @@ const Profile = () => {
               value={userData?.address || ""}
               onChange={handleChange}
               className={Styles.input}
-            />
+              required/>
           </label>
           {!pw ? (<div className={Styles.setpwbutton} onClick={()=> setPw(!pw)}>Új jelszó megadása</div>) : ("")}
           

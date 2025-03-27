@@ -115,24 +115,24 @@ const Reservations = () => {
               ></div>
               <div className={styles.cardBody}>
                 <div className={styles.cardHeader}>
-                  <span className={styles.roomId}>Room Number</span>
+                  <span className={styles.roomId}>Szoba</span>
                   <span className={styles.roomNumber}>{reservation.roomNumber}</span>
                 </div>
                 <div className={styles.cardBody}>
                   <div className={styles.roomDescription}>
-                    <span>Room Description: {reservation.roomDescription}</span>
+                    <span>{reservation.roomDescription}</span>
                   </div>
                   <div className={styles.dates}>
                     <span>
-                      Check-In: {new Date(reservation.checkInDate).toLocaleString()}
+                      Érkezés: {new Date(reservation.checkInDate).toLocaleString()}
                     </span>
                     <span>
-                      Check-Out: {new Date(reservation.checkOutDate).toLocaleString()}
+                      Távozás: {new Date(reservation.checkOutDate).toLocaleString()}
                     </span>
                   </div>
-                  <div className={styles.status}>Status: {reservation.status}</div>
+                  <div className={styles.status}>Státusz: {reservation.status}</div>
                   {reservation.notes && (
-                    <p className={styles.notes}>Notes: {reservation.notes}</p>
+                    <p className={styles.notes}>Jegyzet: {reservation.notes}</p>
                   )}
                   <button
                     className={styles.cancelButton}

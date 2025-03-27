@@ -51,7 +51,7 @@ export default function Contact() {
         <form onSubmit={onSubmit}>
           <div className={styles.Container}>
             <input type="hidden" name="from_name" value="COZYNEST" />
-            <input type="text" name="subject" placeholder="Tárgy" />
+            <input type="text" name="subject" placeholder="Tárgy" required/>
             <input type="text" name="name" placeholder="Név" required />
             <input type="email" name="email" placeholder="Email" required />
             <textarea name="message" placeholder="Üzenet" required></textarea>
