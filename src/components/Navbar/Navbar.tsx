@@ -124,20 +124,20 @@ const Navbar: React.FC<NavbarProps> = ({ darkmode, setDarkMode }) => {
       </button>
 
       <div className={`${styles.menu} ${menuOpen ? styles.menuOpen : ""}`}>
-        <a href="/#home">Main</a>
-        <a href="/#story">Story</a>
+        <a href="/#home">Főoldal</a>
+        <a href="/#story">Történet</a>
         <a href="/#info">Info</a>
-        <a href="/#contact">Contact</a>
-        <a href="/rooms">Rooms</a>
-        {role ? <a href="/reservations">Reservations</a> : ""}
+        <a href="/#contact">Kontakt</a>
+        <a href="/rooms">Szobák</a>
+        {role ? <a href="/reservations">Foglalásaim</a> : ""}
         {username ? (
           <div className={styles.authSpace}>
             <a href={`/profile/`}><img className={styles.pictogram} src={darkmode ? userW : userD} />{username.toUpperCase()}</a>
-            <a href={`/auth`} onClick={handleLogout}><img className={styles.pictogram} src={darkmode ? logoutW : logoutD} />Logout</a>
+            <a href={`/auth`} onClick={handleLogout}><img className={styles.pictogram} src={darkmode ? logoutW : logoutD} />Kijelentkezés</a>
           </div>
         ) : (
           <div className={styles.authSpace}>
-            <a href="/Auth"><img className={styles.pictogram} src={darkmode ? userW : userD} alt="" />Login/Register</a>
+            <a href="/Auth"><img className={styles.pictogram} src={darkmode ? userW : userD} alt="" />Bejelentkezés/Regisztráció</a>
           </div>
         )}
       </div>

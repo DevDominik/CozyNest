@@ -52,7 +52,7 @@ const LoginForm = () => {
   return (
     <div className={styles.card}>
       <div className={styles.icon}></div>
-      <h1 className={styles.title}>LOGIN</h1>
+      <h1 className={styles.title}>BEJELENTKEZÉS</h1>
       <form onSubmit={handleSubmit} className={styles.form}>
         <input
           type="username"
@@ -74,7 +74,7 @@ const LoginForm = () => {
         />
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.button}>
-          LOGIN
+          BEJELENTKEZÉS
         </button>
       </form>
     </div>

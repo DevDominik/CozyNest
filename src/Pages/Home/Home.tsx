@@ -30,7 +30,7 @@ function Content() {
       <section className={styles.Section1}>
         <div className={styles.Inner}>
           <h1 className={styles.CompanyName}>COZYNEST</h1>
-          <h2 className={styles.Slogan}>Valami Slogan</h2>
+          <h2 className={styles.Slogan}>Egy kattintás a nyugodt pihenéshez.</h2>
         </div>
       </section>
       <section className={styles.Section2} id="story">
@@ -50,8 +50,11 @@ function Content() {
               animate={{ x: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 50, damping: 20 }}
             >
-              Foglalj álmaid szállodájába a CozyNest segítségével!
-              Fedezd fel a tökéletes szálláshelyet a CozyNest szállodamenedzsment rendszerével. Egyszerű, gyors és biztonságos foglalás néhány kattintással. Exkluzív ajánlatok, valós vendégértékelések és gondtalan pihenés vár rád!
+              Engedd, hogy a CozyNest elvezessen a tökéletes kikapcsolódáshoz!
+              Találd meg álmaid szállását gyorsan, egyszerűen és biztonságosan.
+              Intuitív foglalási felületünk és megbízható partnereink
+              garantálják a nyugodt pihenést – akár egy hétvégére, akár egy
+              hosszabb vakációra készülsz.
             </motion.p>
           </div>
         </div>
@@ -60,28 +63,50 @@ function Content() {
         <div className={styles.informations}>
           <div className={styles.Style33}>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
-              asperiores consectetur ducimus dolores culpa, sint vero atque non
-              saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
-              iste totam fuga?
-            </p>
-
-          </div>
-          <div className={styles.Style33}>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
-              asperiores consectetur ducimus dolores culpa, sint vero atque non
-              saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
-              iste totam fuga?
+              🌍 Széles választék: Több száz minőségi szálláshely közül
+              válogathatsz országosan – városban, vidéken vagy akár vízparton
+              is.
             </p>
           </div>
           <div className={styles.Style33}>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Id
-              asperiores consectetur ducimus dolores culpa, sint vero atque non
-              saepe reiciendis ipsam suscipit tenetur eaque excepturi, cum, fugit
-              iste totam fuga?
+              🔒 Biztonságos foglalás: Adatvédelmi szempontból garantáltan
+              megbízható rendszerünk gondoskodik adataid védelméről és
+              biztonságáról.
             </p>
+          </div>
+          <div className={styles.Style33}>
+            <div className={styles.Card}>
+              <h3>⭐⭐⭐⭐⭐</h3>
+              <p>
+                „Nagyon egyszerű volt a foglalás! A szállás tökéletes volt,
+                minden pontosan olyan, mint a képeken. Csak ajánlani tudom a
+                CozyNestet!”
+              </p>
+              <p>
+                <strong>– Dóra, Budapest</strong>
+              </p>
+            </div>
+            <div className={styles.Card}>
+              <h3>⭐⭐⭐⭐</h3>
+              <p>
+                „Gyors visszaigazolás, remek ügyfélszolgálat és szuper árak. Egy
+                hétvégés kiruccanáshoz tökéletes megoldás.”
+              </p>
+              <p>
+                <strong>– Ádám, Debrecen</strong>
+              </p>
+            </div>
+            <div className={styles.Card}>
+              <h3>⭐⭐⭐⭐⭐</h3>
+              <p>
+                „Imádtam, hogy ennyire átlátható a rendszer! Nem kellett
+                telefonálni, minden online ment, gördülékenyen.”
+              </p>
+              <p>
+                <strong>– Lilla, Szeged</strong>
+              </p>
+            </div>
           </div>
         </div>
       </section>

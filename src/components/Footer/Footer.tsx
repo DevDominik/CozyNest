@@ -9,23 +9,22 @@ const Footer = () => {
           <p>Here you can use rows and columns to organize your footer content. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
         </div>
         <div className={styles.column}>
-          <h3>SERVICES</h3>
+          <h3>SZOLGÁLTATÁSOK</h3>
           <ul>
-            <li><a href="/profile">Your Account</a></li>
-            <li><a href="/profile#rooms">Your Rooms</a></li>
-            <li><a href="/profile#edit">Account Information</a></li>
-            <li><a href="/rooms">Order Room</a></li>
+            <li><a href="/profile">Profil</a></li>
+            <li><a href="/reservations">Meglévő foglalásaid</a></li>
+            <li><a href="/rooms">Szoba Foglalás</a></li>
           </ul>
         </div>
         <div className={styles.column}>
-          <h3>USEFUL LINKS</h3>
+          <h3>HASZNOS LINKEK</h3>
           <ul>
             <li><a href="/">Main page</a></li>
             <li><a href="/#contact">Contact Form</a></li>
           </ul>
         </div>
         <div className={styles.column}>
-          <h3>CONTACT</h3>
+          <h3>KONTAKT</h3>
           <ul>
             <li>📍 Debrecen, Valahol, HU</li>
             <li>📧 info@cozynest.com</li>

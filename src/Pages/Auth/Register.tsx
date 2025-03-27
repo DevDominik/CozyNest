@@ -67,12 +67,12 @@ const Register = () => {
   return (
     <div className={styles.card}>
       <div className={styles.icon}></div>
-      <h1 className={styles.title}>REGISTER</h1>
+      <h1 className={styles.title}>REGISZTRÁCIÓ</h1>
       <form onSubmit={handleSubmit} className={styles.form}>
         <input
           type="text"
           name="username"
-          placeholder="Username"
+          placeholder="Felhasználónév"
           value={formData.username}
           onChange={handleChange}
           required
@@ -81,7 +81,7 @@ const Register = () => {
         <input
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="E-Mail"
           value={formData.email}
           onChange={handleChange}
           required
@@ -90,7 +90,7 @@ const Register = () => {
         <input
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder="Jelszó"
           value={formData.password}
           onChange={handleChange}
           required
@@ -99,7 +99,7 @@ const Register = () => {
         <input
           type="password"
           name="confirmPassword"
-          placeholder="Confirm Password"
+          placeholder="Jelszó megint"
           value={formData.confirmPassword}
           onChange={handleChange}
           required
@@ -107,7 +107,7 @@ const Register = () => {
         />
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.button}>
-          REGISTER
+          REGISZTRÁLÁS
         </button>
       </form>
     </div>
