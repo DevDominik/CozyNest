@@ -89,7 +89,6 @@ const Register = () => {
           placeholder="Felhasználónév"
           value={formData.username}
           onChange={handleChange}
-          required
           className={styles.input}
         />
         <input
@@ -98,7 +97,6 @@ const Register = () => {
           placeholder="E-Mail"
           value={formData.email}
           onChange={handleChange}
-          required
           className={styles.input}
         />
         <input
@@ -107,7 +105,6 @@ const Register = () => {
           placeholder="Jelszó"
           value={formData.password}
           onChange={handleChange}
-          required
           className={styles.input}
         />
         <input
@@ -116,7 +113,6 @@ const Register = () => {
           placeholder="Jelszó megint"
           value={formData.confirmPassword}
           onChange={handleChange}
-          required
           className={styles.input}
         />
         {error && <p className={styles.error}>{error}</p>}

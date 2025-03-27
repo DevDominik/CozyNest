@@ -1,6 +1,9 @@
 // src/utils/validation.ts
 
 export const validateUsername = (username: string): string | null => {
+    if (!username.trim()) {
+      return "A felhasználónév megadása kötelező.";
+    }
     if (!/^[A-Za-z_]/.test(username)) {
       return "A felhasználónév nem kezdődhet számmal vagy speciális karakterrel.";
     }
@@ -21,6 +24,9 @@ export const validateUsername = (username: string): string | null => {
     username?: string,
     email?: string
   ): string | null => {
+    if (!password.trim()) {
+      return "A jelszó megadása kötelező.";
+    }
     if (password.length < 8) {
       return "A jelszónak legalább 8 karakter hosszúnak kell lennie.";
     }
@@ -45,6 +51,20 @@ export const validateUsername = (username: string): string | null => {
     if (email && password.toLowerCase().includes(email.toLowerCase())) {
       return "A jelszó nem tartalmazhatja az e-mail címet.";
     }
+    return null;
+  };
+  
+  export const validateEmail = (email: string): string | null => {
+    if (!email.trim()) {
+      return "Az e-mail cím megadása kötelező.";
+    }
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+    if (!emailRegex.test(email)) {
+      return "Érvénytelen e-mail cím formátum.";
+    }
+  
     return null;
   };
   
