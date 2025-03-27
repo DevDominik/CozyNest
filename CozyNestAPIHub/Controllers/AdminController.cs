@@ -29,7 +29,7 @@ namespace CozyNestAPIHub.Controllers
         [HttpGet]
         [Role("Manager", "Receptionist")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUsers() 
+        public async Task<IActionResult> GetUsers()
         {
             List<User> userList = await UserHandler.GetUsers();
             List<object> usersFinal = new List<object>();
@@ -82,7 +82,7 @@ namespace CozyNestAPIHub.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ModifyUser([FromBody] UserUpdateRequest request) 
+        public async Task<IActionResult> ModifyUser([FromBody] UserUpdateRequest request)
         {
             User? user = await UserHandler.GetUserById(request.Id);
             if (user == null)
@@ -102,8 +102,8 @@ namespace CozyNestAPIHub.Controllers
                 user.HashedPassword = HashPassword(GenerateRandomPassword());
             }
             user = await UserHandler.ModifyUser(user);
-            if (user == null) 
-            { 
+            if (user == null)
+            {
                 return StatusCode(500, new { message = "Hiba történt a felhasználó módosítása közben." });
             }
             return Ok(new
@@ -179,7 +179,8 @@ namespace CozyNestAPIHub.Controllers
             return Ok(new
             {
                 message = "Sikeres regisztráció.",
-                userData = new {
+                userData = new
+                {
                     id = createdUser.Id,
                     email = createdUser.Email,
                     username = createdUser.Username,
@@ -216,7 +217,7 @@ namespace CozyNestAPIHub.Controllers
                 {
                     message = "Nincs ilyen felhasználó."
                 });
-            } 
+            }
             Room? room = await RoomHandler.GetRoomByRoomNumber(request.RoomNumber);
             if (room == null)
             {
@@ -400,6 +401,104 @@ namespace CozyNestAPIHub.Controllers
             {
                 message = "Foglalások sikeresen lekérve.",
                 reservations = finalList
+            });
+        }
+        /// <summary>
+        /// Hozzáad egy új szolgáltatást.
+        /// </summary>
+        /// <param name="request">Szolgáltatás adatainak szerkezete.</param>
+        /// <returns>Szolgáltatás adatai, rendszerüzenet, státuszkód.</returns>
+        /// <response code="200">Sikeres hozzáadás.</response>
+        /// <response code="400">Hibás kérés.</response>
+        /// <response code="500">Sikertelen hozzáadás.</response>
+        [Route("addservice")]
+        [HttpPost]
+        [Role("Manager")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddService([FromBody] AddServiceRequest request)
+        {
+            Service? service = await ReservationHandler.GetServiceByName(request.Name);
+            if (service != null)
+            {
+                return BadRequest(new
+                {
+                    message = "Ilyen szolgáltatás már létezik."
+                });
+            }
+            Service newService = new Service
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Price = request.Price
+            };
+            Service? createdService = await ReservationHandler.CreateService(newService);
+            if (createdService == null)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Nem sikerült a szolgáltatás hozzáadása."
+                });
+            }
+            return Ok(new
+            {
+                message = "Szolgáltatás sikeresen hozzáadva.",
+                serviceData = new
+                {
+                    id = createdService.Id,
+                    name = createdService.Name,
+                    description = createdService.Description,
+                    price = createdService.Price
+                }
+            });
+        }
+        /// <summary>
+        /// Módosít egy szolgáltatást.
+        /// </summary>
+        /// <param name="request">Szolgáltatás módosításának szerkezete.</param>
+        /// <returns>Frissített adatok, rendszerüzenet, státuszkód.</returns>
+        /// <response code="200">Sikeres módosítás.</response>
+        /// <response code="404">Nem található a szolgáltatás.</response>
+        /// <response code="500">Sikertelen módosítás.</response>
+        [Route("modifyservice")]
+        [HttpPost]
+        [Role("Manager")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ModifyService([FromBody] ModifyServiceRequest request)
+        {
+            Service? service = await ReservationHandler.GetServiceById(request.Id);
+            if (service == null)
+            {
+                return NotFound(new
+                {
+                    message = "Nincs ilyen szolgáltatás."
+                });
+            }
+            service.Name = request.Name;
+            service.Description = request.Description;
+            service.Price = request.Price;
+            service.IsActive = request.IsActive;
+            Service? updatedService = await ReservationHandler.ModifyService(service);
+            if (updatedService == null)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Nem sikerült a szolgáltatás módosítása."
+                });
+            }
+            return Ok(new
+            {
+                message = "Szolgáltatás sikeresen módosítva.",
+                serviceData = new
+                {
+                    id = updatedService.Id,
+                    name = updatedService.Name,
+                    description = updatedService.Description,
+                    price = updatedService.Price
+                }
             });
         }
     }

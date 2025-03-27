@@ -67,7 +67,7 @@ namespace CozyNestAPIHub.Controllers
         /// <response code="404">Nem található a szoba.</response>
         /// <response code="500">Sikertelen foglalás.</response>
         [Route("reserve")]
-        [HttpPost]
+        [HttpDelete]
         [RequireAccessToken]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
