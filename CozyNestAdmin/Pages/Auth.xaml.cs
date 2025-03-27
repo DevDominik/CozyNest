@@ -14,7 +14,7 @@ namespace CozyNestAdmin
         private readonly HttpClient _httpClient;
         public static string _accessToken;
         private string _refreshToken;
-        const string BASE_URL = "http://localhost:5232";
+        const string BASE_URL = "https://localhost:7290";
 
         public Auth()
         {
@@ -55,7 +55,7 @@ namespace CozyNestAdmin
                 }
                 else
                 {
-                    lbResponse.Content = "Access denied: You do not have Manager role.";
+                    lbResponse.Content = "Hozzáférés megtagadva.";
                 }
 
                 // If Save Login is checked, save login information to a file
