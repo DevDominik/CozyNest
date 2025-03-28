@@ -12,6 +12,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static CozyNestAdmin.GlobalMethods;
+using static CozyNestAdmin.GlobalEnums;
+using System.Collections.ObjectModel;
+using CozyNestAdmin.ResponseTypes;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace CozyNestAdmin
 {
@@ -23,6 +29,18 @@ namespace CozyNestAdmin
         public Users()
         {
             InitializeComponent();
+            LoadUsers();
+        }
+        public async void LoadUsers() 
+        {
+            using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
+            var response = await client.GetAsync(GetEndpoint(AdminEndpoints.GetUsers));
+            if (response.IsSuccessStatusCode)
+            {
+                GetUsersResponse getUsersResponse = JsonConvert.DeserializeObject<GetUsersResponse>(await response.Content.ReadAsStringAsync());
+                ObservableCollection<UserDataResponse> users = new(getUsersResponse.Users);
+                UsersDataGrid.ItemsSource = users;
+            }
         }
     }
 }

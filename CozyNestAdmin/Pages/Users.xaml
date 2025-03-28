@@ -20,6 +20,7 @@
             <StackPanel Margin="10 2" Orientation="Horizontal" VerticalAlignment="Center">
                 <materialDesign:PackIcon Margin="5" Kind="Magnify"/>
                 <TextBox x:Name="NameSearchTextBox" Width="200"/>
+                
             </StackPanel>
             <DataGrid x:Name="UsersDataGrid" Background="{x:Null}" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" CanUserResizeColumns="False" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
                 <DataGrid.Columns>

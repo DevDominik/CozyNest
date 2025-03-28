@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using MaterialDesignThemes.Wpf;
 
 namespace CozyNestAdmin
 {
@@ -14,9 +15,9 @@ namespace CozyNestAdmin
         {
             if (value is bool isAccountClosed)
             {
-                return isAccountClosed ? "AccountOff" : "AccountCircle";
+                return isAccountClosed ? PackIconKind.AccountCancel : PackIconKind.AccountCheck;
             }
-            return "AccountCircle";
+            return PackIconKind.AccountCheck;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -35,7 +35,7 @@ namespace CozyNestAdmin
     }
     public class GlobalMethods
     {
-        static readonly string BASE_URL = "http://localhost:5232/api";
+        static readonly string BASE_URL = "https://localhost:7290/api";
         static readonly Dictionary<Enum, string> endpoints = new Dictionary<Enum, string>() {
             [AccountEndpoints.Login] = "/account/login",
             [AccountEndpoints.Register] = "/account/register",

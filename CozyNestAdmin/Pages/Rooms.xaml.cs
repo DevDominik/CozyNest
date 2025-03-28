@@ -29,9 +29,8 @@ namespace CozyNestAdmin
 
             try
             {
-                using HttpClient client = new();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
-                var response = await client.GetAsync($"{BaseUrl}/list");
+                using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
+                var response = await client.GetAsync(GetEndpoint(RoomEndpoints.List));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -187,15 +186,9 @@ namespace CozyNestAdmin
                 string jsonContent = JsonSerializer.Serialize(newRoom, new JsonSerializerOptions { WriteIndented = true });
                 MessageBox.Show($"Küldött JSON adatok:\n{jsonContent}", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                using HttpClient client = new();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
 
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/create")
-                {
-                    Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
-                };
-
-                var response = await client.SendAsync(request);
+                var response = await client.PostAsync(GetEndpoint(RoomEndpoints.Create), new StringContent(jsonContent, Encoding.UTF8, "application/json"));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -219,8 +212,8 @@ namespace CozyNestAdmin
         {
             try
             {
-                using HttpClient client = new();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
+                
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/delete")
                 {
                     Content = new StringContent(JsonSerializer.Serialize(new { roomId }), Encoding.UTF8, "application/json")
