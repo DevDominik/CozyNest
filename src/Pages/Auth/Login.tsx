@@ -36,7 +36,7 @@ const LoginForm = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error("Ismeretlen hiba történt. Kérjük, próbálja újra később");
       }
 
 

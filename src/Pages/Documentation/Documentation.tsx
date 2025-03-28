@@ -65,11 +65,11 @@ const markdownContent = {
   
   #### 1. Adatok betöltési hiba  
   **Hibaüzenet:** „Az adatok betöltése sikertelen. Kérjük, frissítse az oldalt.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+  ![Hiba képernyőképe](/loginError.png)
   
   #### 2. Kapcsolatfelvétel sikertelen  
   **Hibaüzenet:** „Hiba történt az űrlap elküldésekor.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+  ![Hiba képernyőképe](/loginError.png)
   
   `,  
   auth: `
@@ -116,19 +116,20 @@ A bejelentkezés és regisztráció képernyő lehetővé teszi a felhasználók
 
 #### 1. Hibás bejelentkezési adatok  
 **Hibaüzenet:** „Hibás e-mail vagy jelszó.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+![Hiba képernyőképe](/LoginErrorPassword.png)
 
 #### 2. Már regisztrált e-mail  
 **Hibaüzenet:** „Ez az e-mail cím már használatban van.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+![Hiba képernyőképe](/RegEmailUsedError.png)
+
 
 #### 3. Hiányzó mezők  
 **Hibaüzenet:** „Kérjük, töltse ki az összes mezőt.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+![Hiba képernyőképe](/loginError.png)
 
 #### 4. Érvénytelen e-mail formátum  
 **Hibaüzenet:** „Érvénytelen e-mail cím.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+![Hiba képernyőképe](/RegInvalidEmail.png)
 
 #### 5. Érvénytelen felhasználónév  
 **Hibaüzenetek:**
@@ -153,17 +154,21 @@ A bejelentkezés és regisztráció képernyő lehetővé teszi a felhasználók
 
 #### 7. Jelszavak nem egyeznek  
 **Hibaüzenet:** „A megadott jelszavak nem egyeznek.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+
+![Hiba képernyőképe](/pwNoMatch.png)
+--
 
 #### 8. Érvénytelen vagy hiányzó e-mail  
 **Hibaüzenetek:**
 - „Az e-mail cím megadása kötelező.”
 - „Érvénytelen e-mail cím formátum.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
 
+![Hiba képernyőképe](/RegInvalidEmail.png)
 #### 9. Ismeretlen hiba / szerverhiba  
-**Hibaüzenet:** „Ismeretlen hiba történt. Kérjük, próbálja újra később.”  
-<div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+**Hibaüzenet:** „Ismeretlen hiba történt. Kérjük, próbálja újra később.”  (Nem fut a backend / Nem elérhető)
+
+![Hiba képernyőképe](/failFetch.png)
+
 `,
 rooms : `
 ## 🛏️ Rooms (Szobák)
@@ -231,12 +236,18 @@ A "Szobák" oldal lehetővé teszi a felhasználók számára, hogy elérhető s
 #### 1. Hibás dátumválasztás
 **Hibaüzenet:** „A távozási dátumnak későbbinek kell lennie, mint az érkezési dátum. Kérjük, módosítsa a dátumokat.”
 
+![Hiba képernyőképe](/InvalidSearch.png)
+
 #### 2. Nincs találat a szűrők alapján
 **Hibaüzenet:** „Nincs elérhető szoba a megadott szűrők alapján. Próbálja meg módosítani a keresési feltételeket.”
+
+![Hiba képernyőképe](/InvalidSearch.png)
 
 #### 3. Hálózati / szerverhiba
 **Hibaüzenet:** „Failed to fetch rooms.”
 
+
+.
 `,
   contact: `
 ## ✉️ Contact (Kapcsolatfelvétel)
@@ -320,8 +331,8 @@ Felhasználói adatok megtekintése és szerkesztése.
   **Hibaüzenet:** „A jelszónak minimum 8 karakter hosszúnak kell lennie.”  
   ![Hiba képernyőképe](/loginError.png)
 - Sikertelen mentés:  
-  **Hibaüzenet:** „A változtatások mentése nem sikerült.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+  **Hibaüzenet:** „Invalid Access token.” (Lejárt a bejelentkezés     )  
+  ![Hiba képernyőképe](/LoginExpired.png)
 `,
   faq: `
 ## ❓ GYIK (Gyakran Ismételt Kérdések)
