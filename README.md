@@ -109,7 +109,7 @@ A felhasználó a bal oldali menüből választhat szekciót, a tartalom Markdow
 ## 📁 Projekt struktúra (kivonat)
 
 ```
-CozyNest/
+boros-website/
 ├── src/
 │   ├── components/
 │   │   └── Documentation.tsx   // Dokumentáció fő komponens
@@ -154,3 +154,109 @@ Ha hibát találsz, vagy javaslatod van, nyugodtan nyiss egy issue-t a GitHubon.
 ---
 
 Készült a **CozyNest** rendszerhez – 2025  
+Készítő: [Takács Balázs]
+
+
+---
+
+## 🗄️ Adatbázis struktúra (MariaDB / MySQL)
+
+Az alábbi táblák alkotják a CozyNest rendszer backend adatbázisát. Az adatbázis neve: `cozynest`.
+
+### 🔹 1. `users`
+- A felhasználók adatai (admin, recepciós, vendég)
+- Fontos mezők:
+  - `username`, `hashed_password`, `email`, `role_id`
+- Példák:
+  - `admin`, `rec`, `user`
+
+### 🔹 2. `roles`
+- Szerepkörök: `Guest`, `Receptionist`, `Manager`
+- Ezek határozzák meg a felhasználói jogosultságokat.
+
+### 🔹 3. `room`
+- Szobák adatai: szobaszám, típus, ár, kapacitás
+- Külső kulcs: `roomtype`, `roomstatus`
+
+### 🔹 4. `roomtype`
+- Szobatípusok: `Standard`, `Deluxe`, `Suite`
+
+### 🔹 5. `roomstatus`
+- Szobastátusz: `Available`, `Occupied`, `Maintenance`
+
+### 🔹 6. `reservations`
+- Foglalások adatai: `check_in_date`, `check_out_date`, `status`
+- Példa státusz: `Incomplete`, `Complete`, `Cancelled`
+- Külső kulcs: `guest_id`, `room_id`, `status`
+
+### 🔹 7. `reservationstatuses`
+- Foglalási státuszok:
+  - `1` – Incomplete
+  - `2` – Complete
+  - `3` – Cancelled
+
+### 🔹 8. `reservationservices`
+- A foglaláshoz tartozó extra szolgáltatások
+- Mennyiséget is tárol (`quantity`)
+
+### 🔹 9. `services`
+- Elérhető szolgáltatások:
+  - Prémium reggeli (5000 Ft), Wellness (8000 Ft), stb.
+- `is_active = 1`: elérhető
+- A legtöbb szolgáltatás napi ár alapján számol
+
+### 🔹 10. `tokens`
+- Hozzáférési és frissítő tokenek JWT formátumban
+- Felhasználók bejelentkezését és biztonságát kezeli
+
+---
+
+## 🧪 Tesztadatok – magyarázat
+
+### 👤 Felhasználók (`users`)
+- `admin` – rendszergazda (Manager)
+- `rec` – recepciós (Receptionist)
+- `user` – vendég (Guest)
+
+### 🏨 Szobák (`room`)
+- 5 szoba, változó típusokkal:
+  - `101`: Standard, 8000 Ft/éj
+  - `102`: Deluxe, 14000 Ft/éj
+  - `103`: Suite, 22000 Ft/éj
+
+### 📅 Foglalások (`reservations`)
+- 15 foglalás van regisztrálva
+- Státusz értékek:
+  - `1`: Incomplete
+  - `2`: Complete
+  - `3`: Cancelled
+- Tesztelhetők:
+  - dátumellenőrzés
+  - vendégkapacitás
+  - foglalás státuszváltás
+
+### 🧴 Szolgáltatások (`services`)
+- Példák:
+  - `Prémium reggeli` – 5000 Ft/nap
+  - `Wellness` – 8000 Ft/nap
+  - `VIP takarítás` – 3000 Ft/nap
+- `is_active = 0`: nem elérhető a frontend számára
+
+### 🔐 Tokenek (`tokens`)
+- Tartalmaznak hozzáférési és frissítő tokeneket
+- `is_active`: meghatározza, hogy a token aktív-e
+
+---
+
+## 🔗 Kapcsolatok (külső kulcsok)
+
+| Tábla | Külső kulcs | Csatlakozik |
+|-------|-------------|-------------|
+| `users` | `role_id` → `roles.id` |
+| `room` | `type` → `roomtype.id`<br>`status` → `roomstatus.id` |
+| `reservations` | `status` → `reservationstatuses.id` |
+| `reservationservices` | `reservation_id` → `reservations.id`<br>`service_id` → `services.id` |
+| `tokens` | `user_id` → `users.id` |
+
+---
+
