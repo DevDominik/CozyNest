@@ -7,6 +7,9 @@ using System.Windows.Input;
 using CozyNestAdmin.Models;
 using CozyNestAdmin.ResponseTypes;
 using Newtonsoft.Json;
+using static CozyNestAdmin.GlobalMethods;
+using static CozyNestAdmin.GlobalEnums;
+
 
 namespace CozyNestAdmin
 {
@@ -31,41 +34,30 @@ namespace CozyNestAdmin
             var username = tbUsername.Text;
             var password = tbPassword.Password;
 
-            var loginData = new
+            var (success, message) = await Authenticate(username, password);
+
+            lbResponse.Content = message;
+
+            if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
             {
-                Username = username,
-                Password = password
-            };
+                // Open main window
+                UserInfo.userName = username;
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                this.Close();
 
-            var responseMessage = await LoginAsync(loginData);
-
-            // Update the label with the response message
-            lbResponse.Content = responseMessage;
-
-            // If login is successful, check the role
-            if (responseMessage == "Login successful!")
-            {
-                bool isManager = await CheckUserRoleAsync(_accessToken);
-                if (isManager)
-                {
-                    // Open MainWindow.xaml
-                    UserInfo.userName = tbUsername.Text;
-                    MainWindow mainWindow = new MainWindow();
-                    mainWindow.Show();
-                    this.Close(); // Close the Auth window
-                }
-                else
-                {
-                    lbResponse.Content = "Hozzáférés megtagadva.";
-                }
-
-                // If Save Login is checked, save login information to a file
+                // Save login info if checked
                 if (cbSaveLogin.IsChecked == true)
                 {
                     SaveLoginData(username, password);
                 }
             }
+            else if (success)
+            {
+                lbResponse.Content = "Hozzáférés megtagadva.";
+            }
         }
+
 
         private async Task<string> LoginAsync(object loginData)
         {
@@ -167,52 +159,38 @@ namespace CozyNestAdmin
             {
                 try
                 {
-                    // Read the saved JSON from the file
                     string json = System.IO.File.ReadAllText(filePath);
-
-                    // Deserialize the JSON into an object
                     var savedData = JsonConvert.DeserializeObject<dynamic>(json);
+                    string username = savedData?.Username;
+                    string password = savedData?.Password;
 
-                    // Populate the username and password fields
-                    tbUsername.Text = savedData?.Username;
-                    tbPassword.Password = savedData?.Password;
+                    tbUsername.Text = username;
+                    tbPassword.Password = password;
 
-                    // Check if the saved access token is still active
-                    if (!string.IsNullOrEmpty(savedData?.AccessToken))
+                    var (success, _) = await Authenticate(username, password);
+
+                    if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
                     {
-                        bool isTokenActive = await CheckTokenActiveAsync(savedData?.AccessToken);
-
-                        if (isTokenActive)
-                        {
-                            // Token is active, log the user in automatically
-                            _accessToken = savedData?.AccessToken;
-                            _refreshToken = savedData?.RefreshToken;
-
-                            bool isManager = await CheckUserRoleAsync(_accessToken);
-                            if (isManager)
-                            {
-                                // Open MainWindow.xaml
-                                MainWindow mainWindow = new MainWindow();
-                                mainWindow.Show();
-                                this.Close(); // Close the Auth window
-                            }
-                            else
-                            {
-                                lbResponse.Content = "Access denied: You do not have Manager role.";
-                            }
-                        }
-                        else
-                        {
-                            lbResponse.Content = "Token is no longer active. Please log in again.";
-                        }
+                        MainWindow mainWindow = new MainWindow();
+                        mainWindow.Show();
+                        this.Close();
+                    }
+                    else if (success)
+                    {
+                        lbResponse.Content = "Hozzáférés megtagadva.";
+                    }
+                    else
+                    {
+                        lbResponse.Content = "Sikertelen automatikus bejelentkezés.";
                     }
                 }
                 catch (Exception ex)
                 {
-                    lbResponse.Content = $"Error loading saved login data: {ex.Message}";
+                    lbResponse.Content = $"Hiba a bejelentkezési adatok betöltésekor: {ex.Message}";
                 }
             }
         }
+
 
         private async Task<bool> CheckTokenActiveAsync(string accessToken)
         {
