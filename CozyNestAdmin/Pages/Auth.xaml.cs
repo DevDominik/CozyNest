@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using CozyNestAdmin.Models;
+using CozyNestAdmin.ResponseTypes;
 using Newtonsoft.Json;
 
 namespace CozyNestAdmin

@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
+using Newtonsoft.Json;
+using CozyNestAdmin.ResponseTypes;
 
 namespace CozyNestAdmin
 {
@@ -68,6 +70,48 @@ namespace CozyNestAdmin
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokens[tokenDeclaration.Value]);
             }
             return client;
+        }
+        public static async Task<(bool, string)> Authenticate(string username, string password)
+        {
+            var res = await CreateHTTPClient().PostAsync(
+                GetEndpoint(AccountEndpoints.Login), 
+                new StringContent
+                (
+                    JsonConvert.SerializeObject(new
+                    {
+                        username = username,
+                        password = password,
+                    }),
+                    Encoding.UTF8,
+                    "application/json"
+                )
+            );
+            if (res.StatusCode == HttpStatusCode.OK)
+            {
+                LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(await res.Content.ReadAsStringAsync());
+                SetAccessToken(loginResponse.AccessToken);
+                SetRefreshToken(loginResponse.RefreshToken);
+                return (true, loginResponse.Message);
+            }
+            MessageResponse messageResponse = JsonConvert.DeserializeObject<MessageResponse>(await res.Content.ReadAsStringAsync());
+            return (false, messageResponse.Message);
+        }
+        private static void SetAccessToken(string token)
+        {
+            tokens[TokenDeclaration.AccessToken] = token;
+        }
+        private static void SetRefreshToken(string token)
+        {
+            tokens[TokenDeclaration.RefreshToken] = token;
+        }
+        public static async Task<bool> Introspect() 
+        {
+            var res = await CreateHTTPClient(TokenDeclaration.AccessToken).GetAsync(GetEndpoint(AccountEndpoints.Introspect));
+            if (res.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+
         }
     }
 }
