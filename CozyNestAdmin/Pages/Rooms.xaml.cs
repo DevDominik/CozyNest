@@ -24,6 +24,7 @@ namespace CozyNestAdmin
 
         private async void LoadRooms()
         {
+
             try
             {
                 using HttpClient client = new();
