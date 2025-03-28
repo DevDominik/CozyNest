@@ -1,5 +1,6 @@
 ﻿using static CozyNestAdmin.GlobalMethods;
 using static CozyNestAdmin.GlobalEnums;
+using static CozyNestAdmin.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,18 @@ namespace CozyNestAdmin
         public enum RoomEndpoints { List, Create, Delete, Modify }
         public enum ServiceEndpoints { Services }
         public enum TokenDeclaration { AccessToken, RefreshToken }
+    }
+    public class Session
+    {
+        public static string Username { get; set; }
+        public static int Id { get; set; }
+        public static string FirstName { get; set; }
+        public static string LastName { get; set; }
+        public static string Address { get; set; }
+        public static bool Closed { get; set; }
+        public static string Email { get; set; }
+        public static DateTime JoinDate { get; set; }
+        public static string RoleName { get; set; }
     }
     public class GlobalMethods
     {
@@ -113,6 +126,12 @@ namespace CozyNestAdmin
                 var res = await client.GetAsync(GetEndpoint(AccountEndpoints.Introspect));
                 if (res.StatusCode == HttpStatusCode.OK)
                 {
+                    IntrospectResponse introspectResponse = JsonConvert.DeserializeObject<IntrospectResponse>(await res.Content.ReadAsStringAsync());
+                    Username = introspectResponse.UserData.Username;
+                    Id = introspectResponse.UserData.Id;
+                    FirstName = introspectResponse.UserData.FirstName;
+                    LastName = introspectResponse.UserData.LastName;
+
                     return true;
                 }
             }
@@ -124,6 +143,7 @@ namespace CozyNestAdmin
                     TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(await res.Content.ReadAsStringAsync());
                     SetAccessToken(tokenResponse.AccessToken);
                     SetRefreshToken(tokenResponse.RefreshToken);
+                    await Introspect();
                     return true;
                 }
             }
