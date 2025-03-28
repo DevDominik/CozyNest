@@ -1,4 +1,6 @@
 ﻿using System;
+using static CozyNestAdmin.GlobalMethods;
+using static CozyNestAdmin.GlobalEnums;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -110,11 +112,9 @@ namespace CozyNestAdmin
 
             try
             {
-                using HttpClient client = new();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
-                var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/modify")
-                {
-                    Content = new StringContent(JsonSerializer.Serialize(new
+                using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
+                var response = await client.PutAsync(GetEndpoint(RoomEndpoints.Modify),
+                    new StringContent(JsonSerializer.Serialize(new
                     {
                         roomId = selectedRoom.Id,
                         roomNumber = selectedRoom.RoomNumber,
@@ -122,10 +122,7 @@ namespace CozyNestAdmin
                         pricePerNight = selectedRoom.PricePerNight,
                         description = selectedRoom.Description,
                         statusDescription = selectedRoom.Status
-                    }), Encoding.UTF8, "application/json")
-                };
-
-                var response = await client.SendAsync(request);
+                    }), Encoding.UTF8, "application/json"));
                 if (response.IsSuccessStatusCode)
                 {
                     LoadRooms();
