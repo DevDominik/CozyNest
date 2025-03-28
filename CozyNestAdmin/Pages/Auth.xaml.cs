@@ -15,15 +15,10 @@ namespace CozyNestAdmin
 {
     public partial class Auth : Window
     {
-        private readonly HttpClient _httpClient;
-        public static string _accessToken;
-        private string _refreshToken;
-        const string BASE_URL = "https://localhost:7290";
 
         public Auth()
         {
             InitializeComponent();
-            _httpClient = new HttpClient();
 
             // Load saved login data if available
             LoadSavedLoginData();
