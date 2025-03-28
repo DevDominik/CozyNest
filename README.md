@@ -154,4 +154,3 @@ Ha hibát találsz, vagy javaslatod van, nyugodtan nyiss egy issue-t a GitHubon.
 ---
 
 Készült a **CozyNest** rendszerhez – 2025  
-Készítő: [Takács Balázs]
