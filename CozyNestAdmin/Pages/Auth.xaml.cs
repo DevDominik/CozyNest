@@ -257,6 +257,7 @@ namespace CozyNestAdmin
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
+            
             Application.Current.Shutdown();
         }
     }

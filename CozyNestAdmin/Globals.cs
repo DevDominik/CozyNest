@@ -1,6 +1,5 @@
 ﻿using static CozyNestAdmin.GlobalMethods;
 using static CozyNestAdmin.GlobalEnums;
-using static CozyNestAdmin.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,11 +126,14 @@ namespace CozyNestAdmin
                 if (res.StatusCode == HttpStatusCode.OK)
                 {
                     IntrospectResponse introspectResponse = JsonConvert.DeserializeObject<IntrospectResponse>(await res.Content.ReadAsStringAsync());
-                    Username = introspectResponse.UserData.Username;
-                    Id = introspectResponse.UserData.Id;
-                    FirstName = introspectResponse.UserData.FirstName;
-                    LastName = introspectResponse.UserData.LastName;
-
+                    Session.Username = introspectResponse.UserData.Username;
+                    Session.Id = introspectResponse.UserData.Id;
+                    Session.FirstName = introspectResponse.UserData.FirstName;
+                    Session.LastName = introspectResponse.UserData.LastName;
+                    Session.RoleName = introspectResponse.UserData.RoleName;
+                    Session.Address = introspectResponse.UserData.Address;
+                    Session.Closed = introspectResponse.UserData.Closed;
+                    Session.Email = introspectResponse.UserData.Email;
                     return true;
                 }
             }
