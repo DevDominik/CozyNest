@@ -103,6 +103,14 @@ namespace CozyNestAdmin
             if (res.StatusCode == HttpStatusCode.OK)
             {
                 LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(await res.Content.ReadAsStringAsync());
+                Session.Username = loginResponse.UserData.Username;
+                Session.Id = loginResponse.UserData.Id;
+                Session.FirstName = loginResponse.UserData.FirstName;
+                Session.LastName = loginResponse.UserData.LastName;
+                Session.RoleName = loginResponse.UserData.RoleName;
+                Session.Address = loginResponse.UserData.Address;
+                Session.Closed = loginResponse.UserData.Closed;
+                Session.Email = loginResponse.UserData.Email;
                 SetAccessToken(loginResponse.AccessToken);
                 SetRefreshToken(loginResponse.RefreshToken);
                 return (true, loginResponse.Message);
