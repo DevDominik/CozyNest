@@ -202,9 +202,14 @@ A "Szobák" oldal lehetővé teszi a felhasználók számára, hogy elérhető s
 - Deluxe
 - Suite
 
+![Hiba képernyőképe](/roomtypes.png)
+
 ### 🚦 Elérhetőség
 - Elérhető
 - Nem elérhető
+
+![Hiba képernyőképe](/roomavailability.png)
+
 
 ### 💬 Keresés
 - Kulcsszavas keresés a szobaszám vagy leírás alapján.
@@ -270,48 +275,135 @@ Lehetőség üzenetet küldeni a CozyNest csapatának.
   **Hibaüzenet:** „Az üzenet elküldése nem sikerült. Kérjük, próbálja újra később.”  
   <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
 `,
-  reserve: `
-## 🛏️ ReserveRoom (Szoba foglalása)
+reserve: `
+## 🛏️ Szoba foglalása
 
-### 📋 Leírás:
-Foglalás létrehozása szűrési feltételek alapján (időpont, ár, férőhely).
+### 📋 Mire való ez az oldal?
+Ezen az oldalon lehetőséged van kiválasztott szobát lefoglalni a kívánt időszakra, megadni hány vendég érkezik, valamint extra szolgáltatásokat is kérhetsz a tartózkodás idejére.
 
-### ✅ Funkciók:
-- Dátum kiválasztása.
-- Ár- és férőhely szűrés.
-- Szabad szobák listázása.
-- Foglalás leadása.
+---
 
-### ⚠️ Lehetséges hibák:
-- Nincs találat:  
-  **Hibaüzenet:** „Nincs elérhető szoba a megadott feltételekkel.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
-- Hibás dátum intervallum:  
-  **Hibaüzenet:** „A kezdő dátum nem lehet későbbi a befejező dátumnál.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
-- Be nem jelentkezett felhasználó:  
-  **Hibaüzenet:** „Foglaláshoz kérjük, jelentkezzen be.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
-`,
-  reservations: `
-## 📆 Reservations (Foglalásaim)
+### ✅ Mit tudsz itt csinálni?
 
-### 📋 Leírás:
-A felhasználó eddigi és jövőbeni foglalásai.
+- 👉 Kiválaszthatod az érkezés és távozás dátumát
+- 👥 Megadhatod, hány vendég érkezik
+- 🧴 Extra szolgáltatásokat kérhetsz (pl. reggeli, wellness)
+- ✍️ Írhatsz megjegyzést a foglaláshoz
+- 💰 Az ár automatikusan frissül, amit az oldal alján látsz
+- ✅ A "Foglalás" gombra kattintva véglegesítheted a foglalást
 
-### ✅ Funkciók:
-- Foglalások listázása dátummal, státusszal.
-- Foglalás részleteinek megtekintése.
-- Foglalás lemondása (ha engedélyezett).
+---
 
-### ⚠️ Lehetséges hibák:
-- Nincs még foglalás:  
-  **Üzenet:** „Még nem rendelkezik foglalással.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
-- Betöltési hiba:  
-  **Hibaüzenet:** „Nem sikerült betölteni a foglalásokat.”  
-  <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
-`,
+### 🧰 Elérhető extra szolgáltatások:
+
+*(A kiválasztott napokra, vendégenként számítjuk őket az árba)*
+
+- **🍳 Prémium reggeli** – 5000 Ft/nap  
+  Friss gyümölcslevek, kávé, bio finomságok
+
+- **🍷 All-inclusive italcsomag** – 10 000 Ft/nap  
+  Korlátlan üdítők, bor, koktél, tea, kávé
+
+- **💆 Wellness & Spa belépő** – 8000 Ft/nap  
+  Szauna, jacuzzi, gőzfürdő, relaxációs terek
+
+- **🏋️ Edzőterem & sportprogramok** – 3000 Ft/nap  
+  Jóga, személyi edző, modern felszerelések
+
+- **🧼 VIP szobatakarítás** – 3000 Ft/nap  
+  Extra tisztaság, prémium kozmetikumok
+
+- **🚴‍♂️ Bicikli vagy roller kölcsönzés** – 4500 Ft/nap  
+  Fedezd fel a környéket két keréken!
+
+- **🏖️ Privát strand / napágy** – 7000 Ft/nap  
+  Külön hely, kényelmes pihenéshez
+
+- **🍽️ Gasztroélmény csomag** – 18 000 Ft/nap  
+  Gourmet vacsora, helyi specialitások
+
+- **🍲 Teljes ellátás** – 12 000 Ft/nap  
+  Reggeli, ebéd és vacsora minden nap
+
+---
+
+### ℹ️ Fontos tudnivalók:
+
+- Foglaláshoz be kell jelentkezned
+- A megadott dátumok között legalább 1 éjszaka kell legyen
+- A vendégek száma nem haladhatja meg a szoba kapacitását
+- A foglalás véglegesítéséhez kattints a **"Foglalás"** gombra
+
+---
+
+### ⚠️ Hibaüzenetek, amikkel találkozhatsz:
+
+- **„Nincs elérhető szoba a megadott feltételekkel.”**  
+  – Válassz másik dátumot vagy kevesebb vendéget
+
+- **„A kezdő dátum nem lehet későbbi a befejező dátumnál.”**  
+  – Ellenőrizd a kiválasztott napokat
+
+- **„Foglaláshoz kérjük, jelentkezzen be.”**  
+  – Jelentkezz be a folytatáshoz
+
+- **„Hiba történt a foglalás során.”**  
+  – Próbáld újra vagy nézd meg az internetkapcsolatod
+  
+  .
+`
+,
+reservations: `
+## 📆 Foglalásaim
+
+### 📋 Mire való ez az oldal?
+Ezen az oldalon láthatod az eddigi és jövőbeni szállásfoglalásaidat, valamint lehetőséged van azokat megtekinteni vagy lemondani (ha még nem kezdődtek el).
+
+---
+
+### ✅ Mit tudsz itt csinálni?
+
+- 📖 Megnézheted a szobáid adatait (típus, leírás, szám)
+- 📅 Láthatod az érkezési és távozási időpontokat
+- 📌 Ellenőrizheted a foglalás státuszát
+- 📝 Elolvashatod a megadott megjegyzést (ha van)
+- ❌ Lemondhatod a foglalást egy gombnyomással, ha az még nem aktív
+
+---
+
+### ℹ️ Mit jelentenek az egyes elemek?
+
+- **Szoba:** a lefoglalt szoba száma (pl. 203)
+- **Leírás:** a szoba jellemzői (pl. panorámás, deluxe ágy)
+- **Érkezés / Távozás:** a tartózkodás kezdő és befejező dátuma
+- **Státusz:** a foglalás állapota (pl. Aktív, Lemondva)
+- **Jegyzet:** amit te adtál meg a foglalás során (pl. "Kérünk gyerekágyat")
+
+---
+
+### ⚠️ Lehetséges üzenetek és hibák:
+
+- **„Nem található foglalás.”**  
+  – Még nem hoztál létre egyetlen foglalást sem.
+
+- **„Foglalások betöltése...”**  
+  – A rendszer épp lekéri az adataidat.
+
+- **„Nem sikerült betölteni a foglalásokat.”**  
+  – Valami hiba történt az adatok lekérésekor, próbáld újra később.
+
+- **Lemondás után a foglalás eltűnik a listából.**  
+  – Ez azt jelenti, hogy sikeresen lemondtad.
+
+---
+
+### 🔐 Fontos:
+A foglalásaid megtekintéséhez be kell jelentkezned a fiókodba.
+
+
+.
+`
+,
   profile: `
 ## 👤 Profil
 

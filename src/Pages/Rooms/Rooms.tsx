@@ -177,7 +177,7 @@ export const Rooms = () => {
           <input
             type="text"
             className={styles.SearchBar}
-            placeholder="Search..."
+            placeholder="Keresés névre..."
             onChange={(e) => setSearchText(e.target.value)}
           />
 
