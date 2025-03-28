@@ -39,7 +39,7 @@ namespace CozyNestAPIHub.Controllers
             }
             return Ok(new
             {
-                message = "Successfully retrieved services.",
+                message = "Sikeres szolgáltatás lekérés.",
                 services = final
             });
         }
