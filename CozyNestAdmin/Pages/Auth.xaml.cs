@@ -58,74 +58,6 @@ namespace CozyNestAdmin
             }
         }
 
-
-        private async Task<string> LoginAsync(object loginData)
-        {
-            try
-            {
-                var json = JsonConvert.SerializeObject(loginData);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(BASE_URL + "/api/account/login", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    // Assume the response body contains the tokens in a JSON format like:
-                    // { "accessToken": "abc", "refreshToken": "xyz" }
-                    var tokenData = JsonConvert.DeserializeObject<TokenResponse>(responseBody);
-
-                    // Set the static _accessToken
-                    _accessToken = tokenData.AccessToken;
-
-                    // If needed, also set the refresh token
-                    _refreshToken = tokenData.RefreshToken;
-
-                    return "Login successful!";
-                }
-                else
-                {
-                    return $"Login failed: {response.ReasonPhrase}";
-                }
-            }
-            catch (Exception ex)
-            {
-                return $"Error: {ex.Message}";
-            }
-        }
-
-        private async Task<bool> CheckUserRoleAsync(string accessToken)
-        {
-            try
-            {
-                // Set up the Authorization header with the access token
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-                var response = await _httpClient.GetAsync(BASE_URL + "/api/account/introspect");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    var userInfo = JsonConvert.DeserializeObject<UserRoleData>(responseBody);
-
-                    // Check if the user has the "Manager" or "Receptionist" role
-                    return userInfo.UserData.RoleName.Equals("Manager", StringComparison.OrdinalIgnoreCase) ||
-                           userInfo.UserData.RoleName.Equals("Receptionist", StringComparison.OrdinalIgnoreCase);
-                }
-                else
-                {
-                    lbResponse.Content = $"Failed to introspect: {response.ReasonPhrase}";
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                lbResponse.Content = $"Error: {ex.Message}";
-                return false;
-            }
-        }
-
         private void SaveLoginData(string username, string password)
         {
             try
@@ -191,37 +123,6 @@ namespace CozyNestAdmin
             }
         }
 
-
-        private async Task<bool> CheckTokenActiveAsync(string accessToken)
-        {
-            try
-            {
-                // Set up the Authorization header with the access token
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-                var response = await _httpClient.GetAsync(BASE_URL + "/api/account/introspect");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    var introspectData = JsonConvert.DeserializeObject<dynamic>(responseBody);
-
-                    // Check if the token is active
-                    return introspectData?.active == true;
-                }
-                else
-                {
-                    lbResponse.Content = $"Failed to introspect: {response.ReasonPhrase}";
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                lbResponse.Content = $"Error checking token status: {ex.Message}";
-                return false;
-            }
-        }
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ButtonState == MouseButtonState.Pressed)

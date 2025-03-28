@@ -159,5 +159,10 @@ namespace CozyNestAdmin
             }
             return false;
         }
+        public static void ResetSession()
+        {
+            SetAccessToken("");
+            SetRefreshToken("");
+        }
     }
 }
