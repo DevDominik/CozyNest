@@ -8,8 +8,56 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Users">
-
+    <Page.Resources>
+        <local:UserStatusToIconConverter x:Key="UserStatusConverter"/>
+    </Page.Resources>
     <Grid>
-        
+        <Grid x:Name="UsersListGrid" Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackPanel Margin="10 2" Orientation="Horizontal" VerticalAlignment="Center">
+                <materialDesign:PackIcon Margin="5" Kind="Magnify"/>
+                <TextBox x:Name="NameSearchTextBox" Width="200"/>
+            </StackPanel>
+            <DataGrid x:Name="UsersDataGrid" Background="{x:Null}" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" CanUserResizeColumns="False" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="IdCard"/>
+                                    <TextBlock Text="ID"></TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="15 0" Text="{Binding Id}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Person"/>
+                                    <TextBlock Text="Felhasználónév"></TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="15 0" Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="{Binding Closed, Converter={StaticResource UserStatusConverter}}"/>
+                                    <TextBlock Text="{Binding Username}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </Page>
