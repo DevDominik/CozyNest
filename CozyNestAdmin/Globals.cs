@@ -63,7 +63,7 @@ namespace CozyNestAdmin
         }
         public static HttpClient CreateHTTPClient(TokenDeclaration? tokenDeclaration = null) 
         {
-            HttpClient client = new();
+            HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             if (tokenDeclaration != null)
             {
@@ -73,7 +73,8 @@ namespace CozyNestAdmin
         }
         public static async Task<(bool, string)> Authenticate(string username, string password)
         {
-            var res = await CreateHTTPClient().PostAsync(
+            using HttpClient client = CreateHTTPClient();
+            var res = await client.PostAsync(
                 GetEndpoint(AccountEndpoints.Login), 
                 new StringContent
                 (
@@ -86,6 +87,7 @@ namespace CozyNestAdmin
                     "application/json"
                 )
             );
+            
             if (res.StatusCode == HttpStatusCode.OK)
             {
                 LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(await res.Content.ReadAsStringAsync());
@@ -106,10 +108,24 @@ namespace CozyNestAdmin
         }
         public static async Task<bool> Introspect() 
         {
-            var res = await CreateHTTPClient(TokenDeclaration.AccessToken).GetAsync(GetEndpoint(AccountEndpoints.Introspect));
-            if (res.StatusCode == HttpStatusCode.OK)
+            using (HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken))
             {
-                return true;
+                var res = await client.GetAsync(GetEndpoint(AccountEndpoints.Introspect));
+                if (res.StatusCode == HttpStatusCode.OK)
+                {
+                    return true;
+                }
+            }
+            using (HttpClient client = CreateHTTPClient(TokenDeclaration.RefreshToken))
+            {
+                var res = await client.GetAsync(GetEndpoint(AccountEndpoints.RenewToken));
+                if (res.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(await res.Content.ReadAsStringAsync());
+                    SetAccessToken(tokenResponse.AccessToken);
+                    SetRefreshToken(tokenResponse.RefreshToken);
+                    return true;
+                }
             }
             return false;
         }
