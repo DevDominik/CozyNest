@@ -72,7 +72,13 @@ const markdownContent = {
   **Hibaüzenet:** „Hiba történt az űrlap elküldésekor.”  
   ![Hiba képernyőképe](/loginError.png)
   
-  `,  
+
+.
+---
+.
+.
+---
+  `,
   auth: `
 ## 🔐 Auth (Bejelentkezés / Regisztráció)
 
@@ -170,8 +176,11 @@ A bejelentkezés és regisztráció képernyő lehetővé teszi a felhasználók
 
 ![Hiba képernyőképe](/failFetch.png)
 
+.
+.
+---
 `,
-rooms : `
+  rooms: `
 ## 🛏️ Rooms (Szobák)
 
 ### 📋 Leírás:
@@ -252,7 +261,8 @@ A "Szobák" oldal lehetővé teszi a felhasználók számára, hogy elérhető s
 #### 3. Hálózati / szerverhiba
 **Hibaüzenet:** „Failed to fetch rooms.”
 
-
+.
+---
 .
 `,
   contact: `
@@ -275,8 +285,10 @@ Lehetőség üzenetet küldeni a CozyNest csapatának.
 - Sikertelen küldés:  
   **Hibaüzenet:** „Az üzenet elküldése nem sikerült. Kérjük, próbálja újra később.”  
   <div className="image-container">📷 *(Ide jön a hiba képernyőképe)*</div>
+
+
 `,
-reserve: `
+  reserve: `
 ## 🛏️ Szoba foglalása
 
 ### 📋 Mire való ez az oldal?
@@ -352,9 +364,8 @@ Ezen az oldalon lehetőséged van kiválasztott szobát lefoglalni a kívánt id
   – Próbáld újra vagy nézd meg az internetkapcsolatod
   
   .
-`
-,
-reservations: `
+`,
+  reservations: `
 ## 📆 Foglalásaim
 
 ### 📋 Mire való ez az oldal?
@@ -401,10 +412,11 @@ Ezen az oldalon láthatod az eddigi és jövőbeni szállásfoglalásaidat, vala
 ### 🔐 Fontos:
 A foglalásaid megtekintéséhez be kell jelentkezned a fiókodba.
 
-
 .
-`
-,
+---
+.
+.
+`,
   profile: `
 ## 👤 Profil
 
@@ -481,7 +493,7 @@ Részletek: [Adatkezelési szabályzat](https://localhost/adatvedelem)
 ### 💡 Tipp:
 Először tekintse meg a GYIK szekciót a gyors megoldásokért.
 `,
-devdocs : `
+  devdocs: `
 ## 🧑‍💻 Fejlesztői dokumentáció
 
 ---
@@ -589,9 +601,19 @@ npm run dev
 6. 🐞 Hibakezelés és UX finomhangolás
 7. 📝 Dokumentáció és verziókezelés *(Git)*
 
----
-`,
 
+
+
+
+
+
+
+.
+---
+.
+.
+.
+`,
 };
 
 const Documentation = () => {
