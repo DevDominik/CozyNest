@@ -42,24 +42,21 @@ A projekt az alábbi kulcsfontosságú technológiákat használja:
 1. **Projekt klónozása:**
 
 ```bash
-git clone https://github.com/felhasznalo/boros-website.git
-cd boros-website
+git clone https://github.com/DevDominik/CozyNest
+git checkout frontend
+cd cozynest
 ```
 
 2. **Függőségek telepítése:**
 
 ```bash
 npm install
-# vagy ha Yarn-t használsz:
-# yarn install
 ```
 
 3. **Fejlesztői szerver indítása:**
 
 ```bash
 npm run dev
-# vagy
-# yarn dev
 ```
 
 A projekt ezután elérhető lesz böngészőben:  
@@ -150,12 +147,6 @@ A build kimenete a `dist/` mappába kerül. Ez a mappa szolgáltatható bármely
 ## 📬 Kapcsolat
 
 Ha hibát találsz, vagy javaslatod van, nyugodtan nyiss egy issue-t a GitHubon.
-
----
-
-Készült a **CozyNest** rendszerhez – 2025  
-Készítő: [Takács Balázs]
-
 
 ---
 
