@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
-using CozyNestAdmin.Models; // For Page Navigation
+using static CozyNestAdmin.GlobalMethods;
 
 namespace CozyNestAdmin
 {
@@ -10,7 +10,7 @@ namespace CozyNestAdmin
         public MainWindow()
         {
             InitializeComponent();
-            Username.Content = UserInfo.userName;
+            Username.Content = Session.Username;
         }
 
         // Minimize the window
@@ -38,22 +38,25 @@ namespace CozyNestAdmin
         {
             var selectedItem = ((ListViewItem)sender).Content as StackPanel;
             var textBlock = (TextBlock)selectedItem.Children[1];
-
-            if (textBlock.Text == "Main")
+            switch (textBlock.Text)
             {
-                MainContentFrame.Navigate(new Uri("Pages/Main.xaml", UriKind.Relative));
-            }
-            if (textBlock.Text == "Rooms")
-            {
-                MainContentFrame.Navigate(new Uri("Pages/Rooms.xaml", UriKind.Relative));
-            }
-            if (textBlock.Text == "Users")
-            {
-                MainContentFrame.Navigate(new Uri("Pages/Users.xaml", UriKind.Relative));
-            }
-            if (textBlock.Text == "Misc")
-            {
-                MainContentFrame.Navigate(new Uri("Pages/Misc.xaml", UriKind.Relative));
+                case "Main":
+                    MainContentFrame.Navigate(new Uri("Pages/Main.xaml", UriKind.Relative));
+                    break;
+                case "Rooms":
+                    MainContentFrame.Navigate(new Uri("Pages/Rooms.xaml", UriKind.Relative));
+                    break;
+                case "Users":
+                    MainContentFrame.Navigate(new Uri("Pages/Users.xaml", UriKind.Relative));
+                    break;
+                case "Misc":
+                    MainContentFrame.Navigate(new Uri("Pages/Misc.xaml", UriKind.Relative));
+                    break;
+                case "Logout":
+                    ReturnToLogin(this);
+                    break;
+                default:
+                    break;
             }
         }
 

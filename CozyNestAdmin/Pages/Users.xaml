@@ -10,32 +10,50 @@
       Title="Users">
     <Page.Resources>
         <local:UserStatusToIconConverter x:Key="UserStatusConverter"/>
+        <local:ReverseUserStatusToIconConverter x:Key="ReverseUserStatusConverter"/>
+        <local:BanUnbanTextConverter x:Key="BanUnbanTextConverter"/>
     </Page.Resources>
-    <Grid>
-        <Grid x:Name="UsersListGrid" Margin="15">
+    <Grid Margin="15">
+        <Grid x:Name="UsersListGrid" Visibility="Visible">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <StackPanel Margin="10 2" Orientation="Horizontal" VerticalAlignment="Center">
-                <materialDesign:PackIcon Margin="5" Kind="Magnify"/>
-                <TextBox x:Name="NameSearchTextBox" Width="200"/>
-                
+                <ListViewItem x:Name="SearchUserListViewItem" Background="{x:Null}" Width="80" PreviewMouseDown="SearchUserListViewItem_PreviewMouseDown">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20"></materialDesign:PackIcon>
+                        <TextBlock FontSize="15">Keresés</TextBlock>
+                    </StackPanel>
+                </ListViewItem>
+                <TextBox x:Name="NameSearchTextBox" Width="200" Margin="15 0 0 0" FontSize="15"/>
+                <ComboBox x:Name="NameSearchComboBox" Width="150" Margin="15 0 0 0" FontSize="15">
+                    <ComboBoxItem>Id</ComboBoxItem>
+                    <ComboBoxItem IsSelected="True">Felhasználónév</ComboBoxItem>
+                    <ComboBoxItem>Email</ComboBoxItem>
+                </ComboBox>
+                <ListViewItem x:Name="AddUserListViewItem" Background="{x:Null}" Width="125" Margin="15 0 0 0" PreviewMouseDown="AddUserListViewItem_PreviewMouseDown">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"></materialDesign:PackIcon>
+                        <TextBlock FontSize="15">Új felhasználó</TextBlock>
+                    </StackPanel>
+
+                </ListViewItem>
             </StackPanel>
-            <DataGrid x:Name="UsersDataGrid" Background="{x:Null}" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" CanUserResizeColumns="False" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
+            <DataGrid x:Name="UsersDataGrid" Background="{x:Null}" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" CanUserResizeColumns="False" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False" GridLinesVisibility="None" BorderThickness="0">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.HeaderTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="IdCard"/>
-                                    <TextBlock Text="ID"></TextBlock>
+                                    <materialDesign:PackIcon Kind="IdCard" Width="30" Height="30"/>
+                                    <TextBlock Text="ID" FontSize="20"/>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="15 0" Text="{Binding Id}"/>
+                                <TextBlock Margin="15 0" FontSize="17" Text="{Binding Id}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -43,22 +61,68 @@
                         <DataGridTemplateColumn.HeaderTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Person"/>
-                                    <TextBlock Text="Felhasználónév"></TextBlock>
+                                    <materialDesign:PackIcon Kind="Person" Width="30" Height="30"/>
+                                    <TextBlock Text="Felhasználónév" FontSize="20"/>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Margin="15 0" Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="{Binding Closed, Converter={StaticResource UserStatusConverter}}"/>
-                                    <TextBlock Text="{Binding Username}"/>
+                                    <materialDesign:PackIcon Kind="{Binding Closed, Converter={StaticResource UserStatusConverter}}" Width="25" Height="25"/>
+                                    <TextBlock Text="{Binding Username}" FontSize="17"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="At" Width="30" Height="30"/>
+                                    <TextBlock Text="Email" FontSize="20"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="15 0" FontSize="17" Text="{Binding Email}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Power" Width="30" Height="30"/>
+                                    <TextBlock Text="Műveletek" FontSize="20"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <ListViewItem>
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Person" Height="25" Width="25"/>
+                                            <TextBlock Text="Profil" FontSize="17"/>
+                                        </StackPanel>
+                                    </ListViewItem>
+                                    <ListViewItem>
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="{Binding Closed, Converter={StaticResource ReverseUserStatusConverter}}" Height="25" Width="25"/>
+                                            <TextBlock Text="{Binding Closed, Converter={StaticResource BanUnbanTextConverter}}" FontSize="17"/>
+                                        </StackPanel>
+                                    </ListViewItem>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+        </Grid>
+        <Grid x:Name="UserEditAndAddGrid">
+            
         </Grid>
     </Grid>
 </Page>

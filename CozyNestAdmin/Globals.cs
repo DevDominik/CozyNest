@@ -9,6 +9,8 @@ using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
 using CozyNestAdmin.ResponseTypes;
+using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 
 namespace CozyNestAdmin
 {
@@ -153,8 +155,7 @@ namespace CozyNestAdmin
                     TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(await res.Content.ReadAsStringAsync());
                     SetAccessToken(tokenResponse.AccessToken);
                     SetRefreshToken(tokenResponse.RefreshToken);
-                    await Introspect();
-                    return true;
+                    return await Introspect();
                 }
             }
             return false;
@@ -163,6 +164,13 @@ namespace CozyNestAdmin
         {
             SetAccessToken("");
             SetRefreshToken("");
+        }
+        public static void ReturnToLogin(MainWindow mainWindow)
+        {
+            ResetSession();
+            Auth auth = new Auth(false);
+            auth.Show();
+            mainWindow.Close();
         }
     }
 }

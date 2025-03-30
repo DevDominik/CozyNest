@@ -26,13 +26,20 @@ namespace CozyNestAdmin
     /// </summary>
     public partial class Users : Page
     {
-        public Users()
+        MainWindow mainWindow;
+        public Users(MainWindow mainWindow)
         {
             InitializeComponent();
             LoadUsers();
+            this.mainWindow = mainWindow;
         }
         public async void LoadUsers() 
         {
+            if (!await Introspect())
+            {
+                ReturnToLogin(mainWindow);
+                return;
+            }
             using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
             var response = await client.GetAsync(GetEndpoint(AdminEndpoints.GetUsers));
             if (response.IsSuccessStatusCode)
@@ -41,6 +48,21 @@ namespace CozyNestAdmin
                 ObservableCollection<UserDataResponse> users = new(getUsersResponse.Users);
                 UsersDataGrid.ItemsSource = users;
             }
+        }
+
+        private void SearchUserListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void AddUserListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void NameSearchComboBox_Selected(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -128,6 +128,14 @@
                                         </StackPanel>
                                     </ListViewItem.Content>
                                 </ListViewItem>
+                                <ListViewItem Selected="LoadPage">
+                                    <ListViewItem.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Logout" VerticalAlignment="Center" Foreground="White" Margin="5" Width="20" Height="20"/>
+                                            <TextBlock Text="Logout" VerticalAlignment="Center" Foreground="White"/>
+                                        </StackPanel>
+                                    </ListViewItem.Content>
+                                </ListViewItem>
                             </ListView.Items>
                         </ListView>
                     </StackPanel>

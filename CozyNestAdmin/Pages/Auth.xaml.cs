@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using CozyNestAdmin.Models;
 using CozyNestAdmin.ResponseTypes;
 using Newtonsoft.Json;
 using static CozyNestAdmin.GlobalMethods;
@@ -16,12 +15,10 @@ namespace CozyNestAdmin
     public partial class Auth : Window
     {
 
-        public Auth()
+        public Auth(bool autoLogin = true)
         {
             InitializeComponent();
-
-            // Load saved login data if available
-            LoadSavedLoginData();
+            LoadSavedLoginData(autoLogin);
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
@@ -35,8 +32,6 @@ namespace CozyNestAdmin
 
             if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
             {
-                // Open main window
-                UserInfo.userName = username;
                 MainWindow mainWindow = new MainWindow();
                 mainWindow.Show();
                 this.Close();
@@ -79,7 +74,7 @@ namespace CozyNestAdmin
             }
         }
 
-        private async void LoadSavedLoginData()
+        private async void LoadSavedLoginData(bool autoLogin)
         {
             string filePath = "loginData.json";
             if (System.IO.File.Exists(filePath))
@@ -94,21 +89,24 @@ namespace CozyNestAdmin
                     tbUsername.Text = username;
                     tbPassword.Password = password;
 
-                    var (success, _) = await Authenticate(username, password);
+                    if (autoLogin)
+                    {
+                        var (success, _) = await Authenticate(username, password);
 
-                    if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
-                    {
-                        MainWindow mainWindow = new MainWindow();
-                        mainWindow.Show();
-                        this.Close();
-                    }
-                    else if (success)
-                    {
-                        lbResponse.Content = "Hozzáférés megtagadva.";
-                    }
-                    else
-                    {
-                        lbResponse.Content = "Sikertelen automatikus bejelentkezés.";
+                        if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
+                        {
+                            MainWindow mainWindow = new MainWindow();
+                            mainWindow.Show();
+                            this.Close();
+                        }
+                        else if (!success)
+                        {
+                            lbResponse.Content = "Hozzáférés megtagadva.";
+                        }
+                        else
+                        {
+                            lbResponse.Content = "Sikertelen automatikus bejelentkezés.";
+                        }
                     }
                 }
                 catch (Exception ex)
