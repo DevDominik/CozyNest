@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../Navbar/Navbar.module.css";
-import logo from "/CozyNest.png?url";
+import logo from "/LOGO.svg?url";
 import userW from "/userW.svg?url";
 import userD from "/userD.svg?url";
 import logoutD from "/LogoutD.svg?url";
