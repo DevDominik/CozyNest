@@ -11,6 +11,7 @@ namespace CozyNestAdmin
         {
             InitializeComponent();
             Username.Content = Session.Username;
+            GlobalVariables.MainWindow = this;
         }
 
         // Minimize the window

@@ -26,18 +26,16 @@ namespace CozyNestAdmin
     /// </summary>
     public partial class Users : Page
     {
-        MainWindow mainWindow;
-        public Users(MainWindow mainWindow)
+        public Users()
         {
             InitializeComponent();
             LoadUsers();
-            this.mainWindow = mainWindow;
         }
         public async void LoadUsers() 
         {
             if (!await Introspect())
             {
-                ReturnToLogin(mainWindow);
+                ReturnToLogin(GlobalVariables.MainWindow);
                 return;
             }
             using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);

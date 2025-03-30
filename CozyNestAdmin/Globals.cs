@@ -14,6 +14,10 @@ using System.Windows.Controls;
 
 namespace CozyNestAdmin
 {
+    public class GlobalVariables
+    {
+        public static MainWindow MainWindow { get; set; }
+    }
     public class GlobalEnums
     {
         public enum AccountEndpoints { Login, Register, Logout, Introspect, RenewToken, UpdateData, DeleteAccount, LogoutEverywhere }
@@ -168,7 +172,7 @@ namespace CozyNestAdmin
         public static void ReturnToLogin(MainWindow mainWindow)
         {
             ResetSession();
-            Auth auth = new Auth(false);
+            Auth auth = new Auth();
             auth.Show();
             mainWindow.Close();
         }

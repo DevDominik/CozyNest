@@ -8,6 +8,7 @@ using CozyNestAdmin.ResponseTypes;
 using Newtonsoft.Json;
 using static CozyNestAdmin.GlobalMethods;
 using static CozyNestAdmin.GlobalEnums;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 
 namespace CozyNestAdmin
@@ -15,12 +16,30 @@ namespace CozyNestAdmin
     public partial class Auth : Window
     {
 
-        public Auth(bool autoLogin = true)
+        public Auth()
         {
             InitializeComponent();
-            LoadSavedLoginData(autoLogin);
+            LoadSavedLoginData();
         }
+        public async void AutoLogin()
+        {
+            var (success, _) = await Authenticate(tbUsername.Text, tbPassword.Password);
 
+            if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
+            {
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.Show();
+                this.Close();
+            }
+            else if (!success)
+            {
+                lbResponse.Content = "Hozzáférés megtagadva.";
+            }
+            else
+            {
+                lbResponse.Content = "Sikertelen automatikus bejelentkezés.";
+            }
+        }
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             var username = tbUsername.Text;
@@ -74,7 +93,7 @@ namespace CozyNestAdmin
             }
         }
 
-        private async void LoadSavedLoginData(bool autoLogin)
+        private async void LoadSavedLoginData()
         {
             string filePath = "loginData.json";
             if (System.IO.File.Exists(filePath))
@@ -88,26 +107,6 @@ namespace CozyNestAdmin
 
                     tbUsername.Text = username;
                     tbPassword.Password = password;
-
-                    if (autoLogin)
-                    {
-                        var (success, _) = await Authenticate(username, password);
-
-                        if (success && (Session.RoleName == "Manager" || Session.RoleName == "Receptionist"))
-                        {
-                            MainWindow mainWindow = new MainWindow();
-                            mainWindow.Show();
-                            this.Close();
-                        }
-                        else if (!success)
-                        {
-                            lbResponse.Content = "Hozzáférés megtagadva.";
-                        }
-                        else
-                        {
-                            lbResponse.Content = "Sikertelen automatikus bejelentkezés.";
-                        }
-                    }
                 }
                 catch (Exception ex)
                 {
