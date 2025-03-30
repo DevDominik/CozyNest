@@ -3,7 +3,7 @@
 .container {
   display: flex;
   margin-top: 7.6vh;
-  height: 100vh; 
+  height: 92.4vh; 
   background-color: var(--body-bg);
   font-family: "Space Grotesk", sans-serif;
   color: var(--text-color-two);

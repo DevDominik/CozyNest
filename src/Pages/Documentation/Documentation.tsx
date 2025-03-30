@@ -14,6 +14,7 @@ const sections = [
   { id: "faq", label: "GYIK (Gyakori kérdések)" },
   { id: "terms", label: "Felhasználási feltételek" },
   { id: "privacy", label: "Adatvédelem" },
+  { id: "devdocs", label: "Fejlesztői Dokumentáció" },
 ];
 
 const markdownContent = {
@@ -480,6 +481,117 @@ Részletek: [Adatkezelési szabályzat](https://localhost/adatvedelem)
 ### 💡 Tipp:
 Először tekintse meg a GYIK szekciót a gyors megoldásokért.
 `,
+devdocs : `
+## 🧑‍💻 Fejlesztői dokumentáció
+
+---
+
+### ⚙️ Futtatási követelmények
+
+- **Node.js** (v18+ ajánlott)
+- **.NET 7 SDK**
+- **Visual Studio 2022** (backend/WPF)
+- **Visual Studio Code** (frontend)
+- **MySQL 8+**
+- **Git**
+
+---
+
+### 🛠️ Telepítés
+
+#### 📦 Backend (.NET 7 API)
+
+\`\`\`bash
+cd backend
+dotnet restore
+dotnet run
+\`\`\`
+
+#### 💻 Frontend (React)
+
+\`\`\`bash
+cd frontend
+npm install
+npm run dev
+\`\`\`
+
+#### 💥 WPF (CozyNestAdmin)
+
+1. Nyisd meg Visual Studio 2022-ben
+2. Állítsd be az API URL-t a \`GlobalMethods.cs\` fájlban
+3. Buildeld és futtasd
+
+---
+
+### 💾 Adatbázis szerkezete és kapcsolatok
+
+#### \`roles\`
+- Felhasználói szerepkörök *(admin, vendég stb.)*
+
+#### \`users\`
+- Felhasználói fiókok: jelszó (argon2 hash), e-mail, név, cím, szerepkör ID
+- 🔗 Kapcsolat: \`role_id → roles(id)\`
+
+#### \`tokens\`
+- Belépési tokenek (hozzáférési + frissítő)
+- 🔗 Kapcsolat: \`user_id → users(id)\`
+
+#### \`roomstatus\`
+- Szobastátuszok *(elérhető, karbantartás alatt)*
+
+#### \`roomtype\`
+- Szobatípusok *(standard, deluxe, suite)*
+
+#### \`room\`
+- Szobák: szám, típus, ár, kapacitás, státusz
+- 🔗 Kapcsolat: \`type → roomtype(id)\`, \`status → roomstatus(id)\`
+
+#### \`reservationstatuses\`
+- Foglalás állapotok *(aktív, lemondva, teljesült stb.)*
+
+#### \`reservations\`
+- Foglalások: vendég, szoba, időszak, megjegyzés
+- 🔗 Kapcsolat: \`guest_id → users(id)\`, \`room_id → room(id)\`, \`status → reservationstatuses(id)\`
+
+#### \`services\`
+- Extra szolgáltatások *(reggeli, wellness stb.)*
+
+#### \`reservationservices\`
+- Kapcsolótábla foglalások és szolgáltatások között
+- 🔗 Kapcsolat: \`reservation_id → reservations(id)\`, \`service_id → services(id)\`
+
+---
+
+### 🧰 Fejlesztői eszközök
+
+- **ASP.NET 7 Web API**
+- **React + TypeScript**
+- **MySQL + mysql.data**
+- **Argon2** jelszókódolás
+
+---
+
+### 🖥️ Fejlesztési környezet
+
+- **VS Code** (frontend): ESLint, Prettier, vite
+- **Visual Studio 2022** (backend/WPF)
+- **DBeaver / MySQL Workbench** (adatbázis)
+
+---
+
+### 🔄 Fejlesztés menete
+
+1. 🧱 Adatmodell tervezése *(MySQL)*
+2. 🛡️ Backend API fejlesztés és validációk
+3. 🎨 Frontend komponensek és állapotkezelés
+4. 🖥️ WPF admin interfész *(CozyNestAdmin)*
+5. 🧪 Integrációs tesztelés
+6. 🐞 Hibakezelés és UX finomhangolás
+7. 📝 Dokumentáció és verziókezelés *(Git)*
+
+---
+`,
+
 };
 
 const Documentation = () => {
