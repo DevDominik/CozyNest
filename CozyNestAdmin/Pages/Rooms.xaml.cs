@@ -35,7 +35,6 @@ namespace CozyNestAdmin
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Response: {responseBody}");
 
                     var roomData = JsonSerializer.Deserialize<RoomResponse>(responseBody, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (roomData == null || roomData.Rooms == null)
