@@ -18,6 +18,8 @@ using System.Collections.ObjectModel;
 using CozyNestAdmin.ResponseTypes;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System.ComponentModel;
+using Microsoft.VisualBasic.ApplicationServices;
 
 namespace CozyNestAdmin
 {
@@ -29,36 +31,86 @@ namespace CozyNestAdmin
         public Users()
         {
             InitializeComponent();
-            LoadUsers();
+            LoadAllUsers();
         }
-        public async void LoadUsers() 
+        public async void LoadAllUsers() 
         {
             if (!await Introspect())
             {
                 ReturnToLogin();
                 return;
             }
+            List<UserDataResponse>? data = await GetAllUsers();
+            if (data == null) { return; }
+            ObservableCollection<UserDataResponse> users = new(data);
+            UsersDataGrid.ItemsSource = users;
+        }
+        public async Task<List<UserDataResponse>?> GetAllUsers()
+        {
             using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
             var response = await client.GetAsync(GetEndpoint(AdminEndpoints.GetUsers));
             if (response.IsSuccessStatusCode)
             {
                 GetUsersResponse getUsersResponse = JsonConvert.DeserializeObject<GetUsersResponse>(await response.Content.ReadAsStringAsync());
-                ObservableCollection<UserDataResponse> users = new(getUsersResponse.Users);
-                UsersDataGrid.ItemsSource = users;
+                return getUsersResponse.Users;
             }
+            return null;
         }
-
+        private async void SearchUserListViewItem_Asyncronomous()
+        {
+            if (!await Introspect())
+            {
+                ReturnToLogin();
+                return;
+            }
+            if (NameSearchTextBox.Text.Trim().Length == 0) { LoadAllUsers(); return; }
+            List<UserDataResponse>? users = await GetAllUsers();
+            if (users == null) { return; }
+            ObservableCollection<UserDataResponse> final = new();
+            string searchType = (NameSearchComboBox.SelectedItem as ComboBoxItem).Content.ToString();
+            switch (searchType)
+            {
+                case "Felhasználónév":
+                    final = new ObservableCollection<UserDataResponse>(users.Where(x => x.Username.ToLower().StartsWith(NameSearchTextBox.Text)).ToList());
+                    break;
+                case "Id":
+                    final = new ObservableCollection<UserDataResponse>(users.Where(x => x.Id.ToString() == NameSearchTextBox.Text).ToList());
+                    break;
+                case "Email":
+                    final = new ObservableCollection<UserDataResponse>(users.Where(x => x.Email.ToLower().StartsWith(NameSearchTextBox.Text)).ToList());
+                    break;
+                default:
+                    break;
+            }
+            UsersDataGrid.ItemsSource = final;
+        }
+        
         private void SearchUserListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            SearchUserListViewItem_Asyncronomous();
+        }
+        private async void AddUserListViewItem_Asyncronomous()
+        {
+            if (!await Introspect())
+            {
+                ReturnToLogin();
+                return;
+            }
+            AddUser addUser = new();
+            addUser.ShowDialog();
+            LoadAllUsers();
+        }
+        private void AddUserListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            AddUserListViewItem_Asyncronomous();
         }
 
-        private void AddUserListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void ProfileListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
 
         }
 
-        private void NameSearchComboBox_Selected(object sender, RoutedEventArgs e)
+        private void BanUnbanListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
 
         }

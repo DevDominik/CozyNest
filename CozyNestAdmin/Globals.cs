@@ -171,8 +171,9 @@ namespace CozyNestAdmin
         }
         public static void ReturnToLogin()
         {
+            CreateHTTPClient(TokenDeclaration.RefreshToken).GetAsync(GetEndpoint(AccountEndpoints.Logout));
             ResetSession();
-            Auth auth = new Auth();
+            Auth auth = new Auth(false);
             auth.Show();
             GlobalVariables.MainWindow.Close();
         }

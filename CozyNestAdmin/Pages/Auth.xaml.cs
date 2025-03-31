@@ -20,8 +20,18 @@ namespace CozyNestAdmin
         {
             InitializeComponent();
             LoadSavedLoginData();
+            AutoLogin();
         }
-        public async void AutoLogin()
+        public Auth(bool autoLogin = true)
+        {
+            InitializeComponent();
+            LoadSavedLoginData();
+            if (autoLogin)
+            {
+                AutoLogin();
+            }
+        }
+        async void AutoLogin()
         {
             var (success, _) = await Authenticate(tbUsername.Text, tbPassword.Password);
 

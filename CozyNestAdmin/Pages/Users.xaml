@@ -28,16 +28,15 @@
                 </ListViewItem>
                 <TextBox x:Name="NameSearchTextBox" Width="200" Margin="15 0 0 0" FontSize="15"/>
                 <ComboBox x:Name="NameSearchComboBox" Width="150" Margin="15 0 0 0" FontSize="15">
-                    <ComboBoxItem>Id</ComboBoxItem>
-                    <ComboBoxItem IsSelected="True">Felhasználónév</ComboBoxItem>
-                    <ComboBoxItem>Email</ComboBoxItem>
+                    <ComboBoxItem Content="Id"/>
+                    <ComboBoxItem IsSelected="True" Content="Felhasználónév"/>
+                    <ComboBoxItem Content="Email"/>
                 </ComboBox>
                 <ListViewItem x:Name="AddUserListViewItem" Background="{x:Null}" Width="125" Margin="15 0 0 0" PreviewMouseDown="AddUserListViewItem_PreviewMouseDown">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"></materialDesign:PackIcon>
                         <TextBlock FontSize="15">Új felhasználó</TextBlock>
                     </StackPanel>
-
                 </ListViewItem>
             </StackPanel>
             <DataGrid x:Name="UsersDataGrid" Background="{x:Null}" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" CanUserResizeColumns="False" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False" GridLinesVisibility="None" BorderThickness="0">
@@ -102,13 +101,13 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <ListViewItem>
+                                    <ListViewItem PreviewMouseDown="ProfileListViewItem_PreviewMouseDown">
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="Person" Height="25" Width="25"/>
                                             <TextBlock Text="Profil" FontSize="17"/>
                                         </StackPanel>
                                     </ListViewItem>
-                                    <ListViewItem>
+                                    <ListViewItem PreviewMouseDown="BanUnbanListViewItem_PreviewMouseDown">
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="{Binding Closed, Converter={StaticResource ReverseUserStatusConverter}}" Height="25" Width="25"/>
                                             <TextBlock Text="{Binding Closed, Converter={StaticResource BanUnbanTextConverter}}" FontSize="17"/>
