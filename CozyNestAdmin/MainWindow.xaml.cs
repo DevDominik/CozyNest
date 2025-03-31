@@ -54,7 +54,7 @@ namespace CozyNestAdmin
                     MainContentFrame.Navigate(new Uri("Pages/Misc.xaml", UriKind.Relative));
                     break;
                 case "Logout":
-                    ReturnToLogin(this);
+                    ReturnToLogin();
                     break;
                 default:
                     break;

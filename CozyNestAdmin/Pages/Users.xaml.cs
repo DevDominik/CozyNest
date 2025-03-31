@@ -35,7 +35,7 @@ namespace CozyNestAdmin
         {
             if (!await Introspect())
             {
-                ReturnToLogin(GlobalVariables.MainWindow);
+                ReturnToLogin();
                 return;
             }
             using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);

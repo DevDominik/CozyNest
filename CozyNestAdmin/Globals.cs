@@ -169,12 +169,12 @@ namespace CozyNestAdmin
             SetAccessToken("");
             SetRefreshToken("");
         }
-        public static void ReturnToLogin(MainWindow mainWindow)
+        public static void ReturnToLogin()
         {
             ResetSession();
             Auth auth = new Auth();
             auth.Show();
-            mainWindow.Close();
+            GlobalVariables.MainWindow.Close();
         }
     }
 }
