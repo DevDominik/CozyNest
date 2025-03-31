@@ -79,7 +79,6 @@
 A fejlesztés során moduláris architektúrát alkalmazunk: külön `Handler` osztályok és `Controller` végpontok.
 
 ---
----
 ## Autentikációs attribútumok
 
 ### `RequireAccessToken` Attribute 🔐
