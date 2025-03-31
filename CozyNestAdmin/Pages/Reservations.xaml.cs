@@ -13,17 +13,22 @@ namespace CozyNestAdmin
     public partial class Misc : Page
     {
         private const string GetReservationsUrl = "http://localhost:5232/api/admin/getreservations";
-        private const string AddServiceUrl = "http://localhost:5232/api/admin/addservice";
         private const string CancelReservationUrl = "http://localhost:5232/api/admin/cancelreservation";
+        private const string AddServiceUrl = "http://localhost:5232/api/admin/addservice";
+        private const string ModifyServiceUrl = "http://localhost:5232/api/admin/modifyservice";
+        private const string GetServicesUrl = "http://localhost:5232/api/service/services";
 
         private List<Reservation> currentReservations = new();
+        private List<Service> currentServices = new();
 
         public Misc()
         {
             InitializeComponent();
+            _ = LoadReservationsAsync();
+            _ = LoadServicesAsync();
         }
 
-        private async void LoadReservations_Click(object sender, RoutedEventArgs e)
+        private async System.Threading.Tasks.Task LoadReservationsAsync()
         {
             try
             {
@@ -56,6 +61,41 @@ namespace CozyNestAdmin
             }
         }
 
+        private async System.Threading.Tasks.Task LoadServicesAsync()
+        {
+            try
+            {
+                using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
+                var response = await client.GetAsync(GetServicesUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var serviceResponse = JsonSerializer.Deserialize<ServiceResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    currentServices = serviceResponse?.Services ?? new();
+                    ServicesListBox.Items.Clear();
+
+                    foreach (var service in currentServices)
+                    {
+                        if (service.IsActive) // Csak aktív szolgáltatásokat jelenítünk meg
+                        {
+                            ServicesListBox.Items.Add($"{service.Name} ({service.Price:F0} Ft)");
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Hiba a szolgáltatások betöltésekor: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kivétel: {ex.Message}");
+            }
+        }
+
+
         private async void DeleteReservation_Click(object sender, RoutedEventArgs e)
         {
             if (ReservationsListBox.SelectedIndex < 0)
@@ -73,11 +113,7 @@ namespace CozyNestAdmin
 
             try
             {
-                var payload = new
-                {
-                    reservationId = selectedReservation.Id
-                };
-
+                var payload = new { reservationId = selectedReservation.Id };
                 var json = JsonSerializer.Serialize(payload);
                 using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
 
@@ -93,7 +129,7 @@ namespace CozyNestAdmin
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Foglalás sikeresen törölve!");
-                    LoadReservations_Click(null, null); // frissítés
+                    await LoadReservationsAsync();
                 }
                 else
                 {
@@ -133,6 +169,7 @@ namespace CozyNestAdmin
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Szolgáltatás sikeresen hozzáadva!");
+                    await LoadServicesAsync();
                     ServiceNameTextBox.Text = "";
                     ServiceDescriptionTextBox.Text = "";
                     ServicePriceTextBox.Text = "";
@@ -147,6 +184,60 @@ namespace CozyNestAdmin
                 MessageBox.Show($"Kivétel: {ex.Message}");
             }
         }
+
+        private async void ModifyService_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ServiceNameTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(ServiceDescriptionTextBox.Text) ||
+                    !double.TryParse(ServicePriceTextBox.Text, out double price))
+                {
+                    MessageBox.Show("Kérlek töltsd ki az összes mezőt helyesen.");
+                    return;
+                }
+
+                var service = new
+                {
+                    name = ServiceNameTextBox.Text.Trim(),
+                    description = ServiceDescriptionTextBox.Text.Trim(),
+                    price = price
+                };
+
+                var json = JsonSerializer.Serialize(service);
+                using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
+
+                var response = await client.PostAsync(ModifyServiceUrl, new StringContent(json, Encoding.UTF8, "application/json"));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Szolgáltatás módosítva!");
+                    await LoadServicesAsync();
+                }
+                else
+                {
+                    MessageBox.Show($"Hiba a módosítás során: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kivétel: {ex.Message}");
+            }
+        }
+
+        private void ServicesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ServicesListBox.SelectedIndex >= 0)
+            {
+                var selectedActiveServices = currentServices.FindAll(s => s.IsActive);
+                var selected = selectedActiveServices[ServicesListBox.SelectedIndex];
+
+                ServiceNameTextBox.Text = selected.Name;
+                ServiceDescriptionTextBox.Text = selected.Description;
+                ServicePriceTextBox.Text = selected.Price.ToString("F2");
+            }
+        }
+
     }
 
     public class ReservationResponse
@@ -167,4 +258,21 @@ namespace CozyNestAdmin
         public int Capacity { get; set; }
         public string Notes { get; set; }
     }
+
+    public class Service
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public double Price { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+
+    public class ServiceResponse
+    {
+        public string Message { get; set; }
+        public List<Service> Services { get; set; }
+    }
+
 }
