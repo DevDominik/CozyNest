@@ -1,12 +1,92 @@
 # CozyNest Fejlesztői Dokumentáció
+## 🖥️ Futtatási követelmények
 
+- Minimum: Intel i3 processzoros PC
+- 8GB RAM, 128GB SSD javasolt
+- Operációs rendszer: Windows 10 / 11
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download) + [Node.js 18+](https://nodejs.org/)
+- MySQL / MariaDB (ajánlott: XAMPP vagy MAMP)
+
+---
+
+## ⚙️ Telepítés
+
+### 🔧 Backend
+- Repository: [https://github.com/DevDominik/CozyNest](https://github.com/DevDominik/CozyNest)
+- Branch: `backend`
+- ASP.NET Core Web API (.NET 8)
+- Telepítés: Visual Studio 2022 ajánlott
+
+### 🌐 Frontend
+- Branch: `frontend`
+- React + Vite + TypeScript projekt
+- Telepítés:
+  ```bash
+  cd frontend
+  npm install
+  npm run dev
+  ```
+
+### 🖥️ WPF (Admin Panel)
+- Szintén a `CozyNest` repó része
+- Visual Studio 2022-ben nyitható meg (`.csproj` alapján)
+## 🗃️ Adatbázis ismertetése
+
+- MariaDB 10.4.32 / MySQL-kompatibilis
+- Alapértelmezett adatbázis: `cozynest`
+
+### Típusok és táblák
+
+- **users** – felhasználói adatok
+- **roles** – szerepkörök (Guest, Receptionist, Manager)
+- **room**, **roomtype**, **roomstatus** – szobák és állapotok
+- **reservations**, **reservationstatuses** – foglalások és státuszuk
+- **services** – igénybe vehető szolgáltatások
+- **reservationservices** – szolgáltatás-foglalás kapcsolatok
+- **tokens** – access és refresh tokenek
+
+### Kapcsolatok
+
+- `users.role_id → roles.id`
+- `reservations.guest_id → users.id`
+- `reservations.room_id → room.id`
+- `room.type → roomtype.id`
+- `room.status → roomstatus.id`
+- `reservationservices.reservation_id → reservations.id`
+- `reservationservices.service_id → services.id`
+- `tokens.user_id → users.id`
+
+---
+
+## 🧰 Fejlesztői eszközök
+
+- Backend: ASP.NET Core, `mysql.data`
+- Frontend: React + TypeScript (Vite)
+- Titkosítás: Argon2 (password hashing)
+- Verziókezelés: Git + GitHub
+
+---
+
+## 🛠️ Fejlesztési környezet
+
+- Visual Studio 2022 (backend, WPF admin panel)
+- Visual Studio Code (frontend)
+
+---
+
+## 🔁 Fejlesztés menete
+
+A fejlesztés során moduláris architektúrát alkalmazunk: külön `Handler` osztályok és `Controller` végpontok.
+
+---
+---
 ## Autentikációs attribútumok
 
 ### `RequireAccessToken` Attribute 🔐
 
 #### Szerepe
 A `RequireAccessToken` attribútum biztonsági rétegként működik, és gondoskodik arról, hogy az adott API végpont csak érvényes access token birtokában legyen elérhető.
-
+í
 #### Működés
 - Ellenőrzi a `Bearer` típusú tokent az `Authorization` fejlécben
 - A tokenhez tartozó felhasználót a `UserHandler.GetUserByAccessToken` keresési metódus segítségével azonosítja
