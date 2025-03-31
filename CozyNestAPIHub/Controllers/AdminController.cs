@@ -354,12 +354,53 @@ namespace CozyNestAPIHub.Controllers
             });
         }
         /// <summary>
-        /// Lekéri a felhasználóhoz tartozó foglalásokat.
+        /// Lekéri az összes foglalást.
         /// </summary>
-        /// <returns>Szobák listája.</returns>
+        /// <returns>Foglalások listája.</returns>
         /// <response code="200">Sikeres lekérés.</response>
         [Route("getreservations")]
         [HttpGet]
+        [Role("Manager", "Receptionist")]
+        public async Task<IActionResult> GetReservations()
+        {
+            List<Reservation> reservations = await ReservationHandler.GetReservations();
+            List<object> finalList = new List<object>();
+            foreach (Reservation item in reservations)
+            {
+                Room? room = await RoomHandler.GetRoomById(item.RoomId);
+                if (room == null) continue;
+                RoomType? rType = await RoomHandler.GetRoomTypeById(room.Type);
+                if (rType == null) continue;
+                RoomStatus? rStatus = await RoomHandler.GetRoomStatusById(room.Status);
+                if (rStatus == null) continue;
+                ReservationStatus? resStatus = await ReservationHandler.GetReservationStatusById(item.Status);
+                if (resStatus == null || resStatus.Description == "Complete" || resStatus.Description == "Cancelled") continue;
+                finalList.Add(new
+                {
+                    id = item.Id,
+                    roomNumber = room.RoomNumber,
+                    roomDescription = room.Description,
+                    roomType = rType.Description,
+                    checkInDate = item.CheckInDate,
+                    checkOutDate = item.CheckOutDate,
+                    status = rStatus.Description,
+                    capacity = item.Capacity,
+                    notes = item.Notes
+                });
+            }
+            return Ok(new
+            {
+                message = "Foglalások sikeresen lekérve.",
+                reservations = finalList
+            });
+        }
+        /// <summary>
+        /// Lekéri a felhasználóhoz tartozó foglalásokat.
+        /// </summary>
+        /// <returns>Foglalások listája.</returns>
+        /// <response code="200">Sikeres lekérés.</response>
+        [Route("getreservations")]
+        [HttpPost]
         [Role("Manager", "Receptionist")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetReservations([FromBody] GetReservationsByUserIdRequest request)

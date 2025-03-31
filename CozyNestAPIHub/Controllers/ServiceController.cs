@@ -69,7 +69,7 @@ namespace CozyNestAPIHub.Controllers
             }
             User user = await GetItemFromContext<User>(HttpContext, "User");
             Role role = await GetItemFromContext<Role>(HttpContext, "Role");
-            if (reservation.GuestId != user.Id)
+            if (reservation.GuestId != user.Id && (role.Name == "Receptionist" || role.Name == "Manager"))
             {
                 return Unauthorized(new
                 {
