@@ -96,8 +96,6 @@ namespace CozyNestAdmin
                 ReturnToLogin();
                 return;
             }
-            AddUser addUser = new();
-            addUser.ShowDialog();
             LoadAllUsers();
         }
         private void AddUserListViewItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)

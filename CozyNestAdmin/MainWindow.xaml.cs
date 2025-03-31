@@ -50,8 +50,8 @@ namespace CozyNestAdmin
                 case "Users":
                     MainContentFrame.Navigate(new Uri("Pages/Users.xaml", UriKind.Relative));
                     break;
-                case "Misc":
-                    MainContentFrame.Navigate(new Uri("Pages/Misc.xaml", UriKind.Relative));
+                case "Reservations":
+                    MainContentFrame.Navigate(new Uri("Pages/Reservations.xaml", UriKind.Relative));
                     break;
                 case "Logout":
                     ReturnToLogin();
