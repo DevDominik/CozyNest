@@ -14,7 +14,7 @@
         <local:BanUnbanTextConverter x:Key="BanUnbanTextConverter"/>
     </Page.Resources>
     <Grid Margin="15">
-        <Grid x:Name="UsersListGrid" Visibility="Hidden">
+        <Grid x:Name="UsersListGrid" Visibility="Visible">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition/>
@@ -120,20 +120,147 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-        <Grid x:Name="UserProfileGrid" Visibility="Visible">
+        <Grid x:Name="UserProfileGrid" Visibility="Hidden">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <StackPanel Margin="10 2" Orientation="Horizontal" VerticalAlignment="Center">
-                <ListViewItem x:Name="ReturnToUsersListViewItem" Background="{x:Null}" Width="80" PreviewMouseDown="SearchUserListViewItem_PreviewMouseDown">
+                <ListViewItem x:Name="ReturnToUsersListViewItem" Background="{x:Null}" Width="80" PreviewMouseDown="ReturnToUsersListViewItem_PreviewMouseDown">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="ArrowBack" Width="20" Height="20"></materialDesign:PackIcon>
                         <TextBlock FontSize="15">Vissza</TextBlock>
                     </StackPanel>
                 </ListViewItem>
-                
             </StackPanel>
+            <Grid x:Name="UserAddGrid" Visibility="Hidden" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="25px"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250px"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Tag" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Felhasználónév</TextBlock>
+                    </StackPanel>
+                    <TextBox x:Name="AddUserUsernameTextBox" Background="{x:Null}" FontSize="13px"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="At" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Email</TextBlock>
+                    </StackPanel>
+                    <TextBox x:Name="AddUserEmailTextBox" Background="{x:Null}" FontSize="13px"/>
+                </StackPanel>
+                <StackPanel Grid.Row="2">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Password" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Jelszó</TextBlock>
+                    </StackPanel>
+                    <TextBox x:Name="AddUserPasswordTextBox" Background="{x:Null}" FontSize="13px"/>
+                </StackPanel>
+                <StackPanel Grid.Row="3">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ShieldAccount" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Szerepkör</TextBlock>
+                    </StackPanel>
+                    <ComboBox x:Name="AddUserRoleComboBox" Background="{x:Null}"/>
+                </StackPanel>
+                <StackPanel Grid.Row="4">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Person" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Keresztnév</TextBlock>
+                    </StackPanel>
+                    <TextBox x:Name="AddUserFirstNameTextBox" Background="{x:Null}" FontSize="13px"/>
+                </StackPanel>
+                <StackPanel Grid.Row="5">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Person" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Vezetéknév</TextBlock>
+                    </StackPanel>
+                    <TextBox x:Name="AddUserLastNameTextBox" Background="{x:Null}" FontSize="13px"/>
+                </StackPanel>
+                <StackPanel Grid.Row="6">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="AddressMarker" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Cím</TextBlock>
+                    </StackPanel>
+                    <TextBox x:Name="AddUserAddressTextBox" Background="{x:Null}" FontSize="13px"/>
+                </StackPanel>
+                <ListViewItem Grid.Row="7" x:Name="AddUserConfirmListViewItem" PreviewMouseDown="AddUserConfirmListViewItem_PreviewMouseDown">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Tick" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Felhasználó felvétele</TextBlock>
+                    </StackPanel>
+                </ListViewItem>
+            </Grid>
+            <Grid x:Name="UserEditGrid" Visibility="Hidden" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="50px"/>
+                    <RowDefinition Height="25px"/>
+                    <RowDefinition Height="250px"/>
+                    <RowDefinition Height="25px"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250px"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Row="0">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="IdCard" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">ID</TextBlock>
+                        
+                    </StackPanel>
+                    <TextBlock x:Name="EditUserUserIdDisplayTextBlock" FontSize="13"></TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="1">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Tag" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Felhasználónév</TextBlock>
+                        <ListViewItem Grid.Row="2" x:Name="EditUserUsernameListViewItem" PreviewMouseDown="EditUserUsernameListViewItem_PreviewMouseDown">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Pen" Width="20" Height="20"/>
+                                
+                            </StackPanel>
+                        </ListViewItem>
+                    </StackPanel>
+                    <TextBlock x:Name="EditUserUsernameDisplayTextBlock" FontSize="13"></TextBlock>
+                    <TextBox x:Name="EditUserTextBox" Background="{x:Null}" FontSize="13px" Visibility="Hidden"/>
+                </StackPanel>
+                <StackPanel Grid.Row="2">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ShieldAccount" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Szerepkör</TextBlock>
+                    </StackPanel>
+                    <ComboBox x:Name="EditUserRoleComboBox" Background="{x:Null}"/>
+                </StackPanel>
+                <ListViewItem Grid.Row="3" x:Name="EditUserCloseAccountListViewItem" PreviewMouseDown="EditUserCloseAccountListViewItem_PreviewMouseDown">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon x:Name="EditUserCloseAccountIcon" Kind="AccountCancel" Width="20" Height="20"/>
+                        <TextBlock x:Name="EditUserCloseAccountDisplayTextBlock" FontSize="15">Felhasználó kitiltása</TextBlock>
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem Grid.Row="5" x:Name="EditUserConfirmListViewItem" PreviewMouseDown="EditUserConfirmListViewItem_PreviewMouseDown">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Tick" Width="20" Height="20"/>
+                        <TextBlock FontSize="15">Módosítások érvényesítése</TextBlock>
+                    </StackPanel>
+                </ListViewItem>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

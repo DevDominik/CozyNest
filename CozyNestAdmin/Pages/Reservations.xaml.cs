@@ -12,11 +12,6 @@ namespace CozyNestAdmin
 {
     public partial class Misc : Page
     {
-        private const string GetReservationsUrl = "http://localhost:5232/api/admin/getreservations";
-        private const string CancelReservationUrl = "http://localhost:5232/api/admin/cancelreservation";
-        private const string AddServiceUrl = "http://localhost:5232/api/admin/addservice";
-        private const string ModifyServiceUrl = "http://localhost:5232/api/admin/modifyservice";
-        private const string GetServicesUrl = "http://localhost:5232/api/service/services";
 
         private List<Reservation> currentReservations = new();
         private List<Service> currentServices = new();
@@ -33,7 +28,7 @@ namespace CozyNestAdmin
             try
             {
                 using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
-                var response = await client.GetAsync(GetReservationsUrl);
+                var response = await client.GetAsync(GetEndpoint(AdminEndpoints.GetReservations));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -66,7 +61,7 @@ namespace CozyNestAdmin
             try
             {
                 using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
-                var response = await client.GetAsync(GetServicesUrl);
+                var response = await client.GetAsync(GetEndpoint(ServiceEndpoints.Services));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -120,7 +115,7 @@ namespace CozyNestAdmin
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Delete,
-                    RequestUri = new Uri(CancelReservationUrl),
+                    RequestUri = new Uri(GetEndpoint(AdminEndpoints.CancelReservation)),
                     Content = new StringContent(json, Encoding.UTF8, "application/json")
                 };
 
@@ -164,7 +159,7 @@ namespace CozyNestAdmin
                 var json = JsonSerializer.Serialize(service);
                 using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
 
-                var response = await client.PostAsync(AddServiceUrl, new StringContent(json, Encoding.UTF8, "application/json"));
+                var response = await client.PostAsync(GetEndpoint(AdminEndpoints.AddService), new StringContent(json, Encoding.UTF8, "application/json"));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -207,7 +202,7 @@ namespace CozyNestAdmin
                 var json = JsonSerializer.Serialize(service);
                 using HttpClient client = CreateHTTPClient(TokenDeclaration.AccessToken);
 
-                var response = await client.PostAsync(ModifyServiceUrl, new StringContent(json, Encoding.UTF8, "application/json"));
+                var response = await client.PostAsync(GetEndpoint(AdminEndpoints.ModifyService), new StringContent(json, Encoding.UTF8, "application/json"));
 
                 if (response.IsSuccessStatusCode)
                 {
