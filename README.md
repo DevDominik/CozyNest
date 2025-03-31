@@ -10,13 +10,13 @@ A `RequireAccessToken` attribútum biztonsági rétegként működik, és gondos
 #### Működés
 - Ellenőrzi a `Bearer` típusú tokent az `Authorization` fejlécben
 - A tokenhez tartozó felhasználót a `UserHandler.GetUserByAccessToken` keresési metódus segítségével azonosítja
-- Lezárt félkész fók (user.Closed == true) esetén visszautasítja a kérést
+- Lezárt félkész fiók (user.Closed == true) esetén visszautasítja a kérést
 - A felhasználó szerepkörének érvényességét is ellenőrzi
 - A token, user és role objektumokat eltárolja a `HttpContext.Items`-ben
 
 #### Válaszkódok
 - `401 Unauthorized`: hiányzó vagy hibás token
-- `403 Forbidden`: érvénytelen token, lezárt fók vagy érvénytelen szerepkör
+- `403 Forbidden`: érvénytelen token, lezárt fiók vagy érvénytelen szerepkör
 
 ### `RequireRefreshToken` Attribute 🔄
 
@@ -26,12 +26,12 @@ A `RequireRefreshToken` attribútum a frissítési token (refresh token) érvén
 #### Működés
 - Ellenőrzi a fejlécet, majd kivonja a tokent
 - Lekérdezi a `UserHandler.GetUserByRefreshToken` segítségével a felhasználót
-- Ellenőrzi a felhasználó fókjának állapotát és szerepkörét
+- Ellenőrzi a felhasználó fiókjának állapotát és szerepkörét
 - Token, user és role a `HttpContext.Items`-be kerül
 
 #### Válaszkódok
 - `401 Unauthorized`: hiányzó vagy hibás token
-- `403 Forbidden`: érvénytelen refresh token, lezárt fók, hibás szerepkör
+- `403 Forbidden`: érvénytelen refresh token, lezárt fiók, hibás szerepkör
 
 ---
 
@@ -47,7 +47,7 @@ Felhasználói műveletek (bejelentkezés, regisztráció, tokenek kezelése stb
 - `GET api/account/introspect` – Token introspection
 - `GET api/account/renewtoken` – Token megújítása
 - `PUT api/account/updatedata` – Felhasználói adatok frissítése
-- `DELETE api/account/deleteaccount` – Fók lezárása
+- `DELETE api/account/deleteaccount` – fiók lezárása
 - `GET api/account/logouteverywhere` – Kijelentkezés minden eszközről
 
 ---
@@ -202,6 +202,209 @@ Az alábbi osztályok reprezentálják az adatbázis entitásokat:
 - `Service`: szolgáltatás név, leírás, ár, aktív státusz
 - `Payment`: fizetés adatai (foglalás, dátum, összeg, mód, státusz)
 - `PaymentMethod`, `PaymentStatus`: fizetési módok és státuszok leírással
+
+---
+
+### 📥 Példák a Request body és header használatra
+
+#### 🔐 `LoginRequest`
+**POST** `api/account/login`
+```json
+{
+  "username": "john_doe",
+  "password": "mySecret123"
+}
+```
+
+#### 📝 `RegisterRequest`
+**POST** `api/account/register`
+```json
+{
+  "username": "john_doe",
+  "password": "mySecret123",
+  "email": "john@example.com"
+}
+```
+
+#### 👤 `AdminRegisterRequest`
+**POST** `api/admin/adduser`
+```json
+{
+  "username": "admin_user",
+  "password": "admin1234",
+  "email": "admin@cozynest.com",
+  "role": "Admin",
+  "firstName": "Anna",
+  "lastName": "Kovács",
+  "address": "Budapest, Andrássy út 1."
+}
+```
+
+#### ✏️ `UserSelfUpdateRequest`
+**PUT** `api/account/updatedata`
+```json
+{
+  "username": "johnny",
+  "password": "newPassword",
+  "email": "newemail@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "address": "New Street 12"
+}
+```
+**Header:** `Authorization: Bearer <access_token>`
+
+#### 🔒 `UserUpdateRequest`
+**PUT** `api/admin/modifyuser`
+```json
+{
+  "id": 4,
+  "username": "admin1",
+  "closed": false,
+  "roleName": "Manager",
+  "passwordReset": true
+}
+```
+**Header:** `Authorization: Bearer <admin_access_token>`
+
+#### 🏨 `RoomCreateRequest`
+**POST** `api/room/create`
+```json
+{
+  "roomNumber": "B203",
+  "capacity": 3,
+  "typeDescription": "Deluxe",
+  "pricePerNight": 169.90,
+  "statusDescription": "Elérhető",
+  "description": "Tágas szoba erkéllyel"
+}
+```
+**Header:** `Authorization: Bearer <manager_access_token>`
+
+#### 🛠️ `RoomModifyRequest`
+**PUT** `api/room/modify`
+```json
+{
+  "roomId": 2,
+  "roomNumber": "B204",
+  "capacity": 4,
+  "typeDescription": "Suite",
+  "pricePerNight": 200.00,
+  "statusDescription": "Karbantartás",
+  "description": "Felújítás alatt"
+}
+```
+
+#### ❌ `RoomDeleteRequest`
+**DELETE** `api/room/delete`
+```json
+{
+  "roomId": 5
+}
+```
+
+#### ➕ `AddServiceRequest`
+**POST** `api/admin/addservice`
+```json
+{
+  "name": "Reggeli",
+  "description": "Kontinentális reggeli a szállodában",
+  "price": 15.00
+}
+```
+
+#### ✏️ `ModifyServiceRequest`
+**POST** `api/admin/modifyservice`
+```json
+{
+  "id": 1,
+  "name": "Reggeli",
+  "description": "Frissített leírás",
+  "price": 17.00,
+  "isActive": true
+}
+```
+
+#### 🛏️ `ReservationRequest`
+**DELETE** `api/reservation/reserve`
+```json
+{
+  "roomNumber": "B203",
+  "capacity": 2,
+  "checkInDate": "2025-06-01T14:00:00",
+  "checkOutDate": "2025-06-07T10:00:00",
+  "services": [
+    {
+      "serviceId": 1,
+      "quantity": 2
+    }
+  ],
+  "notes": "Kérjük tengerre néző szobát."
+}
+```
+**Header:** `Authorization: Bearer <access_token>`
+
+#### 🛏️ `ReservationAdminRequest`
+**POST** `api/admin/addreservation`
+```json
+{
+  "userId": 2,
+  "roomNumber": "B203",
+  "capacity": 2,
+  "checkInDate": "2025-06-01T14:00:00",
+  "checkOutDate": "2025-06-07T10:00:00",
+  "services": [],
+  "notes": "VIP vendég."
+}
+```
+
+#### ❌ `ReservationCancelRequest`
+**POST** `api/reservation/cancel`
+```json
+{
+  "reservationId": 12
+}
+```
+
+#### 📅 `ReservationTimesRequest`
+**POST** `api/reservation/getrooms`
+```json
+{
+  "start": "2025-06-01T00:00:00",
+  "end": "2025-06-05T00:00:00"
+}
+```
+
+#### 📦 `ReservationServicesRequest`
+**POST** `api/service/services`
+```json
+{
+  "reservationId": 3
+}
+```
+
+#### 👤 `UserReservationsRequest`
+**POST** `api/admin/getreservations`
+```json
+{
+  "username": "john_doe"
+}
+```
+
+#### 🔍 `GetReservationsByUserIdRequest`
+```json
+{
+  "id": 2
+}
+```
+
+#### ➕ `AddServiceToReservationRequest`
+```json
+{
+  "serviceId": 3,
+  "quantity": 1
+}
+```
 
 ---
 
