@@ -75,7 +75,7 @@ namespace CozyNestAdmin
                     {
                         if (service.IsActive) // Csak aktív szolgáltatásokat jelenítünk meg
                         {
-                            ServicesListBox.Items.Add($"{service.Name} ({service.Price:F0} Ft)");
+                            ServicesListBox.Items.Add($"{service.Id} {service.Name} ({service.Price:F0} Ft)");
                         }
                     }
                 }
@@ -139,6 +139,8 @@ namespace CozyNestAdmin
 
         private async void SaveService_Click(object sender, RoutedEventArgs e)
         {
+            _ = LoadReservationsAsync();
+            _ = LoadServicesAsync();
             try
             {
                 if (string.IsNullOrWhiteSpace(ServiceNameTextBox.Text) ||
@@ -182,6 +184,8 @@ namespace CozyNestAdmin
 
         private async void ModifyService_Click(object sender, RoutedEventArgs e)
         {
+            _ = LoadReservationsAsync();
+            _ = LoadServicesAsync();
             try
             {
                 if (string.IsNullOrWhiteSpace(ServiceNameTextBox.Text) ||
@@ -196,7 +200,9 @@ namespace CozyNestAdmin
                 {
                     name = ServiceNameTextBox.Text.Trim(),
                     description = ServiceDescriptionTextBox.Text.Trim(),
-                    price = price
+                    price = price,
+                    id = ServicesListBox.SelectedItem.ToString().Split(" ")[0],
+                    isActive = true
                 };
 
                 var json = JsonSerializer.Serialize(service);
